@@ -1,0 +1,9 @@
+/* Pretendard 폰트 CDN */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+@import url("//fonts.googleapis.com/earlyaccess/notosanskr.css");
+
+/* 편집 기능 전역 스타일 */
+.x-risu-lb-nai-character-card,
+.x-risu-lb-nai-comp-card {
+  overflow: visible !important;
+}
