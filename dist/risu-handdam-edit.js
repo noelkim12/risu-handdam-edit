@@ -2849,7 +2849,7 @@ class TextSelectionHandler {
  * 2. Run npm run build
  * 3. This file will be regenerated automatically
  *
- * Generated at: 2025-11-06T18:56:09.289Z
+ * Generated at: 2025-11-06T19:08:41.228Z
  */
 
 
@@ -4732,15 +4732,13 @@ class EditManager {
         messageData.slice(0, match.start) +
         messageData.slice(match.end);
 
-      messages[match.chatIndex].data = updated;
-      this.risuAPI.setChar(char);
 
       // 삭제 애니메이션 실행
       const targetElement = this.findElementByMatch(match);
-      if (targetElement) {
-        await this.performDeleteAnimation(targetElement);
-      }
+      await this.performDeleteAnimation(targetElement || window.document.body);
 
+      messages[match.chatIndex].data = updated;
+      this.risuAPI.setChar(char);
       // 페이지 새로고침
       // location.reload();
     } catch (error) {
@@ -4847,10 +4845,10 @@ class EditManager {
     // 이미지 제거 후 추가 대기 (애니메이션 완전 종료)
     await new Promise(r => setTimeout(r, 400));
     
-    // 애니메이션이 완전히 끝난 후 요소 제거
-    if (element.parentNode) {
-      element.remove();
-    }
+    // // 애니메이션이 완전히 끝난 후 요소 제거
+    // if (element.parentNode) {
+    //   element.remove();
+    // }
   }
 
   /**
