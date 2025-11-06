@@ -46,11 +46,6 @@
   outline-offset: 2px;
 }
 
-/* 편집 모드 */
-.hddmEditing {
-  /* 편집 중인 요소 스타일 */
-}
-
 /* Floating Action Button */
 .floatingActionButton {
   position: absolute;
@@ -81,69 +76,240 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* 선택 모달 */
+
+/* 편집 textarea (요소 기반 편집용) */
+.chatEditTextarea {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: inherit;
+  color: #000;
+  resize: both;
+  margin: 4px 0;
+  box-sizing: border-box;
+}
+
+.chatEditButtons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.chatSaveBtn,
+.chatCancelBtn {
+  padding: 6px 12px;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.chatSaveBtn {
+  background: #007bff;
+}
+
+.chatSaveBtn:hover {
+  background: #0056b3;
+}
+
+.chatCancelBtn {
+  background: #6c757d;
+}
+
+.chatCancelBtn:hover {
+  background: #5a6268;
+}
+
+/* overflow 속성 복원을 위한 스타일 */
+.xRisuLbNaiCharacterCard,
+.xRisuLbNaiCompCard {
+  overflow: visible !important;
+}
+
+/* 선택 모달 스타일 */
 .selectionModal {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   background: white;
-  padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  z-index: 10001;
+  z-index: 10000;
   max-width: 600px;
   max-height: 80vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.selectionModalHeader {
+  position: sticky;
+  top: 0;
+  background: white;
+  padding: 20px 20px 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.selectionModalTitleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
 }
 
 .selectionModalTitle {
-  margin-top: 0;
-  margin-bottom: 10px;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.4;
 }
 
-.selectionModalText {
-  margin: 10px 0;
+.selectionModalTitleCount {
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 14px;
 }
 
-.selectionModalList {
-  margin-top: 15px;
+.selectionModalCancelBtn {
+  padding: 6px 12px;
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.selectionModalCancelBtn:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.selectionModalSelectedTextContainer {
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.selectionModalSelectedTextLabel {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.selectionModalSelectedText {
+  font-size: 14px;
+  color: #111827;
+  word-break: break-word;
+}
+
+.selectionModalBody {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .selectionModalItem {
-  padding: 10px;
-  margin: 5px 0;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  background: white;
 }
 
 .selectionModalItem:hover {
-  background-color: #f0f0f0;
+  background: #f9fafb;
+  border-color: #d1d5db;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.selectionModalItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.selectionModalItemTitle {
+  font-weight: 600;
+  color: #111827;
+  font-size: 14px;
+}
+
+.selectionModalItemLineNumber {
+  font-size: 12px;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
 }
 
 .selectionModalItemContext {
-  color: #666;
-  font-size: 12px;
-  margin-top: 5px;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.6;
+  word-break: break-word;
 }
 
-.selectionModalCancelButton {
-  margin-top: 15px;
-  padding: 8px 16px;
-  background: #6c757d;
-  color: white;
-  border: none;
+/* 매칭 방법 배지 */
+.selectionModalMethodBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
   border-radius: 4px;
-  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
-.selectionModalCancelButton:hover {
-  background: #5a6268;
+.selectionModalMethodBadgeExact {
+  background: #d1fae5;
+  color: #065f46;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
-/* 편집 다이얼로그 */
+.selectionModalMethodBadgeFuzzy {
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.selectionModalMethodBadgeAnchor {
+  background: #dbeafe;
+  color: #1e40af;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* 편집 다이얼로그 스타일 */
 .editDialog {
   position: fixed;
   top: 50%;
@@ -200,56 +366,5 @@
 
 .editDialogCancelButton:hover {
   background: #5a6268;
-}
-
-/* 편집 textarea (요소 기반 편집용) */
-.chatEditTextarea {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-family: inherit;
-  font-size: inherit;
-  color: #000;
-  resize: both;
-  margin: 4px 0;
-  box-sizing: border-box;
-}
-
-.chatEditButtons {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.chatSaveBtn,
-.chatCancelBtn {
-  padding: 6px 12px;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.chatSaveBtn {
-  background: #007bff;
-}
-
-.chatSaveBtn:hover {
-  background: #0056b3;
-}
-
-.chatCancelBtn {
-  background: #6c757d;
-}
-
-.chatCancelBtn:hover {
-  background: #5a6268;
-}
-
-/* overflow 속성 복원을 위한 스타일 */
-.xRisuLbNaiCharacterCard,
-.xRisuLbNaiCompCard {
-  overflow: visible !important;
 }
 

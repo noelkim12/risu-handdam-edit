@@ -310,7 +310,21 @@ export function findAllMatches(originalMd, searchText, opts = {}) {
     searchIndex = normalizedEnd;
   }
   
-  // 2순위: Fuzzy 매칭 (정확한 매칭이 없거나 적을 때)
+  // 2순위: Head/Tail 앵커 매칭 (매칭이 없을 때만)
+  if (matches.length === 0 && normalizedSearch.length >= ANCH * 2) {
+    const anchorMatches = findAnchorMatches(
+      normalizedOriginal,
+      normalizedSearch,
+      indexMap,
+      originalMd,
+      contextLength,
+      ANCH,
+      foundPositions
+    );
+    matches.push(...anchorMatches);
+  }
+
+  // 3순위: Fuzzy 매칭 (정확한 매칭이 없거나 적을 때)
   if (matches.length === 0 || (normalizedSearch.length <= FUZZY_MAX && matches.length < 3)) {
     const fuzzyMatches = findFuzzyMatches(
       normalizedOriginal,
@@ -326,22 +340,8 @@ export function findAllMatches(originalMd, searchText, opts = {}) {
     matches.push(...fuzzyMatches);
   }
   
-  // 3순위: Head/Tail 앵커 매칭 (매칭이 없을 때만)
-  if (matches.length === 0 && normalizedSearch.length >= ANCH * 2) {
-    const anchorMatches = findAnchorMatches(
-      normalizedOriginal,
-      normalizedSearch,
-      indexMap,
-      originalMd,
-      contextLength,
-      ANCH,
-      foundPositions
-    );
-    matches.push(...anchorMatches);
-  }
-  
   // start 위치로 정렬
-  matches.sort((a, b) => a.start - b.start);
+  // matches.sort((a, b) => a.start - b.start);
   
   return matches;
 }

@@ -8,6 +8,7 @@ import { findOriginalRangeFromHtml } from "../utils/text-matcher.js";
 import { TextSelectionHandler } from "./text-selection-handler.js";
 import { ElementEditHandler } from "./element-edit-handler.js";
 import { PluginArgs } from "./plugin-config.js";
+import { editStyles } from "../ui/styles/index.js";
 
 export class EditManager {
   constructor() {
@@ -212,165 +213,172 @@ export class EditManager {
   }
 
   /**
-   * 간단한 선택 모달 (임시 구현)
+   * 매칭 방법 배지 생성
+   */
+  getMethodBadge(method, distance = null) {
+    const s = editStyles;
+    let badgeText = "";
+    let badgeClass = "";
+    let badgeTitle = "";
+
+    switch (method) {
+      case "exact":
+        badgeText = "정확";
+        badgeClass = s.selectionModalMethodBadgeExact;
+        badgeTitle = "정확한 매칭";
+        break;
+      case "fuzzy":
+        badgeText = distance !== null ? `유사 (${distance})` : "유사";
+        badgeClass = s.selectionModalMethodBadgeFuzzy;
+        badgeTitle = `Fuzzy 매칭 (편집 거리: ${distance || "N/A"})`;
+        break;
+      case "anchor":
+        badgeText = "앵커";
+        badgeClass = s.selectionModalMethodBadgeAnchor;
+        badgeTitle = "Head/Tail 앵커 매칭";
+        break;
+      default:
+        badgeText = "알 수 없음";
+        badgeClass = s.selectionModalMethodBadge;
+        badgeTitle = "알 수 없는 매칭 방법";
+    }
+
+    return `<span class="${badgeClass}" title="${badgeTitle}">${badgeText}</span>`;
+  }
+
+  /**
+   * 매칭되는 내용 selection modal
    */
   showSimpleSelectionModal(matches, selectedText, position, messageData = "") {
+    const s = editStyles; // 스타일 별칭
     const modal = document.createElement("div");
-    modal.style.cssText = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      z-index: 10000;
-      max-width: 600px;
-      max-height: 80vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    `;
+    modal.className = s.selectionModal;
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
 
-    modal.innerHTML = `
-      <div style="
-        position: sticky;
-        top: 0;
-        background: white;
-        padding: 20px 20px 16px 20px;
-        border-bottom: 1px solid #e5e7eb;
-        z-index: 1;
-        flex-shrink: 0;
-      ">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-          <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #111827; line-height: 1.4;">
+    // 헤더 HTML 생성
+    const headerHTML = `
+      <div class="${s.selectionModalHeader}">
+        <div class="${s.selectionModalTitleRow}">
+          <h3 class="${s.selectionModalTitle}">
             다음 중 편집할 항목을 선택하세요
-            <span style="color: #6b7280; font-weight: 500; font-size: 14px;">(${matches.length}개)</span>
+            <span class="${s.selectionModalTitleCount}">(${matches.length}개)</span>
           </h3>
-          <button onclick="window.__editManagerCloseModal__()" 
-                  style="
-                    padding: 6px 12px;
-                    background: #f3f4f6;
-                    color: #374151;
-                    border: 1px solid #d1d5db;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-size: 14px;
-                    font-weight: 500;
-                    transition: all 0.2s;
-                    flex-shrink: 0;
-                    margin-left: 16px;
-                  "
-                  onmouseover="this.style.background='#e5e7eb'; this.style.borderColor='#9ca3af'"
-                  onmouseout="this.style.background='#f3f4f6'; this.style.borderColor='#d1d5db'">
-            취소
-          </button>
+          <button class="${s.selectionModalCancelBtn}" data-action="close">취소</button>
         </div>
-        <div style="
-          padding: 12px;
-          background: #f9fafb;
-          border-radius: 6px;
-          border: 1px solid #e5e7eb;
-        ">
-          <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 500;">
-            선택된 텍스트
-          </div>
-          <div style="font-size: 14px; color: #111827; word-break: break-word;">
-            "${selectedText}"
-          </div>
+        <div class="${s.selectionModalSelectedTextContainer}">
+          <div class="${s.selectionModalSelectedTextLabel}">선택된 텍스트</div>
+          <div class="${s.selectionModalSelectedText}">"${this.escapeHtml(selectedText)}"</div>
         </div>
       </div>
-      <div style="
-        padding: 20px;
-        overflow-y: auto;
-        flex: 1;
-      ">
-        ${matches
-          .map((match, index) => {
-            // 컨텍스트 시작 위치 (findAllMatches에서 제공)
-            const contextStart = match.contextStart ?? Math.max(0, match.start - 30);
-            
-            // 하이라이트된 컨텍스트 생성
-            const highlightedContext = this.highlightMatchInContext(
-              match.context,
-              match.start,
-              match.end,
-              contextStart
-            );
-            
-            // 라인 번호 계산
-            const lineNumber = messageData ? this.calculateLineNumber(messageData, match.start) : null;
-            
-            return `
-          <div style="
-            padding: 12px 16px;
-            margin-bottom: 8px;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: white;
-          "
-               onmouseover="this.style.background='#f9fafb'; this.style.borderColor='#d1d5db'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'"
-               onmouseout="this.style.background='white'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'"
-               onclick="window.__editManagerSelectMatch__(${index})">
-            <div style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-bottom: 8px;
-            ">
-              <div style="
-                font-weight: 600;
-                color: #111827;
-                font-size: 14px;
-              ">
-                매칭 ${index + 1}
+    `;
+
+    // 매칭 항목 HTML 생성
+    const itemsHTML = matches
+      .map((match, index) => {
+        const contextStart = match.contextStart ?? Math.max(0, match.start - 30);
+        const highlightedContext = this.highlightMatchInContext(
+          match.context,
+          match.start,
+          match.end,
+          contextStart
+        );
+        const lineNumber = messageData ? this.calculateLineNumber(messageData, match.start) : null;
+        
+        // 매칭 방법 표시
+        const methodBadge = this.getMethodBadge(match.method, match.distance);
+        
+        return `
+          <div class="${s.selectionModalItem}" data-action="select" data-index="${index}">
+            <div class="${s.selectionModalItemHeader}">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="${s.selectionModalItemTitle}">매칭 ${index + 1}</div>
+                ${methodBadge}
               </div>
-              ${lineNumber ? `
-              <div style="
-                font-size: 12px;
-                color: #6b7280;
-                background: #f3f4f6;
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-weight: 500;
-              ">
-                ${lineNumber}번째 줄 부근
-              </div>
-              ` : ''}
+              ${lineNumber ? `<div class="${s.selectionModalItemLineNumber}">${lineNumber}번째 줄 부근</div>` : ''}
             </div>
-            <div style="
-              color: #6b7280;
-              font-size: 13px;
-              line-height: 1.6;
-              word-break: break-word;
-            ">
+            <div class="${s.selectionModalItemContext}">
               ${highlightedContext || "컨텍스트 없음"}
             </div>
           </div>
         `;
-          })
-          .join("")}
+      })
+      .join("");
+
+    modal.innerHTML = `
+      ${headerHTML}
+      <div class="${s.selectionModalBody}">
+        ${itemsHTML}
       </div>
     `;
 
     document.body.appendChild(modal);
 
-    // 전역 함수로 선택 처리
-    window.__editManagerSelectMatch__ = (index) => {
-      const selectedMatch = matches[index];
-      document.body.removeChild(modal);
-      delete window.__editManagerSelectMatch__;
-      delete window.__editManagerCloseModal__;
-      this.openEditDialog(selectedMatch);
+    // 이벤트 리스너 연결
+    this.attachSelectionModalListeners(modal, matches);
+  }
+
+  /**
+   * 선택 모달 이벤트 리스너 연결
+   */
+  attachSelectionModalListeners(modal, matches) {
+    const handleClick = (e) => {
+      // 배경 클릭 시 닫기
+      if (e.target === modal) {
+        this.closeSelectionModal(modal);
+        return;
+      }
+
+      // data-action 속성을 가진 요소 찾기 (클릭된 요소 또는 부모 요소)
+      let target = e.target;
+      while (target && target !== modal) {
+        const action = target.getAttribute("data-action");
+        if (action) {
+          if (action === "close") {
+            this.closeSelectionModal(modal);
+            return;
+          } else if (action === "select") {
+            const index = target.getAttribute("data-index");
+            if (index !== null) {
+              const selectedMatch = matches[parseInt(index, 10)];
+              this.closeSelectionModal(modal);
+              this.openEditDialog(selectedMatch);
+              return;
+            }
+          }
+        }
+        target = target.parentElement;
+      }
     };
 
-    window.__editManagerCloseModal__ = () => {
-      document.body.removeChild(modal);
-      delete window.__editManagerSelectMatch__;
-      delete window.__editManagerCloseModal__;
+    // 클릭 이벤트 (이벤트 위임)
+    modal.addEventListener("click", handleClick);
+
+    // ESC 키로 닫기
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        this.closeSelectionModal(modal);
+      }
     };
+    document.addEventListener("keydown", handleKeyDown);
+
+    // Cleanup 함수 저장
+    modal._cleanup = () => {
+      modal.removeEventListener("click", handleClick);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }
+
+  /**
+   * 선택 모달 닫기
+   */
+  closeSelectionModal(modal) {
+    if (modal._cleanup) {
+      modal._cleanup();
+    }
+    if (modal.parentNode) {
+      document.body.removeChild(modal);
+    }
   }
 
   /**
@@ -380,56 +388,28 @@ export class EditManager {
     // 기존 버튼 제거
     this.hideFloatingButton();
 
+    const s = editStyles; // 스타일 별칭
     const button = document.createElement("button");
+    button.className = s.floatingActionButton;
+    button.title = "편집";
+    button.setAttribute("data-action", "edit");
+    
     // 아이콘과 텍스트를 함께 표시
     button.innerHTML = `
       <span style="margin-right: 6px; font-size: 14px;">✏️</span>
       <span>편집</span>
     `;
-    button.title = "편집";
     
     // 버튼 너비 계산 (텍스트 길이에 맞춰 동적 조정)
     const buttonWidth = 80; // "편집" 텍스트 기준
     const buttonHeight = 32;
     const buttonLeft = position.left + position.width / 2 - buttonWidth / 2;
     
-    button.style.cssText = `
-      position: absolute;
-      top: ${position.top - buttonHeight - 8}px;
-      left: ${buttonLeft}px;
-      width: ${buttonWidth}px;
-      height: ${buttonHeight}px;
-      border-radius: 8px;
-      background: #ffffff;
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
-      cursor: pointer;
-      z-index: 10000;
-      font-size: 14px;
-      font-weight: 500;
-      color: #000000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-      user-select: none;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      padding: 0 12px;
-      box-sizing: border-box;
-    `;
-
-    button.addEventListener("mouseenter", () => {
-      button.style.background = "#f8f9fa";
-      button.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)";
-    });
-
-    button.addEventListener("mouseleave", () => {
-      button.style.background = "#ffffff";
-      button.style.boxShadow = "0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08)";
-    });
+    // 위치만 인라인 스타일로 설정 (CSS Modules로는 동적 위치 설정 불가)
+    button.style.top = `${position.top - buttonHeight - 8}px`;
+    button.style.left = `${buttonLeft}px`;
+    button.style.width = `${buttonWidth}px`;
+    button.style.height = `${buttonHeight}px`;
 
     button.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -522,85 +502,145 @@ export class EditManager {
 
     const messageData = messages[match.chatIndex].data;
     const selectedText = messageData.slice(match.start, match.end);
+    const s = editStyles; // 스타일 별칭
+
+    // 텍스트 길이에 따른 다이얼로그 크기 계산
+    const lines = selectedText.split('\n');
+    const lineCount = lines.length;
+    const maxLineLength = lines.length > 0 
+      ? Math.max(...lines.map(line => line.length), 0)
+      : selectedText.length;
+    
+    // 너비 계산: 최소 400px, 최대 90vw, 텍스트 길이에 따라 조정
+    const minWidth = 400;
+    const maxWidth = Math.min(window.innerWidth * 0.9, 800);
+    const charWidth = 8; // 대략적인 문자 너비 (px)
+    const dialogPadding = 40; // 다이얼로그 좌우 패딩 (20px * 2)
+    const textareaPadding = 16; // textarea 좌우 패딩 (8px * 2)
+    const totalPadding = dialogPadding + textareaPadding;
+    const calculatedWidth = Math.max(minWidth, Math.min(maxWidth, maxLineLength * charWidth + totalPadding));
+    
+    // 높이 계산: 최소 높이, 최대 70vh, 줄 수에 따라 조정
+    const minTextareaHeight = 100;
+    const maxDialogHeight = Math.min(window.innerHeight * 0.7, 600);
+    const lineHeight = 24; // 대략적인 줄 높이 (px)
+    const textareaVerticalPadding = 16; // textarea 상하 패딩 (8px * 2)
+    const buttonsHeight = 60; // 버튼 영역 높이 (버튼 + 마진)
+    const dialogVerticalPadding = 40; // 다이얼로그 상하 패딩 (20px * 2)
+    
+    // textarea 높이 계산
+    const calculatedTextareaHeight = Math.max(
+      minTextareaHeight, 
+      Math.min(
+        maxDialogHeight - buttonsHeight - dialogVerticalPadding,
+        lineCount * lineHeight + textareaVerticalPadding
+      )
+    );
+    
+    // 전체 다이얼로그 높이 계산
+    const calculatedDialogHeight = calculatedTextareaHeight + buttonsHeight + dialogVerticalPadding;
 
     // 편집 다이얼로그 표시
     const dialog = document.createElement("div");
-    dialog.style.cssText = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      z-index: 10001;
-      min-width: 400px;
+    dialog.className = s.editDialog;
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-modal", "true");
+    
+    // 동적 크기 설정
+    dialog.style.width = `${calculatedWidth}px`;
+    dialog.style.minWidth = `${minWidth}px`;
+    dialog.style.maxWidth = `${maxWidth}px`;
+    dialog.style.height = `${calculatedDialogHeight}px`;
+    dialog.style.maxHeight = `${maxDialogHeight}px`;
+
+    dialog.innerHTML = `
+      <textarea class="${s.editDialogTextarea}" data-action="textarea" style="min-height: ${minTextareaHeight}px; height: ${calculatedTextareaHeight}px; max-height: ${maxDialogHeight - buttonsHeight - dialogVerticalPadding}px;">${this.escapeHtml(selectedText)}</textarea>
+      <div class="${s.editDialogButtons}">
+        <button class="${s.editDialogButton} ${s.editDialogCancelButton}" data-action="cancel">취소</button>
+        <button class="${s.editDialogButton} ${s.editDialogSaveButton}" data-action="save">저장</button>
+      </div>
     `;
 
-    const textarea = document.createElement("textarea");
-    textarea.value = selectedText;
-    textarea.style.cssText = `
-      width: 100%;
-      min-height: 100px;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-family: inherit;
-      font-size: 14px;
-      box-sizing: border-box;
-      resize: vertical;
-    `;
-
-    const buttonContainer = document.createElement("div");
-    buttonContainer.style.cssText = `
-      display: flex;
-      gap: 8px;
-      margin-top: 15px;
-      justify-content: flex-end;
-    `;
-
-    const saveButton = document.createElement("button");
-    saveButton.textContent = "저장";
-    saveButton.style.cssText = `
-      padding: 8px 16px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    `;
-
-    const cancelButton = document.createElement("button");
-    cancelButton.textContent = "취소";
-    cancelButton.style.cssText = `
-      padding: 8px 16px;
-      background: #6c757d;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    `;
-
-    saveButton.addEventListener("click", () => {
-      const newText = textarea.value;
-      this.saveEdit(match, selectedText, newText);
-      document.body.removeChild(dialog);
-    });
-
-    cancelButton.addEventListener("click", () => {
-      document.body.removeChild(dialog); 
-    });
-
-    buttonContainer.appendChild(cancelButton);
-    buttonContainer.appendChild(saveButton);
-
-    dialog.appendChild(textarea);
-    dialog.appendChild(buttonContainer);
     document.body.appendChild(dialog);
 
-    textarea.focus();
-    textarea.select();
+    // 이벤트 리스너 연결
+    this.attachEditDialogListeners(dialog, match, selectedText);
+
+    // 포커스 설정
+    const textarea = dialog.querySelector('[data-action="textarea"]');
+    if (textarea) {
+      textarea.focus();
+      textarea.select();
+    }
+  }
+
+  /**
+   * 편집 다이얼로그 이벤트 리스너 연결
+   */
+  attachEditDialogListeners(dialog, match, originalText) {
+    const textarea = dialog.querySelector('[data-action="textarea"]');
+
+    const handleSave = () => {
+      const newText = textarea.value;
+      this.saveEdit(match, originalText, newText);
+      this.closeEditDialog(dialog);
+    };
+
+    const handleCancel = () => {
+      this.closeEditDialog(dialog);
+    };
+
+    const handleClick = (e) => {
+      // 배경 클릭 시 닫기
+      if (e.target === dialog) {
+        handleCancel();
+        return;
+      }
+
+      // data-action 속성을 가진 요소 찾기
+      let target = e.target;
+      while (target && target !== dialog) {
+        const action = target.getAttribute("data-action");
+        if (action === "save") {
+          handleSave();
+          return;
+        } else if (action === "cancel") {
+          handleCancel();
+          return;
+        }
+        target = target.parentElement;
+      }
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        handleCancel();
+      } else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        handleSave();
+      }
+    };
+
+    dialog.addEventListener("click", handleClick);
+    document.addEventListener("keydown", handleKeyDown);
+
+    // Cleanup 함수 저장
+    dialog._cleanup = () => {
+      dialog.removeEventListener("click", handleClick);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }
+
+  /**
+   * 편집 다이얼로그 닫기
+   */
+  closeEditDialog(dialog) {
+    if (dialog._cleanup) {
+      dialog._cleanup();
+    }
+    if (dialog.parentNode) {
+      document.body.removeChild(dialog);
+    }
   }
 
   /**

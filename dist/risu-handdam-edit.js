@@ -76,11 +76,6 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* 편집 기능 관련 스타일 */
   outline-offset: 2px;
 }
 
-/* 편집 모드 */
-.edit-module__hddmEditing--XCu9x {
-  /* 편집 중인 요소 스타일 */
-}
-
 /* Floating Action Button */
 .edit-module__floatingActionButton--ORYa8 {
   position: absolute;
@@ -111,69 +106,240 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* 편집 기능 관련 스타일 */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* 선택 모달 */
+
+/* 편집 textarea (요소 기반 편집용) */
+.edit-module__chatEditTextarea--uUxKD {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: inherit;
+  color: #000;
+  resize: both;
+  margin: 4px 0;
+  box-sizing: border-box;
+}
+
+.edit-module__chatEditButtons--m78HV {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.edit-module__chatSaveBtn--foYfH,
+.edit-module__chatCancelBtn--Uh5JE {
+  padding: 6px 12px;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.edit-module__chatSaveBtn--foYfH {
+  background: #007bff;
+}
+
+.edit-module__chatSaveBtn--foYfH:hover {
+  background: #0056b3;
+}
+
+.edit-module__chatCancelBtn--Uh5JE {
+  background: #6c757d;
+}
+
+.edit-module__chatCancelBtn--Uh5JE:hover {
+  background: #5a6268;
+}
+
+/* overflow 속성 복원을 위한 스타일 */
+.edit-module__xRisuLbNaiCharacterCard--HnOf5,
+.edit-module__xRisuLbNaiCompCard--ZHRgO {
+  overflow: visible !important;
+}
+
+/* 선택 모달 스타일 */
 .edit-module__selectionModal--wWbW2 {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   background: white;
-  padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  z-index: 10001;
+  z-index: 10000;
   max-width: 600px;
   max-height: 80vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.edit-module__selectionModalHeader--AVAEf {
+  position: sticky;
+  top: 0;
+  background: white;
+  padding: 20px 20px 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.edit-module__selectionModalTitleRow--qBh9R {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
 }
 
 .edit-module__selectionModalTitle--vpufb {
-  margin-top: 0;
-  margin-bottom: 10px;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.4;
 }
 
-.edit-module__selectionModalText--BbinV {
-  margin: 10px 0;
+.edit-module__selectionModalTitleCount--iyZpX {
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 14px;
 }
 
-.edit-module__selectionModalList--jIt4c {
-  margin-top: 15px;
+.edit-module__selectionModalCancelBtn--E3yQt {
+  padding: 6px 12px;
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.edit-module__selectionModalCancelBtn--E3yQt:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.edit-module__selectionModalSelectedTextContainer--pn8EP {
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.edit-module__selectionModalSelectedTextLabel--e_uKW {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.edit-module__selectionModalSelectedText--YrjR5 {
+  font-size: 14px;
+  color: #111827;
+  word-break: break-word;
+}
+
+.edit-module__selectionModalBody--KB6Ne {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .edit-module__selectionModalItem--KOz5E {
-  padding: 10px;
-  margin: 5px 0;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  background: white;
 }
 
 .edit-module__selectionModalItem--KOz5E:hover {
-  background-color: #f0f0f0;
+  background: #f9fafb;
+  border-color: #d1d5db;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.edit-module__selectionModalItemHeader--KS7AR {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.edit-module__selectionModalItemTitle--M5YRK {
+  font-weight: 600;
+  color: #111827;
+  font-size: 14px;
+}
+
+.edit-module__selectionModalItemLineNumber--BjjqT {
+  font-size: 12px;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
 }
 
 .edit-module__selectionModalItemContext--VHzPr {
-  color: #666;
-  font-size: 12px;
-  margin-top: 5px;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.6;
+  word-break: break-word;
 }
 
-.edit-module__selectionModalCancelButton--yF5cl {
-  margin-top: 15px;
-  padding: 8px 16px;
-  background: #6c757d;
-  color: white;
-  border: none;
+/* 매칭 방법 배지 */
+.edit-module__selectionModalMethodBadge--BZlAz {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
   border-radius: 4px;
-  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
-.edit-module__selectionModalCancelButton--yF5cl:hover {
-  background: #5a6268;
+.edit-module__selectionModalMethodBadgeExact--drMWa {
+  background: #d1fae5;
+  color: #065f46;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
-/* 편집 다이얼로그 */
+.edit-module__selectionModalMethodBadgeFuzzy--FhPgm {
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.edit-module__selectionModalMethodBadgeAnchor--h0Uxw {
+  background: #dbeafe;
+  color: #1e40af;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* 편집 다이얼로그 스타일 */
 .edit-module__editDialog--lBuaQ {
   position: fixed;
   top: 50%;
@@ -232,84 +398,44 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* 편집 기능 관련 스타일 */
   background: #5a6268;
 }
 
-/* 편집 textarea (요소 기반 편집용) */
-.edit-module__chatEditTextarea--uUxKD {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-family: inherit;
-  font-size: inherit;
-  color: #000;
-  resize: both;
-  margin: 4px 0;
-  box-sizing: border-box;
-}
-
-.edit-module__chatEditButtons--m78HV {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.edit-module__chatSaveBtn--foYfH,
-.edit-module__chatCancelBtn--Uh5JE {
-  padding: 6px 12px;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.edit-module__chatSaveBtn--foYfH {
-  background: #007bff;
-}
-
-.edit-module__chatSaveBtn--foYfH:hover {
-  background: #0056b3;
-}
-
-.edit-module__chatCancelBtn--Uh5JE {
-  background: #6c757d;
-}
-
-.edit-module__chatCancelBtn--Uh5JE:hover {
-  background: #5a6268;
-}
-
-/* overflow 속성 복원을 위한 스타일 */
-.edit-module__xRisuLbNaiCharacterCard--HnOf5,
-.edit-module__xRisuLbNaiCompCard--ZHRgO {
-  overflow: visible !important;
-}
-
 `, ""]);
 // Exports
 ___CSS_LOADER_EXPORT___.locals = {
 	"hddmButtonWrapper": `edit-module__hddmButtonWrapper--Rn4z_`,
 	"hddmEditButton": `edit-module__hddmEditButton--CTBGh`,
 	"hddmBtnAppended": `edit-module__hddmBtnAppended--Pq6xL`,
-	"hddmEditing": `edit-module__hddmEditing--XCu9x`,
 	"floatingActionButton": `edit-module__floatingActionButton--ORYa8`,
-	"selectionModal": `edit-module__selectionModal--wWbW2`,
-	"selectionModalTitle": `edit-module__selectionModalTitle--vpufb`,
-	"selectionModalText": `edit-module__selectionModalText--BbinV`,
-	"selectionModalList": `edit-module__selectionModalList--jIt4c`,
-	"selectionModalItem": `edit-module__selectionModalItem--KOz5E`,
-	"selectionModalItemContext": `edit-module__selectionModalItemContext--VHzPr`,
-	"selectionModalCancelButton": `edit-module__selectionModalCancelButton--yF5cl`,
-	"editDialog": `edit-module__editDialog--lBuaQ`,
-	"editDialogTextarea": `edit-module__editDialogTextarea--gJtaB`,
-	"editDialogButtons": `edit-module__editDialogButtons--mmUQ4`,
-	"editDialogButton": `edit-module__editDialogButton--A6OJ0`,
-	"editDialogSaveButton": `edit-module__editDialogSaveButton--EFn8i`,
-	"editDialogCancelButton": `edit-module__editDialogCancelButton--Zfll9`,
 	"chatEditTextarea": `edit-module__chatEditTextarea--uUxKD`,
 	"chatEditButtons": `edit-module__chatEditButtons--m78HV`,
 	"chatSaveBtn": `edit-module__chatSaveBtn--foYfH`,
 	"chatCancelBtn": `edit-module__chatCancelBtn--Uh5JE`,
 	"xRisuLbNaiCharacterCard": `edit-module__xRisuLbNaiCharacterCard--HnOf5`,
-	"xRisuLbNaiCompCard": `edit-module__xRisuLbNaiCompCard--ZHRgO`
+	"xRisuLbNaiCompCard": `edit-module__xRisuLbNaiCompCard--ZHRgO`,
+	"selectionModal": `edit-module__selectionModal--wWbW2`,
+	"selectionModalHeader": `edit-module__selectionModalHeader--AVAEf`,
+	"selectionModalTitleRow": `edit-module__selectionModalTitleRow--qBh9R`,
+	"selectionModalTitle": `edit-module__selectionModalTitle--vpufb`,
+	"selectionModalTitleCount": `edit-module__selectionModalTitleCount--iyZpX`,
+	"selectionModalCancelBtn": `edit-module__selectionModalCancelBtn--E3yQt`,
+	"selectionModalSelectedTextContainer": `edit-module__selectionModalSelectedTextContainer--pn8EP`,
+	"selectionModalSelectedTextLabel": `edit-module__selectionModalSelectedTextLabel--e_uKW`,
+	"selectionModalSelectedText": `edit-module__selectionModalSelectedText--YrjR5`,
+	"selectionModalBody": `edit-module__selectionModalBody--KB6Ne`,
+	"selectionModalItem": `edit-module__selectionModalItem--KOz5E`,
+	"selectionModalItemHeader": `edit-module__selectionModalItemHeader--KS7AR`,
+	"selectionModalItemTitle": `edit-module__selectionModalItemTitle--M5YRK`,
+	"selectionModalItemLineNumber": `edit-module__selectionModalItemLineNumber--BjjqT`,
+	"selectionModalItemContext": `edit-module__selectionModalItemContext--VHzPr`,
+	"selectionModalMethodBadge": `edit-module__selectionModalMethodBadge--BZlAz`,
+	"selectionModalMethodBadgeExact": `edit-module__selectionModalMethodBadgeExact--drMWa`,
+	"selectionModalMethodBadgeFuzzy": `edit-module__selectionModalMethodBadgeFuzzy--FhPgm`,
+	"selectionModalMethodBadgeAnchor": `edit-module__selectionModalMethodBadgeAnchor--h0Uxw`,
+	"editDialog": `edit-module__editDialog--lBuaQ`,
+	"editDialogTextarea": `edit-module__editDialogTextarea--gJtaB`,
+	"editDialogButtons": `edit-module__editDialogButtons--mmUQ4`,
+	"editDialogButton": `edit-module__editDialogButton--A6OJ0`,
+	"editDialogSaveButton": `edit-module__editDialogSaveButton--EFn8i`,
+	"editDialogCancelButton": `edit-module__editDialogCancelButton--Zfll9`
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -2223,7 +2349,21 @@ function findAllMatches(originalMd, searchText, opts = {}) {
     searchIndex = normalizedEnd;
   }
   
-  // 2순위: Fuzzy 매칭 (정확한 매칭이 없거나 적을 때)
+  // 2순위: Head/Tail 앵커 매칭 (매칭이 없을 때만)
+  if (matches.length === 0 && normalizedSearch.length >= ANCH * 2) {
+    const anchorMatches = findAnchorMatches(
+      normalizedOriginal,
+      normalizedSearch,
+      indexMap,
+      originalMd,
+      contextLength,
+      ANCH,
+      foundPositions
+    );
+    matches.push(...anchorMatches);
+  }
+
+  // 3순위: Fuzzy 매칭 (정확한 매칭이 없거나 적을 때)
   if (matches.length === 0 || (normalizedSearch.length <= FUZZY_MAX && matches.length < 3)) {
     const fuzzyMatches = findFuzzyMatches(
       normalizedOriginal,
@@ -2239,22 +2379,8 @@ function findAllMatches(originalMd, searchText, opts = {}) {
     matches.push(...fuzzyMatches);
   }
   
-  // 3순위: Head/Tail 앵커 매칭 (매칭이 없을 때만)
-  if (matches.length === 0 && normalizedSearch.length >= ANCH * 2) {
-    const anchorMatches = findAnchorMatches(
-      normalizedOriginal,
-      normalizedSearch,
-      indexMap,
-      originalMd,
-      contextLength,
-      ANCH,
-      foundPositions
-    );
-    matches.push(...anchorMatches);
-  }
-  
   // start 위치로 정렬
-  matches.sort((a, b) => a.start - b.start);
+  // matches.sort((a, b) => a.start - b.start);
   
   return matches;
 }
@@ -2434,228 +2560,6 @@ function createIndexMap(original, normalized) {
 }
 
 
-;// ./src/utils/html-text-extractor.js
-/**
- * HTML 텍스트 추출 유틸리티
- * HTML로 렌더링된 텍스트에서 원본 마크다운 형식을 고려한 텍스트 추출
- */
-
-/**
- * 선택된 텍스트를 정규화하여 검색 가능한 형태로 변환
- * HTML 리스트 항목(li)에서 선택된 경우 마크다운 형식도 고려
- * 
- * @param {string} selectedText - 선택된 텍스트
- * @param {Range} range - 선택 범위
- * @returns {Array<string>} 검색 가능한 텍스트 변형 배열
- */
-function normalizeSelectedText(selectedText, range) {
-  const variations = new Set();
-  const trimmed = selectedText.trim();
-  
-  if (trimmed) {
-    variations.add(trimmed);
-  }
-  
-  // ul/ol 내부에서 선택된 경우 처리
-  const startContainer = range.startContainer;
-  const endContainer = range.endContainer;
-  
-  let startNode = startContainer.nodeType === Node.TEXT_NODE 
-    ? startContainer.parentElement 
-    : startContainer;
-  let endNode = endContainer.nodeType === Node.TEXT_NODE 
-    ? endContainer.parentElement 
-    : endContainer;
-  
-  const listContainer = startNode.closest?.("ul, ol") || endNode.closest?.("ul, ol");
-  
-  if (listContainer) {
-    // Range 내에 포함된 모든 li 요소 찾기
-    const allListItems = Array.from(listContainer.querySelectorAll("li"));
-    const selectedListItems = [];
-    
-    // 각 li가 Range와 겹치는지 확인
-    allListItems.forEach(li => {
-      try {
-        // Range의 시작/끝 컨테이너가 li 내부에 있는지 확인
-        const startInLi = li.contains(range.startContainer) || range.startContainer === li;
-        const endInLi = li.contains(range.endContainer) || range.endContainer === li;
-        
-        // Range가 li를 포함하거나, li가 Range를 포함하거나, 겹치는 경우
-        if (startInLi || endInLi || range.intersectsNode?.(li)) {
-          selectedListItems.push(li);
-        } else {
-          // Range가 li를 완전히 포함하는지 확인
-          try {
-            const liRange = document.createRange();
-            liRange.selectNodeContents(li);
-            if (range.compareBoundaryPoints(Range.START_TO_START, liRange) <= 0 &&
-                range.compareBoundaryPoints(Range.END_TO_END, liRange) >= 0) {
-              selectedListItems.push(li);
-            }
-          } catch (e) {
-            // 에러 발생 시 무시
-          }
-        }
-      } catch (e) {
-        // 에러 발생 시 무시
-      }
-    });
-    
-    // 선택된 li 항목이 있는 경우
-    if (selectedListItems.length > 0) {
-      // 각 li 항목의 전체 텍스트 추출
-      selectedListItems.forEach(li => {
-        const liText = li.textContent.trim();
-        if (liText) {
-          variations.add(liText);
-          // 마크다운 형식으로 변환
-          variations.add(`- ${liText}`);
-          variations.add(`* ${liText}`);
-          variations.add(`+ ${liText}`);
-        }
-      });
-      
-      // 여러 li에 걸친 선택인 경우, 각 li의 부분 텍스트도 추출
-      if (selectedListItems.length > 1) {
-        // 첫 번째 li의 끝 부분과 마지막 li의 시작 부분 추출
-        const firstLi = selectedListItems[0];
-        const lastLi = selectedListItems[selectedListItems.length - 1];
-        
-        // Range가 각 li 내에서 어디서 시작/끝나는지 확인
-        try {
-          // 첫 번째 li에서 선택된 부분
-          if (range.startContainer === firstLi || firstLi.contains(range.startContainer)) {
-            const firstLiRange = document.createRange();
-            firstLiRange.setStart(range.startContainer, range.startOffset);
-            firstLiRange.setEndAfter(firstLi.lastChild || firstLi);
-            const firstLiSelected = firstLiRange.toString().trim();
-            if (firstLiSelected && firstLiSelected !== firstLi.textContent.trim()) {
-              variations.add(firstLiSelected);
-              variations.add(`- ${firstLiSelected}`);
-              variations.add(`* ${firstLiSelected}`);
-            }
-          }
-          
-          // 마지막 li에서 선택된 부분
-          if (range.endContainer === lastLi || lastLi.contains(range.endContainer)) {
-            const lastLiRange = document.createRange();
-            lastLiRange.setStartBefore(lastLi.firstChild || lastLi);
-            lastLiRange.setEnd(range.endContainer, range.endOffset);
-            const lastLiSelected = lastLiRange.toString().trim();
-            if (lastLiSelected && lastLiSelected !== lastLi.textContent.trim()) {
-              variations.add(lastLiSelected);
-              variations.add(`- ${lastLiSelected}`);
-              variations.add(`* ${lastLiSelected}`);
-            }
-          }
-        } catch (e) {
-          // 에러 발생 시 무시
-        }
-      } else {
-        // 단일 li 항목 내에서 부분 선택된 경우
-        const singleLi = selectedListItems[0];
-        const liText = singleLi.textContent.trim();
-        if (trimmed !== liText) {
-          variations.add(trimmed);
-          variations.add(`- ${trimmed}`);
-          variations.add(`* ${trimmed}`);
-        }
-      }
-      
-      // 선택된 텍스트를 줄 단위로 분리하여 각 줄도 검색
-      if (selectedText.includes("\n") || selectedText.includes("\r")) {
-        const lines = selectedText.split(/\r?\n/).filter(line => line.trim());
-        lines.forEach(line => {
-          const trimmedLine = line.trim();
-          if (trimmedLine) {
-            variations.add(trimmedLine);
-            variations.add(`- ${trimmedLine}`);
-            variations.add(`* ${trimmedLine}`);
-          }
-        });
-      }
-    }
-  } else {
-    // 리스트가 아닌 경우 기본 처리
-    const listItem = startNode.closest?.("li");
-    if (listItem) {
-      const liText = listItem.textContent.trim();
-      if (liText) {
-        variations.add(liText);
-        variations.add(`- ${liText}`);
-        variations.add(`* ${liText}`);
-        variations.add(`+ ${liText}`);
-      }
-      
-      if (trimmed !== liText) {
-        variations.add(trimmed);
-        variations.add(`- ${trimmed}`);
-        variations.add(`* ${trimmed}`);
-      }
-    }
-  }
-  
-  return Array.from(variations).filter(v => v.length > 0);
-}
-
-/**
- * HTML 요소에서 원본 마크다운 형식의 텍스트 추출
- * 
- * @param {Element} element - HTML 요소
- * @returns {string} 마크다운 형식 텍스트
- */
-function extractMarkdownFromElement(element) {
-  if (!element) return "";
-  
-  const cloned = element.cloneNode(true);
-  
-  // 버튼 제거
-  cloned.querySelectorAll("button, .chat-modi-btn, .x-risu-button-default").forEach(btn => btn.remove());
-  
-  let result = "";
-  
-  function processNode(node) {
-    if (node.nodeType === Node.TEXT_NODE) {
-      return node.textContent;
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      const tagName = node.tagName.toLowerCase();
-      
-      if (tagName === "ul" || tagName === "ol") {
-        // 리스트인 경우 각 항목에 마커 추가
-        const items = Array.from(node.querySelectorAll("li"));
-        return items.map((li, index) => {
-          const content = Array.from(li.childNodes)
-            .map(processNode)
-            .join("")
-            .trim();
-          return tagName === "ol" ? `${index + 1}. ${content}` : `- ${content}`;
-        }).join("\n");
-      } else if (tagName === "li") {
-        // li 항목의 내용만 추출 (마커는 부모에서 처리)
-        return Array.from(node.childNodes).map(processNode).join("");
-      } else if (tagName === "ruby") {
-        const base = node.cloneNode(true);
-        base.querySelectorAll("rt, rp").forEach(n => n.remove());
-        const rt = node.querySelector("rt")?.textContent || "";
-        const text = base.textContent || "";
-        return rt ? `:${text}[${rt}]:` : text;
-      } else if (tagName === "br") {
-        return "\n";
-      } else if (tagName === "p") {
-        return Array.from(node.childNodes).map(processNode).join("") + "\n";
-      } else {
-        return Array.from(node.childNodes).map(processNode).join("");
-      }
-    }
-    return "";
-  }
-  
-  result = processNode(cloned);
-  return result.trim();
-}
-
-
 ;// ./src/core/text-selection-handler.js
 /**
  * 텍스트 선택 핸들러
@@ -2665,8 +2569,10 @@ function extractMarkdownFromElement(element) {
 
 
 
-
 const MIN_SELECTION_LENGTH = 5;
+
+const DEL_IMG_LEFT  = (/* unused pure expression or super */ null && (`data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAA9hAAAPYQGoP6dpAAAOQ0lEQVR4nO2deWxVVR7Hn4AKRBAhqLUsmbgQmWICxA6yKEhGBeaPApmgQJDpyCYopECIEIg6DpsyQZsQUAKBsi9aZZRlWhgKyHZZFBBRQIGyyA5FKVt/k+9vPC+np3e/577eB++X3OQtd/197m8759x7YmQihmFUWLxKYWEhDRgwgJo3b05paWn00EMPUdOmTemVV16hxYsX05UrV8qtv2TJEnruuefo119/9XQu+D5jxgzq378/tWzZkmKxGC/4jN/wn5/zryyJWf3hF8r3339PnTt3jivGaoHCjhw5wtusWLGCqlSpQsuWLdN2YWagkgGSViDr1q2jBx98MK70evXqUVZWFo0ZM4beeecd6tu3L2VkZFB2djZ9/fXXvM2XX35J1atXp/T0dLp69areq1OuAyAEDL+WnzRA9u/fzwAA4q677qKcnBw6duxYhfVu3LgR/7xy5UqqWbMmb9OlSxdKhMhgZECRB+IFyq1bt6hDhw6s2GrVqlFeXp7jgWUYWBBbEilRBaMFCJQrFAv35CRYHzFDjikvvfQSVYboSGASBsTtCffq1YuV2qBBA7p8+bLt/r766itet3379lRQUECZmZn8vUmTJnTt2jVKtFWoMSXyQJygQImPP/44K3XgwIG2+8nPz+cAPmrUqHgsyc3N5W3vvfde+vHHH4Nej6vrkLMvsUQl+3IFxA7KiRMn6P7772elfvLJJ5bbL126lBo3bkzLly+vUK8It7V+/fog12J6zkL5MgCh/CgA8A3ECsrRo0epVq1arND58+ebbof6AumvmQUUFRXFgRQWFvq/EofzlcGIJemBmMmlS5fokUceYYVOnDixwv+rVq2iKVOmUGlpqen2CxcujKfKO3futDyOVUWuFpuyoqMWsEOxELOA+Pzzz8cDtZCysjL64YcfaNOmTab7EHfpE088wdvC7X344YeWCnfj59XzM4MTdQnssiAfffQRKw2pLLIoAURulzKD+emnn9J9993H2/bp06fCsdTg68bNyMdRXdNtBcTO/NF+dc8997Bi0Yh48uRJR6Vu3LiRnn32Wd6matWqtGPHDl/HtlpfjRlRjBehAUETCdJWKHf06NHcTmWnELiyjh07xt0R0mC/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`));
+const DEL_IMG_RIGHT = (/* unused pure expression or super */ null && (`data:image/png;base64,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`));
 
 class TextSelectionHandler {
   constructor(editManager) {
@@ -2830,34 +2736,15 @@ class TextSelectionHandler {
       }
 
       // 해당 메시지에서만 매칭 검색
-      const allMatches = [];
       const messageData = messages[targetChatIndex].data || "";
       
-      // HTML로 렌더링된 텍스트 선택 시 마크다운 형식 변형도 검색
-      const searchVariations = normalizeSelectedText(selectedText, range);
-      
-      // 각 변형에 대해 검색 수행
-      for (const searchText of searchVariations) {
-        if (searchText.length < MIN_SELECTION_LENGTH) continue;
-        
-        const matches = findAllMatches(messageData, searchText, {
-          contextLength: 30,
-        });
-
-        matches.forEach((match) => {
-          // 중복 제거: 같은 위치의 매칭은 한 번만 추가
-          const isDuplicate = allMatches.some(
-            existing => existing.start === match.start && existing.end === match.end
-          );
-          
-          if (!isDuplicate) {
-            allMatches.push({
-              chatIndex: targetChatIndex,
-              ...match,
-            });
-          }
-        });
-      }
+      // 선택된 텍스트로 검색 (Fuzzy 매칭이 자동으로 처리)
+      const allMatches = findAllMatches(messageData, selectedText, {
+        contextLength: 30,
+      }).map(match => ({
+        chatIndex: targetChatIndex,
+        ...match,
+      }));
 
       // 매칭 결과가 없는 경우
       if (allMatches.length === 0) {
@@ -2937,7 +2824,7 @@ class TextSelectionHandler {
  * 2. Run npm run build
  * 3. This file will be regenerated automatically
  *
- * Generated at: 2025-11-06T17:31:39.958Z
+ * Generated at: 2025-11-06T18:00:54.776Z
  */
 
 
@@ -3776,11 +3663,164 @@ class ElementEditHandler {
 }
 
 
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js
+var injectStylesIntoStyleTag = __webpack_require__(72);
+var injectStylesIntoStyleTag_default = /*#__PURE__*/__webpack_require__.n(injectStylesIntoStyleTag);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleDomAPI.js
+var styleDomAPI = __webpack_require__(825);
+var styleDomAPI_default = /*#__PURE__*/__webpack_require__.n(styleDomAPI);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/insertBySelector.js
+var insertBySelector = __webpack_require__(659);
+var insertBySelector_default = /*#__PURE__*/__webpack_require__.n(insertBySelector);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js
+var setAttributesWithoutAttributes = __webpack_require__(56);
+var setAttributesWithoutAttributes_default = /*#__PURE__*/__webpack_require__.n(setAttributesWithoutAttributes);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/insertStyleElement.js
+var insertStyleElement = __webpack_require__(540);
+var insertStyleElement_default = /*#__PURE__*/__webpack_require__.n(insertStyleElement);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleTagTransform.js
+var styleTagTransform = __webpack_require__(113);
+var styleTagTransform_default = /*#__PURE__*/__webpack_require__.n(styleTagTransform);
+// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[0].use[1]!./src/ui/styles/global.css
+var global = __webpack_require__(436);
+;// ./src/ui/styles/global.css
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+var options = {};
+
+options.styleTagTransform = (styleTagTransform_default());
+options.setAttributes = (setAttributesWithoutAttributes_default());
+options.insert = insertBySelector_default().bind(null, "head");
+options.domAPI = (styleDomAPI_default());
+options.insertStyleElement = (insertStyleElement_default());
+
+var update = injectStylesIntoStyleTag_default()(global/* default */.A, options);
+
+
+
+
+       /* harmony default export */ const styles_global = (global/* default */.A && global/* default */.A.locals ? global/* default */.A.locals : undefined);
+
+// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[0].use[1]!./src/ui/styles/base.module.css
+var base_module = __webpack_require__(362);
+;// ./src/ui/styles/base.module.css
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+var base_module_options = {};
+
+base_module_options.styleTagTransform = (styleTagTransform_default());
+base_module_options.setAttributes = (setAttributesWithoutAttributes_default());
+base_module_options.insert = insertBySelector_default().bind(null, "head");
+base_module_options.domAPI = (styleDomAPI_default());
+base_module_options.insertStyleElement = (insertStyleElement_default());
+
+var base_module_update = injectStylesIntoStyleTag_default()(base_module/* default */.A, base_module_options);
+
+
+
+
+       /* harmony default export */ const styles_base_module = (base_module/* default */.A && base_module/* default */.A.locals ? base_module/* default */.A.locals : undefined);
+
+// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[0].use[1]!./src/ui/styles/update-dialog.module.css
+var update_dialog_module = __webpack_require__(199);
+;// ./src/ui/styles/update-dialog.module.css
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+var update_dialog_module_options = {};
+
+update_dialog_module_options.styleTagTransform = (styleTagTransform_default());
+update_dialog_module_options.setAttributes = (setAttributesWithoutAttributes_default());
+update_dialog_module_options.insert = insertBySelector_default().bind(null, "head");
+update_dialog_module_options.domAPI = (styleDomAPI_default());
+update_dialog_module_options.insertStyleElement = (insertStyleElement_default());
+
+var update_dialog_module_update = injectStylesIntoStyleTag_default()(update_dialog_module/* default */.A, update_dialog_module_options);
+
+
+
+
+       /* harmony default export */ const styles_update_dialog_module = (update_dialog_module/* default */.A && update_dialog_module/* default */.A.locals ? update_dialog_module/* default */.A.locals : undefined);
+
+// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[0].use[1]!./src/ui/styles/edit.module.css
+var edit_module = __webpack_require__(3);
+;// ./src/ui/styles/edit.module.css
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+var edit_module_options = {};
+
+edit_module_options.styleTagTransform = (styleTagTransform_default());
+edit_module_options.setAttributes = (setAttributesWithoutAttributes_default());
+edit_module_options.insert = insertBySelector_default().bind(null, "head");
+edit_module_options.domAPI = (styleDomAPI_default());
+edit_module_options.insertStyleElement = (insertStyleElement_default());
+
+var edit_module_update = injectStylesIntoStyleTag_default()(edit_module/* default */.A, edit_module_options);
+
+
+
+
+       /* harmony default export */ const styles_edit_module = (edit_module/* default */.A && edit_module/* default */.A.locals ? edit_module/* default */.A.locals : undefined);
+
+;// ./src/ui/styles/index.js
+/**
+ * Style Registry
+ * 모든 CSS 스타일을 여기서 중앙 관리합니다.
+ */
+
+// 전역 스타일 (폰트 CDN)
+
+
+// CSS Modules (자동으로 스코프 적용됨)
+
+
+
+
+// CSS Modules를 사용하는 컴포넌트에서 import 가능하도록 export
+
+
+
 ;// ./src/core/edit-manager.js
 /**
  * 편집 관리자
  * 편집 기능의 핵심 로직을 관리합니다.
  */
+
 
 
 
@@ -3991,165 +4031,172 @@ class EditManager {
   }
 
   /**
-   * 간단한 선택 모달 (임시 구현)
+   * 매칭 방법 배지 생성
+   */
+  getMethodBadge(method, distance = null) {
+    const s = styles_edit_module;
+    let badgeText = "";
+    let badgeClass = "";
+    let badgeTitle = "";
+
+    switch (method) {
+      case "exact":
+        badgeText = "정확";
+        badgeClass = s.selectionModalMethodBadgeExact;
+        badgeTitle = "정확한 매칭";
+        break;
+      case "fuzzy":
+        badgeText = distance !== null ? `유사 (${distance})` : "유사";
+        badgeClass = s.selectionModalMethodBadgeFuzzy;
+        badgeTitle = `Fuzzy 매칭 (편집 거리: ${distance || "N/A"})`;
+        break;
+      case "anchor":
+        badgeText = "앵커";
+        badgeClass = s.selectionModalMethodBadgeAnchor;
+        badgeTitle = "Head/Tail 앵커 매칭";
+        break;
+      default:
+        badgeText = "알 수 없음";
+        badgeClass = s.selectionModalMethodBadge;
+        badgeTitle = "알 수 없는 매칭 방법";
+    }
+
+    return `<span class="${badgeClass}" title="${badgeTitle}">${badgeText}</span>`;
+  }
+
+  /**
+   * 매칭되는 내용 selection modal
    */
   showSimpleSelectionModal(matches, selectedText, position, messageData = "") {
+    const s = styles_edit_module; // 스타일 별칭
     const modal = document.createElement("div");
-    modal.style.cssText = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      z-index: 10000;
-      max-width: 600px;
-      max-height: 80vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    `;
+    modal.className = s.selectionModal;
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
 
-    modal.innerHTML = `
-      <div style="
-        position: sticky;
-        top: 0;
-        background: white;
-        padding: 20px 20px 16px 20px;
-        border-bottom: 1px solid #e5e7eb;
-        z-index: 1;
-        flex-shrink: 0;
-      ">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-          <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #111827; line-height: 1.4;">
+    // 헤더 HTML 생성
+    const headerHTML = `
+      <div class="${s.selectionModalHeader}">
+        <div class="${s.selectionModalTitleRow}">
+          <h3 class="${s.selectionModalTitle}">
             다음 중 편집할 항목을 선택하세요
-            <span style="color: #6b7280; font-weight: 500; font-size: 14px;">(${matches.length}개)</span>
+            <span class="${s.selectionModalTitleCount}">(${matches.length}개)</span>
           </h3>
-          <button onclick="window.__editManagerCloseModal__()" 
-                  style="
-                    padding: 6px 12px;
-                    background: #f3f4f6;
-                    color: #374151;
-                    border: 1px solid #d1d5db;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-size: 14px;
-                    font-weight: 500;
-                    transition: all 0.2s;
-                    flex-shrink: 0;
-                    margin-left: 16px;
-                  "
-                  onmouseover="this.style.background='#e5e7eb'; this.style.borderColor='#9ca3af'"
-                  onmouseout="this.style.background='#f3f4f6'; this.style.borderColor='#d1d5db'">
-            취소
-          </button>
+          <button class="${s.selectionModalCancelBtn}" data-action="close">취소</button>
         </div>
-        <div style="
-          padding: 12px;
-          background: #f9fafb;
-          border-radius: 6px;
-          border: 1px solid #e5e7eb;
-        ">
-          <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 500;">
-            선택된 텍스트
-          </div>
-          <div style="font-size: 14px; color: #111827; word-break: break-word;">
-            "${selectedText}"
-          </div>
+        <div class="${s.selectionModalSelectedTextContainer}">
+          <div class="${s.selectionModalSelectedTextLabel}">선택된 텍스트</div>
+          <div class="${s.selectionModalSelectedText}">"${this.escapeHtml(selectedText)}"</div>
         </div>
       </div>
-      <div style="
-        padding: 20px;
-        overflow-y: auto;
-        flex: 1;
-      ">
-        ${matches
-          .map((match, index) => {
-            // 컨텍스트 시작 위치 (findAllMatches에서 제공)
-            const contextStart = match.contextStart ?? Math.max(0, match.start - 30);
-            
-            // 하이라이트된 컨텍스트 생성
-            const highlightedContext = this.highlightMatchInContext(
-              match.context,
-              match.start,
-              match.end,
-              contextStart
-            );
-            
-            // 라인 번호 계산
-            const lineNumber = messageData ? this.calculateLineNumber(messageData, match.start) : null;
-            
-            return `
-          <div style="
-            padding: 12px 16px;
-            margin-bottom: 8px;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: white;
-          "
-               onmouseover="this.style.background='#f9fafb'; this.style.borderColor='#d1d5db'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'"
-               onmouseout="this.style.background='white'; this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'"
-               onclick="window.__editManagerSelectMatch__(${index})">
-            <div style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-bottom: 8px;
-            ">
-              <div style="
-                font-weight: 600;
-                color: #111827;
-                font-size: 14px;
-              ">
-                매칭 ${index + 1}
+    `;
+
+    // 매칭 항목 HTML 생성
+    const itemsHTML = matches
+      .map((match, index) => {
+        const contextStart = match.contextStart ?? Math.max(0, match.start - 30);
+        const highlightedContext = this.highlightMatchInContext(
+          match.context,
+          match.start,
+          match.end,
+          contextStart
+        );
+        const lineNumber = messageData ? this.calculateLineNumber(messageData, match.start) : null;
+        
+        // 매칭 방법 표시
+        const methodBadge = this.getMethodBadge(match.method, match.distance);
+        
+        return `
+          <div class="${s.selectionModalItem}" data-action="select" data-index="${index}">
+            <div class="${s.selectionModalItemHeader}">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="${s.selectionModalItemTitle}">매칭 ${index + 1}</div>
+                ${methodBadge}
               </div>
-              ${lineNumber ? `
-              <div style="
-                font-size: 12px;
-                color: #6b7280;
-                background: #f3f4f6;
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-weight: 500;
-              ">
-                ${lineNumber}번째 줄 부근
-              </div>
-              ` : ''}
+              ${lineNumber ? `<div class="${s.selectionModalItemLineNumber}">${lineNumber}번째 줄 부근</div>` : ''}
             </div>
-            <div style="
-              color: #6b7280;
-              font-size: 13px;
-              line-height: 1.6;
-              word-break: break-word;
-            ">
+            <div class="${s.selectionModalItemContext}">
               ${highlightedContext || "컨텍스트 없음"}
             </div>
           </div>
         `;
-          })
-          .join("")}
+      })
+      .join("");
+
+    modal.innerHTML = `
+      ${headerHTML}
+      <div class="${s.selectionModalBody}">
+        ${itemsHTML}
       </div>
     `;
 
     document.body.appendChild(modal);
 
-    // 전역 함수로 선택 처리
-    window.__editManagerSelectMatch__ = (index) => {
-      const selectedMatch = matches[index];
-      document.body.removeChild(modal);
-      delete window.__editManagerSelectMatch__;
-      delete window.__editManagerCloseModal__;
-      this.openEditDialog(selectedMatch);
+    // 이벤트 리스너 연결
+    this.attachSelectionModalListeners(modal, matches);
+  }
+
+  /**
+   * 선택 모달 이벤트 리스너 연결
+   */
+  attachSelectionModalListeners(modal, matches) {
+    const handleClick = (e) => {
+      // 배경 클릭 시 닫기
+      if (e.target === modal) {
+        this.closeSelectionModal(modal);
+        return;
+      }
+
+      // data-action 속성을 가진 요소 찾기 (클릭된 요소 또는 부모 요소)
+      let target = e.target;
+      while (target && target !== modal) {
+        const action = target.getAttribute("data-action");
+        if (action) {
+          if (action === "close") {
+            this.closeSelectionModal(modal);
+            return;
+          } else if (action === "select") {
+            const index = target.getAttribute("data-index");
+            if (index !== null) {
+              const selectedMatch = matches[parseInt(index, 10)];
+              this.closeSelectionModal(modal);
+              this.openEditDialog(selectedMatch);
+              return;
+            }
+          }
+        }
+        target = target.parentElement;
+      }
     };
 
-    window.__editManagerCloseModal__ = () => {
-      document.body.removeChild(modal);
-      delete window.__editManagerSelectMatch__;
-      delete window.__editManagerCloseModal__;
+    // 클릭 이벤트 (이벤트 위임)
+    modal.addEventListener("click", handleClick);
+
+    // ESC 키로 닫기
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        this.closeSelectionModal(modal);
+      }
     };
+    document.addEventListener("keydown", handleKeyDown);
+
+    // Cleanup 함수 저장
+    modal._cleanup = () => {
+      modal.removeEventListener("click", handleClick);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }
+
+  /**
+   * 선택 모달 닫기
+   */
+  closeSelectionModal(modal) {
+    if (modal._cleanup) {
+      modal._cleanup();
+    }
+    if (modal.parentNode) {
+      document.body.removeChild(modal);
+    }
   }
 
   /**
@@ -4159,56 +4206,28 @@ class EditManager {
     // 기존 버튼 제거
     this.hideFloatingButton();
 
+    const s = styles_edit_module; // 스타일 별칭
     const button = document.createElement("button");
+    button.className = s.floatingActionButton;
+    button.title = "편집";
+    button.setAttribute("data-action", "edit");
+    
     // 아이콘과 텍스트를 함께 표시
     button.innerHTML = `
       <span style="margin-right: 6px; font-size: 14px;">✏️</span>
       <span>편집</span>
     `;
-    button.title = "편집";
     
     // 버튼 너비 계산 (텍스트 길이에 맞춰 동적 조정)
     const buttonWidth = 80; // "편집" 텍스트 기준
     const buttonHeight = 32;
     const buttonLeft = position.left + position.width / 2 - buttonWidth / 2;
     
-    button.style.cssText = `
-      position: absolute;
-      top: ${position.top - buttonHeight - 8}px;
-      left: ${buttonLeft}px;
-      width: ${buttonWidth}px;
-      height: ${buttonHeight}px;
-      border-radius: 8px;
-      background: #ffffff;
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
-      cursor: pointer;
-      z-index: 10000;
-      font-size: 14px;
-      font-weight: 500;
-      color: #000000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-      user-select: none;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      padding: 0 12px;
-      box-sizing: border-box;
-    `;
-
-    button.addEventListener("mouseenter", () => {
-      button.style.background = "#f8f9fa";
-      button.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)";
-    });
-
-    button.addEventListener("mouseleave", () => {
-      button.style.background = "#ffffff";
-      button.style.boxShadow = "0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08)";
-    });
+    // 위치만 인라인 스타일로 설정 (CSS Modules로는 동적 위치 설정 불가)
+    button.style.top = `${position.top - buttonHeight - 8}px`;
+    button.style.left = `${buttonLeft}px`;
+    button.style.width = `${buttonWidth}px`;
+    button.style.height = `${buttonHeight}px`;
 
     button.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -4301,85 +4320,145 @@ class EditManager {
 
     const messageData = messages[match.chatIndex].data;
     const selectedText = messageData.slice(match.start, match.end);
+    const s = styles_edit_module; // 스타일 별칭
+
+    // 텍스트 길이에 따른 다이얼로그 크기 계산
+    const lines = selectedText.split('\n');
+    const lineCount = lines.length;
+    const maxLineLength = lines.length > 0 
+      ? Math.max(...lines.map(line => line.length), 0)
+      : selectedText.length;
+    
+    // 너비 계산: 최소 400px, 최대 90vw, 텍스트 길이에 따라 조정
+    const minWidth = 400;
+    const maxWidth = Math.min(window.innerWidth * 0.9, 800);
+    const charWidth = 8; // 대략적인 문자 너비 (px)
+    const dialogPadding = 40; // 다이얼로그 좌우 패딩 (20px * 2)
+    const textareaPadding = 16; // textarea 좌우 패딩 (8px * 2)
+    const totalPadding = dialogPadding + textareaPadding;
+    const calculatedWidth = Math.max(minWidth, Math.min(maxWidth, maxLineLength * charWidth + totalPadding));
+    
+    // 높이 계산: 최소 높이, 최대 70vh, 줄 수에 따라 조정
+    const minTextareaHeight = 100;
+    const maxDialogHeight = Math.min(window.innerHeight * 0.7, 600);
+    const lineHeight = 24; // 대략적인 줄 높이 (px)
+    const textareaVerticalPadding = 16; // textarea 상하 패딩 (8px * 2)
+    const buttonsHeight = 60; // 버튼 영역 높이 (버튼 + 마진)
+    const dialogVerticalPadding = 40; // 다이얼로그 상하 패딩 (20px * 2)
+    
+    // textarea 높이 계산
+    const calculatedTextareaHeight = Math.max(
+      minTextareaHeight, 
+      Math.min(
+        maxDialogHeight - buttonsHeight - dialogVerticalPadding,
+        lineCount * lineHeight + textareaVerticalPadding
+      )
+    );
+    
+    // 전체 다이얼로그 높이 계산
+    const calculatedDialogHeight = calculatedTextareaHeight + buttonsHeight + dialogVerticalPadding;
 
     // 편집 다이얼로그 표시
     const dialog = document.createElement("div");
-    dialog.style.cssText = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      z-index: 10001;
-      min-width: 400px;
+    dialog.className = s.editDialog;
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-modal", "true");
+    
+    // 동적 크기 설정
+    dialog.style.width = `${calculatedWidth}px`;
+    dialog.style.minWidth = `${minWidth}px`;
+    dialog.style.maxWidth = `${maxWidth}px`;
+    dialog.style.height = `${calculatedDialogHeight}px`;
+    dialog.style.maxHeight = `${maxDialogHeight}px`;
+
+    dialog.innerHTML = `
+      <textarea class="${s.editDialogTextarea}" data-action="textarea" style="min-height: ${minTextareaHeight}px; height: ${calculatedTextareaHeight}px; max-height: ${maxDialogHeight - buttonsHeight - dialogVerticalPadding}px;">${this.escapeHtml(selectedText)}</textarea>
+      <div class="${s.editDialogButtons}">
+        <button class="${s.editDialogButton} ${s.editDialogCancelButton}" data-action="cancel">취소</button>
+        <button class="${s.editDialogButton} ${s.editDialogSaveButton}" data-action="save">저장</button>
+      </div>
     `;
 
-    const textarea = document.createElement("textarea");
-    textarea.value = selectedText;
-    textarea.style.cssText = `
-      width: 100%;
-      min-height: 100px;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-family: inherit;
-      font-size: 14px;
-      box-sizing: border-box;
-      resize: vertical;
-    `;
-
-    const buttonContainer = document.createElement("div");
-    buttonContainer.style.cssText = `
-      display: flex;
-      gap: 8px;
-      margin-top: 15px;
-      justify-content: flex-end;
-    `;
-
-    const saveButton = document.createElement("button");
-    saveButton.textContent = "저장";
-    saveButton.style.cssText = `
-      padding: 8px 16px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    `;
-
-    const cancelButton = document.createElement("button");
-    cancelButton.textContent = "취소";
-    cancelButton.style.cssText = `
-      padding: 8px 16px;
-      background: #6c757d;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    `;
-
-    saveButton.addEventListener("click", () => {
-      const newText = textarea.value;
-      this.saveEdit(match, selectedText, newText);
-      document.body.removeChild(dialog);
-    });
-
-    cancelButton.addEventListener("click", () => {
-      document.body.removeChild(dialog); 
-    });
-
-    buttonContainer.appendChild(cancelButton);
-    buttonContainer.appendChild(saveButton);
-
-    dialog.appendChild(textarea);
-    dialog.appendChild(buttonContainer);
     document.body.appendChild(dialog);
 
-    textarea.focus();
-    textarea.select();
+    // 이벤트 리스너 연결
+    this.attachEditDialogListeners(dialog, match, selectedText);
+
+    // 포커스 설정
+    const textarea = dialog.querySelector('[data-action="textarea"]');
+    if (textarea) {
+      textarea.focus();
+      textarea.select();
+    }
+  }
+
+  /**
+   * 편집 다이얼로그 이벤트 리스너 연결
+   */
+  attachEditDialogListeners(dialog, match, originalText) {
+    const textarea = dialog.querySelector('[data-action="textarea"]');
+
+    const handleSave = () => {
+      const newText = textarea.value;
+      this.saveEdit(match, originalText, newText);
+      this.closeEditDialog(dialog);
+    };
+
+    const handleCancel = () => {
+      this.closeEditDialog(dialog);
+    };
+
+    const handleClick = (e) => {
+      // 배경 클릭 시 닫기
+      if (e.target === dialog) {
+        handleCancel();
+        return;
+      }
+
+      // data-action 속성을 가진 요소 찾기
+      let target = e.target;
+      while (target && target !== dialog) {
+        const action = target.getAttribute("data-action");
+        if (action === "save") {
+          handleSave();
+          return;
+        } else if (action === "cancel") {
+          handleCancel();
+          return;
+        }
+        target = target.parentElement;
+      }
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        handleCancel();
+      } else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        handleSave();
+      }
+    };
+
+    dialog.addEventListener("click", handleClick);
+    document.addEventListener("keydown", handleKeyDown);
+
+    // Cleanup 함수 저장
+    dialog._cleanup = () => {
+      dialog.removeEventListener("click", handleClick);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }
+
+  /**
+   * 편집 다이얼로그 닫기
+   */
+  closeEditDialog(dialog) {
+    if (dialog._cleanup) {
+      dialog._cleanup();
+    }
+    if (dialog.parentNode) {
+      document.body.removeChild(dialog);
+    }
   }
 
   /**
@@ -4422,158 +4501,6 @@ class EditManager {
     this.hideFloatingButton();
   }
 }
-
-
-// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js
-var injectStylesIntoStyleTag = __webpack_require__(72);
-var injectStylesIntoStyleTag_default = /*#__PURE__*/__webpack_require__.n(injectStylesIntoStyleTag);
-// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleDomAPI.js
-var styleDomAPI = __webpack_require__(825);
-var styleDomAPI_default = /*#__PURE__*/__webpack_require__.n(styleDomAPI);
-// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/insertBySelector.js
-var insertBySelector = __webpack_require__(659);
-var insertBySelector_default = /*#__PURE__*/__webpack_require__.n(insertBySelector);
-// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js
-var setAttributesWithoutAttributes = __webpack_require__(56);
-var setAttributesWithoutAttributes_default = /*#__PURE__*/__webpack_require__.n(setAttributesWithoutAttributes);
-// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/insertStyleElement.js
-var insertStyleElement = __webpack_require__(540);
-var insertStyleElement_default = /*#__PURE__*/__webpack_require__.n(insertStyleElement);
-// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleTagTransform.js
-var styleTagTransform = __webpack_require__(113);
-var styleTagTransform_default = /*#__PURE__*/__webpack_require__.n(styleTagTransform);
-// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[0].use[1]!./src/ui/styles/global.css
-var global = __webpack_require__(436);
-;// ./src/ui/styles/global.css
-
-      
-      
-      
-      
-      
-      
-      
-      
-      
-
-var options = {};
-
-options.styleTagTransform = (styleTagTransform_default());
-options.setAttributes = (setAttributesWithoutAttributes_default());
-options.insert = insertBySelector_default().bind(null, "head");
-options.domAPI = (styleDomAPI_default());
-options.insertStyleElement = (insertStyleElement_default());
-
-var update = injectStylesIntoStyleTag_default()(global/* default */.A, options);
-
-
-
-
-       /* harmony default export */ const styles_global = (global/* default */.A && global/* default */.A.locals ? global/* default */.A.locals : undefined);
-
-// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[0].use[1]!./src/ui/styles/base.module.css
-var base_module = __webpack_require__(362);
-;// ./src/ui/styles/base.module.css
-
-      
-      
-      
-      
-      
-      
-      
-      
-      
-
-var base_module_options = {};
-
-base_module_options.styleTagTransform = (styleTagTransform_default());
-base_module_options.setAttributes = (setAttributesWithoutAttributes_default());
-base_module_options.insert = insertBySelector_default().bind(null, "head");
-base_module_options.domAPI = (styleDomAPI_default());
-base_module_options.insertStyleElement = (insertStyleElement_default());
-
-var base_module_update = injectStylesIntoStyleTag_default()(base_module/* default */.A, base_module_options);
-
-
-
-
-       /* harmony default export */ const styles_base_module = (base_module/* default */.A && base_module/* default */.A.locals ? base_module/* default */.A.locals : undefined);
-
-// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[0].use[1]!./src/ui/styles/update-dialog.module.css
-var update_dialog_module = __webpack_require__(199);
-;// ./src/ui/styles/update-dialog.module.css
-
-      
-      
-      
-      
-      
-      
-      
-      
-      
-
-var update_dialog_module_options = {};
-
-update_dialog_module_options.styleTagTransform = (styleTagTransform_default());
-update_dialog_module_options.setAttributes = (setAttributesWithoutAttributes_default());
-update_dialog_module_options.insert = insertBySelector_default().bind(null, "head");
-update_dialog_module_options.domAPI = (styleDomAPI_default());
-update_dialog_module_options.insertStyleElement = (insertStyleElement_default());
-
-var update_dialog_module_update = injectStylesIntoStyleTag_default()(update_dialog_module/* default */.A, update_dialog_module_options);
-
-
-
-
-       /* harmony default export */ const styles_update_dialog_module = (update_dialog_module/* default */.A && update_dialog_module/* default */.A.locals ? update_dialog_module/* default */.A.locals : undefined);
-
-// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[0].use[1]!./src/ui/styles/edit.module.css
-var edit_module = __webpack_require__(3);
-;// ./src/ui/styles/edit.module.css
-
-      
-      
-      
-      
-      
-      
-      
-      
-      
-
-var edit_module_options = {};
-
-edit_module_options.styleTagTransform = (styleTagTransform_default());
-edit_module_options.setAttributes = (setAttributesWithoutAttributes_default());
-edit_module_options.insert = insertBySelector_default().bind(null, "head");
-edit_module_options.domAPI = (styleDomAPI_default());
-edit_module_options.insertStyleElement = (insertStyleElement_default());
-
-var edit_module_update = injectStylesIntoStyleTag_default()(edit_module/* default */.A, edit_module_options);
-
-
-
-
-       /* harmony default export */ const styles_edit_module = (edit_module/* default */.A && edit_module/* default */.A.locals ? edit_module/* default */.A.locals : undefined);
-
-;// ./src/ui/styles/index.js
-/**
- * Style Registry
- * 모든 CSS 스타일을 여기서 중앙 관리합니다.
- */
-
-// 전역 스타일 (폰트 CDN)
-
-
-// CSS Modules (자동으로 스코프 적용됨)
-
-
-
-
-// CSS Modules를 사용하는 컴포넌트에서 import 가능하도록 export
-
 
 
 ;// ./node_modules/winbox/dist/winbox.bundle.min.js
