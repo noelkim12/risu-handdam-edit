@@ -9,6 +9,7 @@ import { TextSelectionHandler } from "./text-selection-handler.js";
 import { ElementEditHandler } from "./element-edit-handler.js";
 import { PluginArgs } from "./plugin-config.js";
 import { editStyles } from "../ui/styles/index.js";
+import { DEL_IMG_LEFT, DEL_IMG_RIGHT } from "../ui/components/img/del-img-components.js";
 
 export class EditManager {
   constructor() {
@@ -25,6 +26,7 @@ export class EditManager {
     this._scrollHandler = null;
     this._clickHandler = null;
     this._modeChangeCallbacks = []; // 모드 변경 콜백 함수들
+    this._ignoreClickUntil = 0; // 더블클릭 후 클릭 이벤트 무시할 시간
   }
 
   /**
@@ -124,6 +126,9 @@ export class EditManager {
     this.currentSelectionRange = selectionRange;
     this.currentMatches = allMatches; // 모든 매칭 정보 저장
     this.currentSelectedText = selectedText; // 선택된 텍스트 저장
+    
+    // selection이 방금 생성되었으므로 클릭 이벤트를 일시적으로 무시 (더블클릭 후 selection 보호)
+    this._ignoreClickUntil = Date.now() + 300;
     
     // Floating Action Button 표시
     this.showFloatingButton(position, () => {
@@ -389,36 +394,83 @@ export class EditManager {
     this.hideFloatingButton();
 
     const s = editStyles; // 스타일 별칭
-    const button = document.createElement("button");
-    button.className = s.floatingActionButton;
-    button.title = "편집";
-    button.setAttribute("data-action", "edit");
     
-    // 아이콘과 텍스트를 함께 표시
-    button.innerHTML = `
+    // 버튼 컨테이너 생성
+    const buttonContainer = document.createElement("div");
+    buttonContainer.style.cssText = `
+      position: absolute;
+      display: flex;
+      gap: 8px;
+      z-index: 10000;
+      align-items: center;
+    `;
+    
+    // 편집 버튼 생성
+    const editButton = document.createElement("button");
+    editButton.className = s.floatingActionButton;
+    editButton.title = "편집";
+    editButton.setAttribute("data-action", "edit");
+    editButton.innerHTML = `
       <span style="margin-right: 6px; font-size: 14px;">✏️</span>
       <span>편집</span>
     `;
     
-    // 버튼 너비 계산 (텍스트 길이에 맞춰 동적 조정)
-    const buttonWidth = 80; // "편집" 텍스트 기준
-    const buttonHeight = 32;
-    const buttonLeft = position.left + position.width / 2 - buttonWidth / 2;
+    // 삭제 버튼 생성
+    const deleteButton = document.createElement("button");
+    deleteButton.className = s.floatingActionButton;
+    deleteButton.title = "삭제";
+    deleteButton.setAttribute("data-action", "delete");
+    deleteButton.innerHTML = `
+      <span style="margin-right: 6px; font-size: 14px;">🗑️</span>
+      <span>삭제</span>
+    `;
     
-    // 위치만 인라인 스타일로 설정 (CSS Modules로는 동적 위치 설정 불가)
-    button.style.top = `${position.top - buttonHeight - 8}px`;
-    button.style.left = `${buttonLeft}px`;
-    button.style.width = `${buttonWidth}px`;
-    button.style.height = `${buttonHeight}px`;
+    // 버튼 너비 계산
+    const buttonWidth = 80;
+    const buttonHeight = 32;
+    const gap = 8;
+    const containerWidth = buttonWidth * 2 + gap; // 버튼 2개 + gap
+    const containerLeft = position.left + position.width / 2 - containerWidth / 2;
+    
+    // 컨테이너 위치 설정
+    buttonContainer.style.top = `${position.top - buttonHeight - 8}px`;
+    buttonContainer.style.left = `${containerLeft}px`;
+    buttonContainer.style.width = `${containerWidth}px`;
+    
+    // 버튼 스타일 설정 (position: relative로 변경하여 flex 레이아웃 적용)
+    editButton.style.cssText = `
+      position: relative !important;
+      width: ${buttonWidth}px;
+      height: ${buttonHeight}px;
+      flex-shrink: 0;
+      box-sizing: border-box;
+    `;
+    deleteButton.style.cssText = `
+      position: relative !important;
+      width: ${buttonWidth}px;
+      height: ${buttonHeight}px;
+      flex-shrink: 0;
+      box-sizing: border-box;
+    `;
 
-    button.addEventListener("click", (e) => {
+    // 편집 버튼 클릭 이벤트
+    editButton.addEventListener("click", (e) => {
       e.stopPropagation();
       onClick();
       this.hideFloatingButton();
     });
 
-    document.body.appendChild(button);
-    this.floatingButton = button;
+    // 삭제 버튼 클릭 이벤트
+    deleteButton.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.handleDeleteClick();
+      this.hideFloatingButton();
+    });
+
+    buttonContainer.appendChild(editButton);
+    buttonContainer.appendChild(deleteButton);
+    document.body.appendChild(buttonContainer);
+    this.floatingButton = buttonContainer;
 
     // 스크롤 시 버튼 제거 및 선택 해제
     const handleScroll = () => {
@@ -434,8 +486,13 @@ export class EditManager {
 
     // 다른 곳 클릭 시 버튼 제거 및 선택 해제 (버튼 클릭은 제외)
     const handleClick = (e) => {
-      // 버튼이나 버튼의 자식 요소 클릭은 무시
-      if (button.contains(e.target)) {
+      // 더블클릭 직후 클릭 이벤트 무시 (selection 보호)
+      if (Date.now() < this._ignoreClickUntil) {
+        return;
+      }
+
+      // 버튼 컨테이너나 버튼의 자식 요소 클릭은 무시
+      if (buttonContainer.contains(e.target)) {
         return;
       }
       this.hideFloatingButton();
@@ -448,8 +505,9 @@ export class EditManager {
       }
     };
 
-    window.addEventListener("scroll", handleScroll, { once: true });
-    document.addEventListener("click", handleClick, { once: true });
+    // 스크롤 이벤트를 캡처링 단계에서 감지 (모든 스크롤 가능한 요소 포함)
+    window.addEventListener("scroll", handleScroll, { once: true, capture: true });
+    document.addEventListener("click", handleClick, { once: false });
     
     // 이벤트 리스너 정리를 위한 참조 저장
     this._scrollHandler = handleScroll;
@@ -475,10 +533,7 @@ export class EditManager {
       this.floatingButton = null;
     }
     
-    // 선택 관련 정보 정리
-    this.currentSelectionRange = null;
-    this.currentMatches = null;
-    this.currentSelectedText = null;
+    // 선택 관련 정보는 유지 (삭제 기능에서 사용)
   }
 
   /**
@@ -664,13 +719,291 @@ export class EditManager {
         messageData.slice(match.end);
 
       messages[match.chatIndex].data = updated;
-      // this.risuAPI.setChar(char);
+      this.risuAPI.setChar(char);
 
-      // 페이지 새로고침 또는 DOM 업데이트
+      // 페이지 새로고침
       // location.reload();
     } catch (error) {
       console.error("[EditManager] Error saving edit:", error);
       alert("편집 저장 중 오류가 발생했습니다.");
+    }
+  }
+
+  /**
+   * 삭제 버튼 클릭 핸들러
+   */
+  handleDeleteClick() {
+    if (!this.currentMatches || this.currentMatches.length === 0) {
+      return;
+    }
+
+    // 단일 매칭: 바로 삭제
+    if (this.currentMatches.length === 1) {
+      this.deleteMatch(this.currentMatches[0]);
+    } else {
+      // 다중 매칭: Modal 표시
+      this.showDeleteSelectionModal(this.currentMatches, this.currentSelectedText);
+    }
+  }
+
+  /**
+   * 삭제 선택 모달 표시
+   */
+  showDeleteSelectionModal(matches, selectedText) {
+    const s = editStyles;
+    const modal = document.createElement("div");
+    modal.className = s.selectionModal;
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+
+    // 헤더 HTML 생성
+    const headerHTML = `
+      <div class="${s.selectionModalHeader}">
+        <div class="${s.selectionModalTitleRow}">
+          <h3 class="${s.selectionModalTitle}">
+            다음 중 삭제할 항목을 선택하세요
+            <span class="${s.selectionModalTitleCount}">(${matches.length}개)</span>
+          </h3>
+          <button class="${s.selectionModalCancelBtn}" data-action="close">취소</button>
+        </div>
+        <div class="${s.selectionModalSelectedTextContainer}">
+          <div class="${s.selectionModalSelectedTextLabel}">선택된 텍스트</div>
+          <div class="${s.selectionModalSelectedText}">"${this.escapeHtml(selectedText)}"</div>
+        </div>
+      </div>
+    `;
+
+    // 매칭 항목 HTML 생성
+    const char = this.risuAPI.getChar();
+    const chatPage = char.chatPage || 0;
+    const messages = char.chats[chatPage].message;
+    const messageData = messages[matches[0].chatIndex]?.data || "";
+
+    const itemsHTML = matches
+      .map((match, index) => {
+        const contextStart = match.contextStart ?? Math.max(0, match.start - 30);
+        const highlightedContext = this.highlightMatchInContext(
+          match.context,
+          match.start,
+          match.end,
+          contextStart
+        );
+        const lineNumber = messageData ? this.calculateLineNumber(messageData, match.start) : null;
+        const methodBadge = this.getMethodBadge(match.method, match.distance);
+
+        return `
+          <div class="${s.selectionModalItem}" data-action="delete" data-index="${index}">
+            <div class="${s.selectionModalItemHeader}">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="${s.selectionModalItemTitle}">매칭 ${index + 1}</div>
+                ${methodBadge}
+              </div>
+              ${lineNumber ? `<div class="${s.selectionModalItemLineNumber}">${lineNumber}번째 줄 부근</div>` : ''}
+            </div>
+            <div class="${s.selectionModalItemContext}">
+              ${highlightedContext || "컨텍스트 없음"}
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+
+    modal.innerHTML = `
+      ${headerHTML}
+      <div class="${s.selectionModalBody}">
+        ${itemsHTML}
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // 이벤트 리스너 연결
+    this.attachDeleteSelectionModalListeners(modal, matches);
+  }
+
+  /**
+   * 삭제 선택 모달 이벤트 리스너 연결
+   */
+  attachDeleteSelectionModalListeners(modal, matches) {
+    const handleClick = (e) => {
+      let target = e.target;
+      while (target && target !== modal) {
+        const action = target.getAttribute("data-action");
+        if (action === "delete") {
+          const index = parseInt(target.getAttribute("data-index"), 10);
+          if (!isNaN(index) && matches[index]) {
+            this.closeSelectionModal(modal);
+            setTimeout(() => {
+              this.deleteMatch(matches[index]);
+            }, 100);
+          }
+          return;
+        } else if (action === "close") {
+          this.closeSelectionModal(modal);
+          return;
+        }
+        target = target.parentElement;
+      }
+    };
+
+    modal.addEventListener("click", handleClick);
+
+    // Cleanup 함수 저장
+    modal._cleanup = () => {
+      modal.removeEventListener("click", handleClick);
+    };
+  }
+
+  /**
+   * 매칭 항목 삭제
+   */
+  async deleteMatch(match) {
+    // 삭제 확인
+    if (!confirm("정말 삭제하시겠습니까?")) {
+      return;
+    }
+
+    try {
+      const char = this.risuAPI.getChar();
+      if (!char || !char.chats) {
+        return;
+      }
+
+      const chatPage = char.chatPage || 0;
+      if (!char.chats[chatPage]) {
+        return;
+      }
+
+      const messages = char.chats[chatPage].message;
+      if (!messages || !messages[match.chatIndex]) {
+        return;
+      }
+
+      const messageData = messages[match.chatIndex].data;
+
+      // 텍스트 삭제
+      const updated =
+        messageData.slice(0, match.start) +
+        messageData.slice(match.end);
+
+      messages[match.chatIndex].data = updated;
+      this.risuAPI.setChar(char);
+
+      // 삭제 애니메이션 실행
+      const targetElement = this.findElementByMatch(match);
+      if (targetElement) {
+        await this.performDeleteAnimation(targetElement);
+      }
+
+      // 페이지 새로고침
+      // location.reload();
+    } catch (error) {
+      console.error("[EditManager] Error deleting match:", error);
+      alert("삭제 중 오류가 발생했습니다.");
+    }
+  }
+
+  /**
+   * 매칭 정보로부터 DOM 요소 찾기
+   */
+  findElementByMatch(match) {
+    try {
+      const char = this.risuAPI.getChar();
+      const chatPage = char.chatPage || 0;
+      const messages = char.chats[chatPage].message;
+      const message = messages[match.chatIndex];
+      
+      if (!message) return null;
+
+      // data-chat-index와 data-chat-id를 사용하여 요소 찾기
+      const chatIndex = match.chatIndex;
+      const chatId = message.id;
+
+      // 가능한 선택자들
+      const selectors = [
+        `[data-chat-index="${chatIndex}"][data-chat-id="${chatId}"]`,
+        `[data-chat-index="${chatIndex}"]`,
+      ];
+
+      for (const selector of selectors) {
+        const elements = document.querySelectorAll(selector);
+        for (const element of elements) {
+          // 요소의 텍스트 내용 확인
+          const elementText = element.textContent || element.innerText || "";
+          if (elementText.includes(match.context?.substring(0, 50) || "")) {
+            return element;
+          }
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error("[EditManager] Error finding element:", error);
+      return null;
+    }
+  }
+
+  /**
+   * 삭제 애니메이션 실행
+   */
+  async performDeleteAnimation(element) {
+    if (!element) return;
+
+    const rect = element.getBoundingClientRect();
+    const container = document.body;
+    
+    // 중앙 기준 X, Y 좌표
+    const centerX = rect.left + window.scrollX + rect.width / 2;
+    const centerY = rect.top + window.scrollY + rect.height / 2 - 25;
+    
+    const s = editStyles;
+    
+    // 좌측 이미지 생성
+    const imgLeft = document.createElement('img');
+    imgLeft.src = DEL_IMG_LEFT;
+    imgLeft.width = 100;
+    imgLeft.height = 100;
+    imgLeft.className = `${s.floatingDeleteImg} ${s.floatingDeleteImgFromLeft}`;
+    imgLeft.style.top = `${centerY}px`;
+    imgLeft.style.left = `${centerX - 25}px`;
+    container.appendChild(imgLeft);
+    
+    // 우측 이미지 생성
+    const imgRight = document.createElement('img');
+    imgRight.src = DEL_IMG_RIGHT;
+    imgRight.width = 100;
+    imgRight.height = 100;
+    imgRight.className = `${s.floatingDeleteImg} ${s.floatingDeleteImgFromRight}`;
+    imgRight.style.top = `${centerY}px`;
+    imgRight.style.left = `${centerX + 25}px`;
+    container.appendChild(imgRight);
+    
+    // 순차 등장
+    requestAnimationFrame(() => {
+      imgLeft.classList.add(s.floatingDeleteImgAppear);
+    });
+    await new Promise(r => setTimeout(r, 400));
+    requestAnimationFrame(() => {
+      imgRight.classList.add(s.floatingDeleteImgAppear);
+    });
+    
+    // 애니메이션 완료 대기 (이미지들이 중앙으로 모이는 시간)
+    await new Promise(r => setTimeout(r, 800));
+    
+    // 이미지들 제거
+    if (imgLeft.parentNode) {
+      imgLeft.remove();
+    }
+    if (imgRight.parentNode) {
+      imgRight.remove();
+    }
+    
+    // 이미지 제거 후 추가 대기 (애니메이션 완전 종료)
+    await new Promise(r => setTimeout(r, 400));
+    
+    // 애니메이션이 완전히 끝난 후 요소 제거
+    if (element.parentNode) {
+      element.remove();
     }
   }
 

@@ -10,3 +10,4 @@ export * from "./ui/menu-button.js";
 export * from "./updateManager/update-dialog.js";
 export * from "./updateManager/alert-dialog.js";
 
+export * from "./img/del-img-components.js";

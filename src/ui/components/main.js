@@ -3,7 +3,7 @@ import { MENU_BUTTON_TAG } from "./ui/menu-button";
 import { RisuAPI } from "../../core/risu-api";
 import { EditManager } from "../../core/edit-manager.js";
 import { baseStyles } from "../styles/index.js";
-import "winbox";
+// import "winbox";
 
 // 메인 애플리케이션 클래스
 export class App {
@@ -45,23 +45,23 @@ export class App {
     openPluginWindow() {
       if (this.pluginWindow) return;
   
-      const winboxConfig = {
-        title: `${PLUGIN_NAME}`,
-        x: "center",
-        y: "center",
-        width: Math.min(1080, window.innerWidth * 0.9) + "px",
-        height: Math.min(800, window.innerHeight * 0.8) + "px",
-        mount: this.pluginWindowRoot,
-        background: "#0f131a",
-        class: ["no-full", "no-max", "no-min", "rb-box"],
-        onclose: () => {
-          this.pluginWindow = null;
-          location.hash = "";
-        },
-      };
+      // const winboxConfig = {
+      //   title: `${PLUGIN_NAME}`,
+      //   x: "center",
+      //   y: "center",
+      //   width: Math.min(1080, window.innerWidth * 0.9) + "px",
+      //   height: Math.min(800, window.innerHeight * 0.8) + "px",
+      //   mount: this.pluginWindowRoot,
+      //   background: "#0f131a",
+      //   class: ["no-full", "no-max", "no-min", "rb-box"],
+      //   onclose: () => {
+      //     this.pluginWindow = null;
+      //     location.hash = "";
+      //   },
+      // };
   
-      this.pluginWindow = new WinBox(winboxConfig);
-      this.render();
+      // this.pluginWindow = new WinBox(winboxConfig);
+      // this.render();
     }
   
     render() {
