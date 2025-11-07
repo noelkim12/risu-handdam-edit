@@ -255,7 +255,7 @@ export function findAllMatches(originalMd, searchText, opts = {}) {
   const FUZZY_MAX = opts.fuzzyMaxLen ?? 200;
   const CUTOFF = opts.fuzzyCutoff ?? 20;
   const FUZZY_THRESHOLD = opts.fuzzyThreshold ?? 0.15;
-  const ANCH = opts.anchorLength ?? 12;
+  const ANCH = opts.anchorLength ?? 5;
   
   // 정규화된 텍스트로 검색 (공백 정규화)
   const normalizedSearch = searchText.replace(/\s+/g, " ").trim();
@@ -361,6 +361,7 @@ function findFuzzyMatches(
   foundPositions
 ) {
   const matches = [];
+  const MAX_FUZZY_MATCHES = 3; // Fuzzy 매칭 결과 최대 개수
   const lowerNormalized = normalizedOriginal.toLowerCase();
   const lowerSearch = normalizedSearch.toLowerCase();
   
@@ -372,6 +373,11 @@ function findFuzzyMatches(
   const maxDistance = Math.max(5, Math.floor(lowerSearch.length * FUZZY_THRESHOLD));
   
   for (let i = 0; i + lowerSearch.length <= lowerNormalized.length; i += step) {
+    // 최대 개수에 도달하면 조기 종료
+    if (matches.length >= MAX_FUZZY_MATCHES) {
+      break;
+    }
+    
     const seg = lowerNormalized.slice(i, i + lowerSearch.length);
     const d = fastEditDistance(lowerSearch, seg, CUTOFF);
     

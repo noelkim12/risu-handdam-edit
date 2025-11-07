@@ -15,9 +15,11 @@ export class TextSelectionHandler {
     this.isEnabled = false;
     this.currentSelection = null;
     this.selectionTimeout = null;
+    this.lastSelectionText = null; // 이전 selection 텍스트 저장 (변경 감지용)
     
     // 이벤트 리스너를 바인딩하여 저장 (removeEventListener를 위해 필요)
     this._boundHandleSelection = this.handleSelection.bind(this);
+    this._boundHandleKeyUp = this.handleKeyUp.bind(this);
   }
 
   /**
@@ -27,7 +29,7 @@ export class TextSelectionHandler {
     if (this.isEnabled) return;
     this.isEnabled = true;
     document.addEventListener("mouseup", this._boundHandleSelection);
-    document.addEventListener("keyup", this._boundHandleSelection);
+    document.addEventListener("keyup", this._boundHandleKeyUp);
     document.addEventListener("dblclick", this._boundHandleSelection);
   }
 
@@ -38,20 +40,38 @@ export class TextSelectionHandler {
     if (!this.isEnabled) return;
     this.isEnabled = false;
     document.removeEventListener("mouseup", this._boundHandleSelection);
-    document.removeEventListener("keyup", this._boundHandleSelection);
+    document.removeEventListener("keyup", this._boundHandleKeyUp);
     document.removeEventListener("dblclick", this._boundHandleSelection);
     this.clearSelection();
+  }
+
+  /**
+   * 키보드 이벤트 처리 (shift+방향키로 selection 확장 감지)
+   */
+  handleKeyUp(e) {
+    // shift+방향키 조합인 경우에만 처리
+    const isSelectionKey = e.shiftKey && (
+      e.key === "ArrowLeft" ||
+      e.key === "ArrowRight" ||
+      e.key === "ArrowUp" ||
+      e.key === "ArrowDown" ||
+      e.key === "Home" ||
+      e.key === "End"
+    );
+
+    if (isSelectionKey) {
+      // shift+방향키로 selection이 확장된 경우 처리
+      this.handleSelection();
+    } else {
+      // 일반 키 입력의 경우 기존 로직 사용
+      this.handleSelection();
+    }
   }
 
   /**
    * 텍스트 선택 처리
    */
   handleSelection() {
-    // 이미 Floating Button이 표시되어 있으면 처리하지 않음
-    if (this.editManager.floatingButton) {
-      return;
-    }
-
     // 기존 타임아웃 취소
     if (this.selectionTimeout) {
       clearTimeout(this.selectionTimeout);
@@ -59,15 +79,14 @@ export class TextSelectionHandler {
 
     // 짧은 지연 후 처리 (선택이 완료될 때까지 대기)
     this.selectionTimeout = setTimeout(() => {
-      // 다시 한 번 체크 (타임아웃 동안 버튼이 표시되었을 수 있음)
-      if (this.editManager.floatingButton) {
-        return;
-      }
-
       const selection = window.getSelection();
       
       if (!selection || selection.rangeCount === 0) {
-        // this.clearSelection();
+        // selection이 없으면 기존 버튼 제거
+        if (this.editManager.floatingButton) {
+          this.editManager.hideFloatingButton();
+        }
+        this.lastSelectionText = null;
         return;
       }
 
@@ -76,15 +95,31 @@ export class TextSelectionHandler {
 
       // 최소 길이 검증
       if (selectedText.length < MIN_SELECTION_LENGTH) {
-        // this.clearSelection();
+        // 최소 길이 미만이면 기존 버튼 제거
+        if (this.editManager.floatingButton) {
+          this.editManager.hideFloatingButton();
+        }
+        this.lastSelectionText = null;
         return;
+      }
+
+      // selection이 변경되지 않았으면 처리하지 않음 (중복 처리 방지)
+      if (selectedText === this.lastSelectionText && this.editManager.floatingButton) {
+        return;
+      }
+
+      // selection이 변경되었거나 새로 생성된 경우
+      // 기존 Floating Button이 있으면 제거 (새로운 selection으로 업데이트)
+      if (this.editManager.floatingButton) {
+        this.editManager.hideFloatingButton();
       }
 
       // 선택된 텍스트가 있는 경우
       if (selectedText.length > 0) {
+        this.lastSelectionText = selectedText;
         this.processSelection(selectedText, range);
       } else {
-        // this.clearSelection();
+        this.lastSelectionText = null;
       }
     }, 100);
   }
@@ -163,6 +198,7 @@ export class TextSelectionHandler {
         currentNode = currentNode.parentElement;
       }
 
+      // 167번 줄 근처에 로그 추가
       // data-chat-index를 찾지 못한 경우 처리하지 않음
       if (targetChatIndex === null || targetChatIndex < 0 || targetChatIndex >= messages.length) {
         // this.clearSelection();
@@ -236,6 +272,7 @@ export class TextSelectionHandler {
       this.selectionTimeout = null;
     }
     this.currentSelection = null;
+    this.lastSelectionText = null;
     
     // 텍스트 선택 해제
     const selection = window.getSelection();
