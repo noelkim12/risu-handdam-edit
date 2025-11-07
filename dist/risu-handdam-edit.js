@@ -5,8 +5,7 @@
 //@arg excludeBotName string
 //@arg minLength int
 //@arg editMode string
-//@dev-mode true
-//@dev-server ws://localhost:13131
+
 //@link https://unpkg.com/risu-handdam-edit@0.1.0/dist/risu-handdam-edit.js
 var risuHanddamEdit;
 /******/ (() => { // webpackBootstrap
@@ -813,471 +812,6 @@ ___CSS_LOADER_EXPORT___.locals = {
 
 /***/ }),
 
-/***/ 288:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-// ESM COMPAT FLAG
-__webpack_require__.r(__webpack_exports__);
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, {
-  initHotReload: () => (/* binding */ initHotReload),
-  stopHotReload: () => (/* binding */ stopHotReload)
-});
-
-// EXTERNAL MODULE: ./src/core/risu-api.js
-var risu_api = __webpack_require__(300);
-// EXTERNAL MODULE: ./src/constants.js
-var constants = __webpack_require__(521);
-;// ./src/core/script-updater.js
-
-
-
-/**
- * 플러그인 스크립트 파싱 (script-updater.js 로직 재사용)
- * @param {string} scriptContent - unpkg에서 fetch한 스크립트 내용
- * @returns {Object} 파싱된 플러그인 데이터
- */
-function parsePluginScript(scriptContent) {
-  const splitedJs = scriptContent.split("\n");
-
-  let name = "";
-  let displayName = undefined;
-  let arg = {};
-  let realArg = {};
-  let customLink = [];
-
-  for (const line of splitedJs) {
-    // V1 플러그인 체크 (지원하지 않음)
-    if (line.startsWith("//@risu-name") || line.startsWith("//@risu-display-name")) {
-      throw new Error("V1 plugin is not supported. Please use V2 plugin.");
-    }
-
-    // name 파싱
-    if (line.startsWith("//@name")) {
-      const provided = line.slice(7).trim();
-      if (provided === "") {
-        throw new Error("Plugin name must be longer than 0");
-      }
-      name = provided;
-    }
-
-    // display-name 파싱
-    if (line.startsWith("//@display-name")) {
-      const provided = line.slice("//@display-name".length + 1).trim();
-      if (provided === "") {
-        throw new Error("Plugin display name must be longer than 0");
-      }  
-      displayName = provided;
-    }
-
-    // link 파싱
-    if (line.startsWith("//@link")) {
-      const link = line.split(" ")[1];
-      if (!link || link === "") {
-        throw new Error("Plugin link is empty");
-      }
-      if (!link.startsWith("https")) {
-        throw new Error("Plugin link must start with https");
-      }
-      const hoverText = line.split(" ").slice(2).join(" ").trim();
-      customLink.push({
-        link: link,
-        hoverText: hoverText || undefined,
-      });
-    }
-
-    // arg 파싱
-    if (line.startsWith("//@risu-arg") || line.startsWith("//@arg")) {
-      const provided = line.trim().split(" ");
-      const provKey = provided[1];
-
-      if (provided[2] !== "int" && provided[2] !== "string") {
-        throw new Error(`Unknown argument type: ${provided[2]}`);
-      }
-
-      if (provided[2] === "int") {
-        arg[provKey] = "int";
-        realArg[provKey] = 0;
-      } else if (provided[2] === "string") {
-        arg[provKey] = "string";
-        realArg[provKey] = "";
-      }
-    }
-  }
-
-  if (name.length === 0) {
-    throw new Error("Plugin name not found");
-  }
-
-  return {
-    name: name,
-    script: scriptContent,
-    realArg: realArg,
-    arguments: arg,
-    displayName: displayName,
-    version: 2,
-    customLink: customLink,
-  };
-}
-
-function scriptUpdater(parsed) {
-  // 3. RisuAPI 싱글톤 인스턴스에서 getDatabase(), setDatabaseLite 가져오기
-  const risuAPI = risu_api/* RisuAPI */.m.getInstance();
-  if (!risuAPI) {
-    throw new Error("RisuAPI is not initialized. Please ensure the plugin is loaded.");
-  }
-
-  // 4. 기존 플러그인 찾기 및 백업
-  const db = risuAPI.getDatabase();
-  const oldPluginIndex = db.plugins.findIndex((p) => p.name === constants/* PLUGIN_NAME */.AF);
-  const backup = oldPluginIndex >= 0 ? { ...db.plugins[oldPluginIndex] } : null;
-
-  console.log("[UpdateManager] Old plugin found:", oldPluginIndex >= 0, backup?.name);
-
-  // 5. realArg 병합 (기존 값 보존 + 새 key 추가)
-  const mergedRealArg = mergeRealArgs(backup?.realArg, parsed.arguments);
-
-  // 6. 새 플러그인 데이터 생성
-  const newPlugin = {
-    ...parsed,
-    realArg: mergedRealArg,
-  };
-
-  console.log("[UpdateManager] New plugin data prepared:", newPlugin.name, newPlugin.displayName);
-
-  // 7. DB 업데이트
-  if (oldPluginIndex >= 0) {
-    db.plugins[oldPluginIndex] = newPlugin;
-    console.log("[UpdateManager] Replaced existing plugin at index", oldPluginIndex);
-  } else {
-    db.plugins.push(newPlugin);
-    console.log("[UpdateManager] Added new plugin");
-  }
-
-  // 8. 저장 및 오류 처리
-  try {
-    risuAPI.setDatabaseLite(db);
-    console.log("[UpdateManager] Database saved successfully");
-    return { success: true };
-  } catch (saveError) {
-    console.error("[UpdateManager] Database save failed:", saveError);
-    // 롤백
-    if (backup && oldPluginIndex >= 0) {
-      db.plugins[oldPluginIndex] = backup;
-      console.log("[UpdateManager] Rolled back to previous plugin");
-    } else if (oldPluginIndex === -1) {
-      db.plugins.pop();
-      console.log("[UpdateManager] Removed newly added plugin");
-    }
-    return { success: false, error: saveError };
-  }
-}
-
-/**
- * realArg 병합 (기존 값 보존 + 새 key 추가)
- * @param {Object} oldRealArg - 기존 플러그인의 realArg
- * @param {Object} newArguments - 새 플러그인의 arguments
- * @returns {Object} 병합된 realArg
- */
-function mergeRealArgs(oldRealArg, newArguments) {
-  const merged = {};
-
-  // 새 arguments를 기준으로 순회
-  for (const [key, type] of Object.entries(newArguments)) {
-    // 기존 값이 있으면 보존, 없으면 기본값
-    if (oldRealArg && key in oldRealArg) {
-      merged[key] = oldRealArg[key]; // 기존 사용자 입력 값 보존
-    } else {
-      // 새로 추가된 arg는 기본값
-      merged[key] = type === "int" ? 0 : "";
-    }
-  }
-
-  return merged;
-}
-;// ./src/core/dev-reload.js
-/**
- * Auto-generated Hot Reload Client
- *
- * DO NOT EDIT THIS FILE MANUALLY!
- * This file is automatically generated in development mode.
- *
- * Generated at: 2025-11-06T19:35:56.030Z
- * WebSocket URL: ws://localhost:13131
- */
-
-
-
-const DEV_SERVER_URL = 'ws://localhost:13131';
-const MAX_RECONNECT_DELAY = 30000; // 30 seconds
-const INITIAL_RECONNECT_DELAY = 1000; // 1 second
-const MAX_ERROR_LOGS = 3; // Maximum error logs to display
-
-class HotReloadClient {
-  constructor() {
-    this.ws = null;
-    this.reconnectAttempts = 0;
-    this.reconnectTimeout = null;
-    this.isIntentionallyClosed = false;
-    this.errorLogCount = 0; // Track error log count
-  }
-
-  /**
-   * Initialize WebSocket connection
-   */
-  connect() {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      console.log('[HotReload] Already connected');
-      return;
-    }
-
-    try {
-      if (this.errorLogCount < MAX_ERROR_LOGS) {
-        console.log('[HotReload] Connecting to dev server:', DEV_SERVER_URL);
-      }
-      this.ws = new WebSocket(DEV_SERVER_URL);
-
-      this.ws.onopen = () => {
-        console.log('[HotReload] ✅ Connected to dev server');
-        this.reconnectAttempts = 0; // Reset on successful connection
-        this.errorLogCount = 0; // Reset error log count on successful connection
-      };
-
-      this.ws.onmessage = (event) => {
-        this.handleMessage(event.data);
-      };
-
-      this.ws.onclose = (event) => {
-        if (this.errorLogCount < MAX_ERROR_LOGS) {
-          console.log(`[HotReload] Disconnected (code: ${event.code}, reason: ${event.reason || 'unknown'})`);
-          this.errorLogCount++;
-        } else if (this.errorLogCount === MAX_ERROR_LOGS) {
-          console.log('[HotReload] Connection errors suppressed (max logs reached). Retrying silently...');
-          this.errorLogCount++;
-        }
-
-        if (!this.isIntentionallyClosed) {
-          this.scheduleReconnect();
-        }
-      };
-
-      this.ws.onerror = (error) => {
-        if (this.errorLogCount < MAX_ERROR_LOGS) {
-          console.error('[HotReload] WebSocket error:', error.message || error);
-        }
-      };
-
-    } catch (error) {
-      if (this.errorLogCount < MAX_ERROR_LOGS) {
-        console.error('[HotReload] Connection failed:', error);
-        this.errorLogCount++;
-      }
-      this.scheduleReconnect();
-    }
-  }
-
-  /**
-   * Handle incoming messages from dev server
-   * @param {string} data - Raw message data
-   */
-  handleMessage(data) {
-    try {
-      const message = JSON.parse(data);
-
-      switch (message.type) {
-        case 'connected':
-          console.log('[HotReload] Server message:', message.message);
-          break;
-
-        case 'reload':
-          console.log(`[HotReload] 📦 Update received (${message.file}, ${message.size} bytes)`);
-          this.handleReload(message.scriptContent);
-          break;
-
-        case 'pong':
-          // Heartbeat response (optional)
-          break;
-
-        default:
-          console.warn('[HotReload] Unknown message type:', message.type);
-      }
-    } catch (error) {
-      console.error('[HotReload] Failed to parse message:', error);
-    }
-  }
-
-  /**
-   * Handle script reload
-   * @param {string} scriptContent - Updated script content
-   */
-  async handleReload(scriptContent) {
-    try {
-      console.log('[HotReload] 🔄 Parsing updated script...');
-
-      // Parse using existing script-updater logic
-      const parsed = parsePluginScript(scriptContent);
-
-      console.log('[HotReload] 🔄 Updating plugin...');
-      const result = await scriptUpdater(parsed);
-
-      if (result.success) {
-        console.log('[HotReload] ✅ Plugin updated successfully');
-
-        // Show toast notification instead of auto-reload
-        this.showToast('🔥 Hot Reload Complete!', 'success');
-      } else {
-        console.error('[HotReload] ❌ Plugin update failed:', result.error);
-        this.showToast(`❌ Hot Reload Failed: ${result.error?.message || 'Unknown error'}`, 'error');
-      }
-    } catch (error) {
-      console.error('[HotReload] ❌ Reload failed:', error);
-      this.showToast(`❌ Hot Reload Error: ${error.message}`, 'error');
-    }
-  }
-
-  /**
-   * Show toast notification
-   * @param {string} message - Toast message
-   * @param {string} type - Toast type ('success' or 'error')
-   */
-  showToast(message, type = 'success') {
-    // Remove existing toast if any
-    const existingToast = document.getElementById('hot-reload-toast');
-    if (existingToast) {
-      existingToast.remove();
-    }
-
-    // Create toast element
-    const toast = document.createElement('div');
-    toast.id = 'hot-reload-toast';
-    toast.textContent = message;
-
-    // Apply styles
-    const bgColor = type === 'success' ? '#10b981' : '#ef4444';
-    Object.assign(toast.style, {
-      position: 'fixed',
-      top: '-100px', // Start above viewport
-      left: '50%',
-      transform: 'translateX(-50%)',
-      backgroundColor: bgColor,
-      color: 'white',
-      padding: '12px 24px',
-      borderRadius: '8px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06)',
-      fontSize: '14px',
-      fontWeight: '500',
-      zIndex: '999999',
-      transition: 'top 0.3s ease-out',
-      fontFamily: 'system-ui, -apple-system, sans-serif',
-    });
-
-    // Append to body
-    document.body.appendChild(toast);
-
-    // Trigger slide down animation
-    setTimeout(() => {
-      toast.style.top = '20px';
-    }, 10);
-
-    // Auto remove after 3 seconds
-    setTimeout(() => {
-      toast.style.top = '-100px';
-      setTimeout(() => {
-        toast.remove();
-      }, 300); // Wait for slide up animation
-    }, 3000);
-  }
-
-  /**
-   * Schedule reconnection with exponential backoff
-   */
-  scheduleReconnect() {
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-    }
-
-    // Exponential backoff: 1s, 2s, 4s, 8s, 16s, 30s (max)
-    const delay = Math.min(
-      INITIAL_RECONNECT_DELAY * Math.pow(2, this.reconnectAttempts),
-      MAX_RECONNECT_DELAY
-    );
-
-    if (this.errorLogCount < MAX_ERROR_LOGS) {
-      console.log(`[HotReload] Reconnecting in ${delay / 1000}s... (attempt ${this.reconnectAttempts + 1})`);
-    }
-
-    this.reconnectTimeout = setTimeout(() => {
-      this.reconnectAttempts++;
-      this.connect();
-    }, delay);
-  }
-
-  /**
-   * Send ping to server (optional heartbeat)
-   */
-  ping() {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify({ type: 'ping', timestamp: Date.now() }));
-    }
-  }
-
-  /**
-   * Disconnect from server
-   */
-  disconnect() {
-    this.isIntentionallyClosed = true;
-
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-    }
-
-    if (this.ws) {
-      this.ws.close(1000, 'Client closed');
-      this.ws = null;
-    }
-
-    console.log('[HotReload] Disconnected');
-  }
-}
-
-// Singleton instance
-let hotReloadClient = null;
-
-/**
- * Initialize hot reload client
- */
-function initHotReload() {
-  if (hotReloadClient) {
-    console.log('[HotReload] Already initialized');
-    return hotReloadClient;
-  }
-
-  console.log('[HotReload] 🔥 Initializing hot reload client...');
-  hotReloadClient = new HotReloadClient();
-  hotReloadClient.connect();
-
-  // Optional: Send ping every 30 seconds to keep connection alive
-  setInterval(() => {
-    hotReloadClient.ping();
-  }, 30000);
-
-  return hotReloadClient;
-}
-
-/**
- * Disconnect hot reload client
- */
-function stopHotReload() {
-  if (hotReloadClient) {
-    hotReloadClient.disconnect();
-    hotReloadClient = null;
-  }
-}
-
-
-/***/ }),
-
 /***/ 300:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -1981,17 +1515,6 @@ module.exports = domAPI;
 /******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
 /******/ 	})();
 /******/ 	
-/******/ 	/* webpack/runtime/make namespace object */
-/******/ 	(() => {
-/******/ 		// define __esModule on exports
-/******/ 		__webpack_require__.r = (exports) => {
-/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 			}
-/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 		};
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/nonce */
 /******/ 	(() => {
 /******/ 		__webpack_require__.nc = undefined;
@@ -2605,6 +2128,13 @@ function createIndexMap(original, normalized) {
 
 const MIN_SELECTION_LENGTH = 5;
 
+/**
+ * 모바일 환경 감지
+ */
+function isMobile() {
+  return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+}
+
 class TextSelectionHandler {
   constructor(editManager) {
     this.editManager = editManager;
@@ -2613,10 +2143,12 @@ class TextSelectionHandler {
     this.currentSelection = null;
     this.selectionTimeout = null;
     this.lastSelectionText = null; // 이전 selection 텍스트 저장 (변경 감지용)
+    this.isMobileDevice = isMobile(); // 모바일 환경 여부
     
     // 이벤트 리스너를 바인딩하여 저장 (removeEventListener를 위해 필요)
     this._boundHandleSelection = this.handleSelection.bind(this);
     this._boundHandleKeyUp = this.handleKeyUp.bind(this);
+    this._boundHandleSelectionChange = this.handleSelectionChange.bind(this);
   }
 
   /**
@@ -2625,9 +2157,16 @@ class TextSelectionHandler {
   enable() {
     if (this.isEnabled) return;
     this.isEnabled = true;
-    document.addEventListener("mouseup", this._boundHandleSelection);
-    document.addEventListener("keyup", this._boundHandleKeyUp);
-    document.addEventListener("dblclick", this._boundHandleSelection);
+    
+    if (this.isMobileDevice) {
+      // 모바일: selectionchange 이벤트로 selection 변경 감지
+      document.addEventListener("selectionchange", this._boundHandleSelectionChange);
+    } else {
+      // 데스크톱: 기존 이벤트 사용
+      document.addEventListener("mouseup", this._boundHandleSelection);
+      document.addEventListener("keyup", this._boundHandleKeyUp);
+      document.addEventListener("dblclick", this._boundHandleSelection);
+    }
   }
 
   /**
@@ -2636,10 +2175,30 @@ class TextSelectionHandler {
   disable() {
     if (!this.isEnabled) return;
     this.isEnabled = false;
-    document.removeEventListener("mouseup", this._boundHandleSelection);
-    document.removeEventListener("keyup", this._boundHandleKeyUp);
-    document.removeEventListener("dblclick", this._boundHandleSelection);
+    
+    if (this.isMobileDevice) {
+      document.removeEventListener("selectionchange", this._boundHandleSelectionChange);
+    } else {
+      document.removeEventListener("mouseup", this._boundHandleSelection);
+      document.removeEventListener("keyup", this._boundHandleKeyUp);
+      document.removeEventListener("dblclick", this._boundHandleSelection);
+    }
     this.clearSelection();
+  }
+
+  /**
+   * 모바일: selectionchange 이벤트 처리 (selection handle 이동 감지)
+   */
+  handleSelectionChange() {
+    // 기존 타임아웃 취소
+    if (this.selectionTimeout) {
+      clearTimeout(this.selectionTimeout);
+    }
+
+    // 짧은 지연 후 처리 (selection이 안정화될 때까지 대기)
+    this.selectionTimeout = setTimeout(() => {
+      this.handleSelection();
+    }, 150);
   }
 
   /**
@@ -2850,14 +2409,30 @@ class TextSelectionHandler {
     const scrollX = window.scrollX || window.pageXOffset;
     const scrollY = window.scrollY || window.pageYOffset;
 
-    return {
-      top: rect.top + scrollY,
-      left: rect.left + scrollX,
-      right: rect.right + scrollX,
-      bottom: rect.bottom + scrollY,
-      width: rect.width,
-      height: rect.height,
-    };
+    if (this.isMobileDevice) {
+      // 모바일: selection 하단에 버튼 표시 (브라우저 기본 toolbar와 겹치지 않도록)
+      const buttonHeight = 32;
+      const gap = 8;
+      
+      return {
+        top: rect.bottom + scrollY + gap, // selection 하단에 표시
+        left: rect.left + scrollX + rect.width / 2, // selection 중앙
+        right: rect.right + scrollX,
+        bottom: rect.bottom + scrollY,
+        width: rect.width,
+        height: rect.height,
+      };
+    } else {
+      // 데스크톱: selection 상단에 버튼 표시
+      return {
+        top: rect.top + scrollY,
+        left: rect.left + scrollX,
+        right: rect.right + scrollX,
+        bottom: rect.bottom + scrollY,
+        width: rect.width,
+        height: rect.height,
+      };
+    }
   }
 
   /**
@@ -2892,7 +2467,7 @@ class TextSelectionHandler {
  * 2. Run npm run build
  * 3. This file will be regenerated automatically
  *
- * Generated at: 2025-11-07T01:19:35.335Z
+ * Generated at: 2025-11-07T01:42:45.847Z
  */
 
 
@@ -3916,6 +3491,7 @@ class EditManager {
     this._clickHandler = null;
     this._modeChangeCallbacks = []; // 모드 변경 콜백 함수들
     this._ignoreClickUntil = 0; // 더블클릭 후 클릭 이벤트 무시할 시간
+    this.isMobileDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   }
 
   /**
@@ -4149,6 +3725,12 @@ class EditManager {
     modal.className = s.selectionModal;
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
+    
+    // 모바일 환경에서 width 조정
+    if (this.isMobileDevice) {
+      modal.style.width = "90vw";
+      modal.style.maxWidth = "600px";
+    }
 
     // 헤더 HTML 생성
     const headerHTML = `
@@ -4319,10 +3901,22 @@ class EditManager {
     const buttonHeight = 32;
     const gap = 8;
     const containerWidth = buttonWidth * 2 + gap; // 버튼 2개 + gap
-    const containerLeft = position.left + position.width / 2 - containerWidth / 2;
+    
+    // 모바일/데스크톱에 따른 위치 계산
+    let containerTop, containerLeft;
+    
+    if (this.isMobileDevice) {
+      // 모바일: position.top이 이미 selection 하단 위치로 계산되어 있음
+      containerTop = position.top;
+      containerLeft = position.left - containerWidth / 2; // selection 중앙 기준으로 버튼 중앙 정렬
+    } else {
+      // 데스크톱: selection 상단에 버튼 표시
+      containerTop = position.top - buttonHeight - 8;
+      containerLeft = position.left + position.width / 2 - containerWidth / 2;
+    }
     
     // 컨테이너 위치 설정
-    buttonContainer.style.top = `${position.top - buttonHeight - 8}px`;
+    buttonContainer.style.top = `${containerTop}px`;
     buttonContainer.style.left = `${containerLeft}px`;
     buttonContainer.style.width = `${containerWidth}px`;
     
@@ -4455,9 +4049,18 @@ class EditManager {
       ? Math.max(...lines.map(line => line.length), 0)
       : selectedText.length;
     
-    // 너비 계산: 최소 400px, 최대 90vw, 텍스트 길이에 따라 조정
-    const minWidth = 400;
-    const maxWidth = Math.min(window.innerWidth * 0.9, 800);
+    // 모바일/데스크톱에 따른 너비 계산
+    let minWidth, maxWidth;
+    if (this.isMobileDevice) {
+      // 모바일: 화면 너비의 90% 사용, 최소 320px
+      minWidth = 320;
+      maxWidth = Math.min(window.innerWidth * 0.9, 600);
+    } else {
+      // 데스크톱: 기존 로직
+      minWidth = 400;
+      maxWidth = Math.min(window.innerWidth * 0.9, 800);
+    }
+    
     const charWidth = 8; // 대략적인 문자 너비 (px)
     const dialogPadding = 40; // 다이얼로그 좌우 패딩 (20px * 2)
     const textareaPadding = 16; // textarea 좌우 패딩 (8px * 2)
@@ -4644,6 +4247,12 @@ class EditManager {
     modal.className = s.selectionModal;
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
+    
+    // 모바일 환경에서 width 조정
+    if (this.isMobileDevice) {
+      modal.style.width = "90vw";
+      modal.style.maxWidth = "600px";
+    }
 
     // 헤더 HTML 생성
     const headerHTML = `
@@ -5173,7 +4782,7 @@ if (!customElements.get(ELEMENT_TAG)) {
   customElements.define(ELEMENT_TAG, AlertDialog);
 }
 
-const ALERT_DIALOG_TAG = (/* unused pure expression or super */ null && (ELEMENT_TAG));
+const ALERT_DIALOG_TAG = ELEMENT_TAG;
 
 /**
  * AlertDialog를 표시하고 사용자 확인을 기다림
@@ -5181,7 +4790,7 @@ const ALERT_DIALOG_TAG = (/* unused pure expression or super */ null && (ELEMENT
  * @param {string} [confirmText="확인"] - 확인 버튼 텍스트
  * @returns {Promise<void>}
  */
-function alert_dialog_showAlert(message, confirmText = "확인") {
+function showAlert(message, confirmText = "확인") {
   return new Promise((resolve) => {
     const dialog = document.createElement(ALERT_DIALOG_TAG);
     dialog.setAttribute("message", message);
@@ -5398,8 +5007,175 @@ if (!customElements.get(update_dialog_ELEMENT_TAG)) {
   customElements.define(update_dialog_ELEMENT_TAG, UpdateDialog);
 }
 
-const update_dialog_UPDATE_DIALOG_TAG = (/* unused pure expression or super */ null && (update_dialog_ELEMENT_TAG));
+const UPDATE_DIALOG_TAG = update_dialog_ELEMENT_TAG;
 
+;// ./src/core/script-updater.js
+
+
+
+/**
+ * 플러그인 스크립트 파싱 (script-updater.js 로직 재사용)
+ * @param {string} scriptContent - unpkg에서 fetch한 스크립트 내용
+ * @returns {Object} 파싱된 플러그인 데이터
+ */
+function parsePluginScript(scriptContent) {
+  const splitedJs = scriptContent.split("\n");
+
+  let name = "";
+  let displayName = undefined;
+  let arg = {};
+  let realArg = {};
+  let customLink = [];
+
+  for (const line of splitedJs) {
+    // V1 플러그인 체크 (지원하지 않음)
+    if (line.startsWith("//@risu-name") || line.startsWith("//@risu-display-name")) {
+      throw new Error("V1 plugin is not supported. Please use V2 plugin.");
+    }
+
+    // name 파싱
+    if (line.startsWith("//@name")) {
+      const provided = line.slice(7).trim();
+      if (provided === "") {
+        throw new Error("Plugin name must be longer than 0");
+      }
+      name = provided;
+    }
+
+    // display-name 파싱
+    if (line.startsWith("//@display-name")) {
+      const provided = line.slice("//@display-name".length + 1).trim();
+      if (provided === "") {
+        throw new Error("Plugin display name must be longer than 0");
+      }  
+      displayName = provided;
+    }
+
+    // link 파싱
+    if (line.startsWith("//@link")) {
+      const link = line.split(" ")[1];
+      if (!link || link === "") {
+        throw new Error("Plugin link is empty");
+      }
+      if (!link.startsWith("https")) {
+        throw new Error("Plugin link must start with https");
+      }
+      const hoverText = line.split(" ").slice(2).join(" ").trim();
+      customLink.push({
+        link: link,
+        hoverText: hoverText || undefined,
+      });
+    }
+
+    // arg 파싱
+    if (line.startsWith("//@risu-arg") || line.startsWith("//@arg")) {
+      const provided = line.trim().split(" ");
+      const provKey = provided[1];
+
+      if (provided[2] !== "int" && provided[2] !== "string") {
+        throw new Error(`Unknown argument type: ${provided[2]}`);
+      }
+
+      if (provided[2] === "int") {
+        arg[provKey] = "int";
+        realArg[provKey] = 0;
+      } else if (provided[2] === "string") {
+        arg[provKey] = "string";
+        realArg[provKey] = "";
+      }
+    }
+  }
+
+  if (name.length === 0) {
+    throw new Error("Plugin name not found");
+  }
+
+  return {
+    name: name,
+    script: scriptContent,
+    realArg: realArg,
+    arguments: arg,
+    displayName: displayName,
+    version: 2,
+    customLink: customLink,
+  };
+}
+
+function scriptUpdater(parsed) {
+  // 3. RisuAPI 싱글톤 인스턴스에서 getDatabase(), setDatabaseLite 가져오기
+  const risuAPI = risu_api/* RisuAPI */.m.getInstance();
+  if (!risuAPI) {
+    throw new Error("RisuAPI is not initialized. Please ensure the plugin is loaded.");
+  }
+
+  // 4. 기존 플러그인 찾기 및 백업
+  const db = risuAPI.getDatabase();
+  const oldPluginIndex = db.plugins.findIndex((p) => p.name === constants/* PLUGIN_NAME */.AF);
+  const backup = oldPluginIndex >= 0 ? { ...db.plugins[oldPluginIndex] } : null;
+
+  console.log("[UpdateManager] Old plugin found:", oldPluginIndex >= 0, backup?.name);
+
+  // 5. realArg 병합 (기존 값 보존 + 새 key 추가)
+  const mergedRealArg = mergeRealArgs(backup?.realArg, parsed.arguments);
+
+  // 6. 새 플러그인 데이터 생성
+  const newPlugin = {
+    ...parsed,
+    realArg: mergedRealArg,
+  };
+
+  console.log("[UpdateManager] New plugin data prepared:", newPlugin.name, newPlugin.displayName);
+
+  // 7. DB 업데이트
+  if (oldPluginIndex >= 0) {
+    db.plugins[oldPluginIndex] = newPlugin;
+    console.log("[UpdateManager] Replaced existing plugin at index", oldPluginIndex);
+  } else {
+    db.plugins.push(newPlugin);
+    console.log("[UpdateManager] Added new plugin");
+  }
+
+  // 8. 저장 및 오류 처리
+  try {
+    risuAPI.setDatabaseLite(db);
+    console.log("[UpdateManager] Database saved successfully");
+    return { success: true };
+  } catch (saveError) {
+    console.error("[UpdateManager] Database save failed:", saveError);
+    // 롤백
+    if (backup && oldPluginIndex >= 0) {
+      db.plugins[oldPluginIndex] = backup;
+      console.log("[UpdateManager] Rolled back to previous plugin");
+    } else if (oldPluginIndex === -1) {
+      db.plugins.pop();
+      console.log("[UpdateManager] Removed newly added plugin");
+    }
+    return { success: false, error: saveError };
+  }
+}
+
+/**
+ * realArg 병합 (기존 값 보존 + 새 key 추가)
+ * @param {Object} oldRealArg - 기존 플러그인의 realArg
+ * @param {Object} newArguments - 새 플러그인의 arguments
+ * @returns {Object} 병합된 realArg
+ */
+function mergeRealArgs(oldRealArg, newArguments) {
+  const merged = {};
+
+  // 새 arguments를 기준으로 순회
+  for (const [key, type] of Object.entries(newArguments)) {
+    // 기존 값이 있으면 보존, 없으면 기본값
+    if (oldRealArg && key in oldRealArg) {
+      merged[key] = oldRealArg[key]; // 기존 사용자 입력 값 보존
+    } else {
+      // 새로 추가된 arg는 기본값
+      merged[key] = type === "int" ? 0 : "";
+    }
+  }
+
+  return merged;
+}
 ;// ./src/core/update-manager.js
 
 
@@ -5412,7 +5188,7 @@ const update_dialog_UPDATE_DIALOG_TAG = (/* unused pure expression or super */ n
  */
 async function fetchLatestManifest() {
   try {
-    const url = `https://unpkg.com/${PLUGIN_NAME}@latest/dist/${PLUGIN_NAME}.js`;
+    const url = `https://unpkg.com/${constants/* PLUGIN_NAME */.AF}@latest/dist/${constants/* PLUGIN_NAME */.AF}.js`;
 
     // HEAD 요청으로 redirect된 최종 URL 확인
     const headResponse = await fetch(url, {
@@ -5437,7 +5213,7 @@ async function fetchLatestManifest() {
     const bannerMatch = content.match(bannerRegex);
 
     // 릴리즈 노트 가져오기
-    const notesUrl = `https://unpkg.com/${PLUGIN_NAME}@${latestVersion}/dist/release-notes.json`;
+    const notesUrl = `https://unpkg.com/${constants/* PLUGIN_NAME */.AF}@${latestVersion}/dist/release-notes.json`;
     let releaseData = {};
 
     try {
@@ -5453,9 +5229,9 @@ async function fetchLatestManifest() {
     return {
       version: latestVersion,
       url: resolvedUrl,
-      name: bannerMatch?.[1]?.trim() || PLUGIN_NAME,
+      name: bannerMatch?.[1]?.trim() || constants/* PLUGIN_NAME */.AF,
       displayName:
-        bannerMatch?.[2]?.trim() || `${PLUGIN_NAME}_v${latestVersion}`,
+        bannerMatch?.[2]?.trim() || `${constants/* PLUGIN_NAME */.AF}_v${latestVersion}`,
       description: bannerMatch?.[4]?.trim() || "",
       mandatory: releaseData.mandatory || false,
       notes: releaseData.notes || [],
@@ -5583,7 +5359,7 @@ function confirmUpdate(opts) {
 function checkSkippedVersion(latestVersion, force, silent) {
   if (force) return null;
 
-  const skipKey = `${PLUGIN_NAME}_skip_version`;
+  const skipKey = `${constants/* PLUGIN_NAME */.AF}_skip_version`;
   const skipVersion = localStorage.getItem(skipKey);
   
   if (skipVersion === latestVersion) {
@@ -5664,7 +5440,7 @@ async function handleUserAction(result, manifest, latestVersion) {
   }
 
   if (result.action === "skip") {
-    const skipKey = `${PLUGIN_NAME}_skip_version`;
+    const skipKey = `${constants/* PLUGIN_NAME */.AF}_skip_version`;
     localStorage.setItem(skipKey, result.skipVersion);
     console.log("[UpdateManager] Skipped version", result.skipVersion);
     return {
@@ -5697,7 +5473,7 @@ async function checkForUpdates(options = {}) {
       return { available: false, error: "fetch_failed" };
     }
 
-    const currentVersion = PLUGIN_VERSION;
+    const currentVersion = constants/* PLUGIN_VERSION */.jN;
     const latestVersion = manifest.version;
 
     // Skip 버전 확인
@@ -5714,7 +5490,7 @@ async function checkForUpdates(options = {}) {
 
     // 사용자 확인 UI 표시
     const result = await confirmUpdate({
-      name: PLUGIN_NAME,
+      name: constants/* PLUGIN_NAME */.AF,
       currentVersion,
       manifest,
       i18n,
@@ -5766,21 +5542,16 @@ async function checkForUpdates(options = {}) {
     }
 
     // 2. 개발 모드일 때만 Hot Reload 활성화
-    if (true) {
-      try {
-        // Static import - 메인 번들에 포함 (chunk 분리 없음)
-        const { initHotReload } = __webpack_require__(288);
-        initHotReload();
-        console.log(`[${constants/* PLUGIN_NAME */.AF}] 🔥 Hot Reload enabled`);
-      } catch (error) {
-        console.warn('[App] Hot reload initialization failed:', error);
-      }
-    }
+    if (false) // removed by dead control flow
+{}
 
     // 3. 업데이트 체크 (백그라운드, silent 모드-로그 최소화)
     // 개발 모드에서는 업데이트 체크 비활성화
-    if (false) // removed by dead control flow
-{}
+    if (true) {
+      checkForUpdates({ silent: true }).catch(err => {
+        console.warn('[App] Update check failed:', err);
+      });
+    }
 
     // 4. 외부 스크립트 import(script 태그 추가)
     injectScripts();

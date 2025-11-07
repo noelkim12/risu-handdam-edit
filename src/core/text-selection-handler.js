@@ -8,6 +8,13 @@ import { findAllMatches } from "../utils/text-matcher.js";
 
 const MIN_SELECTION_LENGTH = 5;
 
+/**
+ * 모바일 환경 감지
+ */
+function isMobile() {
+  return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+}
+
 export class TextSelectionHandler {
   constructor(editManager) {
     this.editManager = editManager;
@@ -16,10 +23,12 @@ export class TextSelectionHandler {
     this.currentSelection = null;
     this.selectionTimeout = null;
     this.lastSelectionText = null; // 이전 selection 텍스트 저장 (변경 감지용)
+    this.isMobileDevice = isMobile(); // 모바일 환경 여부
     
     // 이벤트 리스너를 바인딩하여 저장 (removeEventListener를 위해 필요)
     this._boundHandleSelection = this.handleSelection.bind(this);
     this._boundHandleKeyUp = this.handleKeyUp.bind(this);
+    this._boundHandleSelectionChange = this.handleSelectionChange.bind(this);
   }
 
   /**
@@ -28,9 +37,16 @@ export class TextSelectionHandler {
   enable() {
     if (this.isEnabled) return;
     this.isEnabled = true;
-    document.addEventListener("mouseup", this._boundHandleSelection);
-    document.addEventListener("keyup", this._boundHandleKeyUp);
-    document.addEventListener("dblclick", this._boundHandleSelection);
+    
+    if (this.isMobileDevice) {
+      // 모바일: selectionchange 이벤트로 selection 변경 감지
+      document.addEventListener("selectionchange", this._boundHandleSelectionChange);
+    } else {
+      // 데스크톱: 기존 이벤트 사용
+      document.addEventListener("mouseup", this._boundHandleSelection);
+      document.addEventListener("keyup", this._boundHandleKeyUp);
+      document.addEventListener("dblclick", this._boundHandleSelection);
+    }
   }
 
   /**
@@ -39,10 +55,30 @@ export class TextSelectionHandler {
   disable() {
     if (!this.isEnabled) return;
     this.isEnabled = false;
-    document.removeEventListener("mouseup", this._boundHandleSelection);
-    document.removeEventListener("keyup", this._boundHandleKeyUp);
-    document.removeEventListener("dblclick", this._boundHandleSelection);
+    
+    if (this.isMobileDevice) {
+      document.removeEventListener("selectionchange", this._boundHandleSelectionChange);
+    } else {
+      document.removeEventListener("mouseup", this._boundHandleSelection);
+      document.removeEventListener("keyup", this._boundHandleKeyUp);
+      document.removeEventListener("dblclick", this._boundHandleSelection);
+    }
     this.clearSelection();
+  }
+
+  /**
+   * 모바일: selectionchange 이벤트 처리 (selection handle 이동 감지)
+   */
+  handleSelectionChange() {
+    // 기존 타임아웃 취소
+    if (this.selectionTimeout) {
+      clearTimeout(this.selectionTimeout);
+    }
+
+    // 짧은 지연 후 처리 (selection이 안정화될 때까지 대기)
+    this.selectionTimeout = setTimeout(() => {
+      this.handleSelection();
+    }, 150);
   }
 
   /**
@@ -253,14 +289,30 @@ export class TextSelectionHandler {
     const scrollX = window.scrollX || window.pageXOffset;
     const scrollY = window.scrollY || window.pageYOffset;
 
-    return {
-      top: rect.top + scrollY,
-      left: rect.left + scrollX,
-      right: rect.right + scrollX,
-      bottom: rect.bottom + scrollY,
-      width: rect.width,
-      height: rect.height,
-    };
+    if (this.isMobileDevice) {
+      // 모바일: selection 하단에 버튼 표시 (브라우저 기본 toolbar와 겹치지 않도록)
+      const buttonHeight = 32;
+      const gap = 8;
+      
+      return {
+        top: rect.bottom + scrollY + gap, // selection 하단에 표시
+        left: rect.left + scrollX + rect.width / 2, // selection 중앙
+        right: rect.right + scrollX,
+        bottom: rect.bottom + scrollY,
+        width: rect.width,
+        height: rect.height,
+      };
+    } else {
+      // 데스크톱: selection 상단에 버튼 표시
+      return {
+        top: rect.top + scrollY,
+        left: rect.left + scrollX,
+        right: rect.right + scrollX,
+        bottom: rect.bottom + scrollY,
+        width: rect.width,
+        height: rect.height,
+      };
+    }
   }
 
   /**

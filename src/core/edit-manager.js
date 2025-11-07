@@ -27,6 +27,7 @@ export class EditManager {
     this._clickHandler = null;
     this._modeChangeCallbacks = []; // 모드 변경 콜백 함수들
     this._ignoreClickUntil = 0; // 더블클릭 후 클릭 이벤트 무시할 시간
+    this.isMobileDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   }
 
   /**
@@ -260,6 +261,12 @@ export class EditManager {
     modal.className = s.selectionModal;
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
+    
+    // 모바일 환경에서 width 조정
+    if (this.isMobileDevice) {
+      modal.style.width = "90vw";
+      modal.style.maxWidth = "600px";
+    }
 
     // 헤더 HTML 생성
     const headerHTML = `
@@ -430,10 +437,22 @@ export class EditManager {
     const buttonHeight = 32;
     const gap = 8;
     const containerWidth = buttonWidth * 2 + gap; // 버튼 2개 + gap
-    const containerLeft = position.left + position.width / 2 - containerWidth / 2;
+    
+    // 모바일/데스크톱에 따른 위치 계산
+    let containerTop, containerLeft;
+    
+    if (this.isMobileDevice) {
+      // 모바일: position.top이 이미 selection 하단 위치로 계산되어 있음
+      containerTop = position.top;
+      containerLeft = position.left - containerWidth / 2; // selection 중앙 기준으로 버튼 중앙 정렬
+    } else {
+      // 데스크톱: selection 상단에 버튼 표시
+      containerTop = position.top - buttonHeight - 8;
+      containerLeft = position.left + position.width / 2 - containerWidth / 2;
+    }
     
     // 컨테이너 위치 설정
-    buttonContainer.style.top = `${position.top - buttonHeight - 8}px`;
+    buttonContainer.style.top = `${containerTop}px`;
     buttonContainer.style.left = `${containerLeft}px`;
     buttonContainer.style.width = `${containerWidth}px`;
     
@@ -566,9 +585,18 @@ export class EditManager {
       ? Math.max(...lines.map(line => line.length), 0)
       : selectedText.length;
     
-    // 너비 계산: 최소 400px, 최대 90vw, 텍스트 길이에 따라 조정
-    const minWidth = 400;
-    const maxWidth = Math.min(window.innerWidth * 0.9, 800);
+    // 모바일/데스크톱에 따른 너비 계산
+    let minWidth, maxWidth;
+    if (this.isMobileDevice) {
+      // 모바일: 화면 너비의 90% 사용, 최소 320px
+      minWidth = 320;
+      maxWidth = Math.min(window.innerWidth * 0.9, 600);
+    } else {
+      // 데스크톱: 기존 로직
+      minWidth = 400;
+      maxWidth = Math.min(window.innerWidth * 0.9, 800);
+    }
+    
     const charWidth = 8; // 대략적인 문자 너비 (px)
     const dialogPadding = 40; // 다이얼로그 좌우 패딩 (20px * 2)
     const textareaPadding = 16; // textarea 좌우 패딩 (8px * 2)
@@ -755,6 +783,12 @@ export class EditManager {
     modal.className = s.selectionModal;
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
+    
+    // 모바일 환경에서 width 조정
+    if (this.isMobileDevice) {
+      modal.style.width = "90vw";
+      modal.style.maxWidth = "600px";
+    }
 
     // 헤더 HTML 생성
     const headerHTML = `
