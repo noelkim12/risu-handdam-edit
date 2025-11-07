@@ -2179,113 +2179,208 @@ function findOriginalRangeFromHtml(originalMd, replacedHtml, opts = {}) {
       nEnd - 1 < mdMap.length ? mdMap[nEnd - 1] + 1 : originalMd.length;
     return { start, end, method };
   }
-
-  function htmlToPlain(htmlOrFragment) {
-    let html = "";
-    if (typeof htmlOrFragment === "string") html = htmlOrFragment;
-    else if (htmlOrFragment && htmlOrFragment.outerHTML)
-      html = htmlOrFragment.outerHTML;
-    else if (htmlOrFragment && htmlOrFragment.innerHTML)
-      html = htmlOrFragment.innerHTML;
-    else return "";
-
-    const div = document.createElement("div");
-    div.innerHTML = html;
-
-    div.querySelectorAll("ruby").forEach((rb) => {
-      const base = rb.cloneNode(true);
-      base.querySelectorAll("rt, rp").forEach((n) => n.remove());
-      const rt = rb.querySelector("rt")?.textContent || "";
-      const text = `${base.textContent || ""}${rt ? `(${rt})` : ""}`;
-      rb.replaceWith(document.createTextNode(text));
-    });
-
-    return div.textContent || "";
-  }
-
-  function normalizeWithMap(s) {
-    const out = [];
-    const map = [];
-    const len = s.length;
-    let i = 0;
-
-    const typomap = {
-      "\u2018": "'",
-      "\u2019": "'",
-      "\u201C": '"',
-      "\u201D": '"',
-      "\u2013": "-",
-      "\u2014": "-",
-      "\u3000": " ",
-    };
-
-    while (i < len) {
-      const ch = s[i];
-
-      if (ch === "\r") {
-        const next = s[i + 1];
-        out.push("\n");
-        map.push(i);
-        i += next === "\n" ? 2 : 1;
-        continue;
-      }
-
-      if ((ch >= "\u200B" && ch <= "\u200D") || ch === "\uFEFF") {
-        i++;
-        continue;
-      }
-
-      if (ch === "\u00A0") {
-        out.push(" ");
-        map.push(i);
-        i++;
-        continue;
-      }
-
-      if (typomap[ch]) {
-        out.push(typomap[ch]);
-        map.push(i);
-        i++;
-        continue;
-      }
-
-      if (ch === "\u2026") {
-        out.push(".", ".", ".");
-        map.push(i, i, i);
-        i++;
-        continue;
-      }
-
-      if (ch === " " || ch === "\t") {
-        if (out.length > 0 && out[out.length - 1] === " ") {
-          i++;
-          continue;
-        }
-        out.push(" ");
-        map.push(i);
-        i++;
-        continue;
-      }
-
-      out.push(ch);
-      map.push(i);
-      i++;
-    }
-
-    while (out.length && out[0] === " ") {
-      out.shift();
-      map.shift();
-    }
-    while (out.length && out[out.length - 1] === " ") {
-      out.pop();
-      map.pop();
-    }
-
-    return { norm: out.join(""), map };
-  }
-
 }
 
+/**
+ * 텍스트에서 모든 매칭 위치를 찾습니다
+ * @param {string} originalMd - 원본 마크다운 전체 문자열
+ * @param {string} searchText - 검색할 텍스트
+ * @param {object} [opts] - 옵션
+ * @param {number} [opts.contextLength=30] - 컨텍스트 길이
+ * @param {number} [opts.fuzzyMaxLen=200] - Fuzzy 탐색 허용 최대 길이
+ * @param {number} [opts.fuzzyCutoff=20] - 편집거리 컷오프
+ * @param {number} [opts.fuzzyThreshold=0.15] - Fuzzy 매칭 임계값 (전체 길이의 비율)
+ * @param {number} [opts.anchorLength=12] - 앵커 길이
+ * @returns {Array<{start: number, end: number, context: string, contextStart: number}>} 매칭 결과 배열
+ */
+function findAllMatches(originalMd, searchText, opts = {}) {
+  const matches = [];
+  const contextLength = opts.contextLength ?? 30;
+  const FUZZY_MAX = opts.fuzzyMaxLen ?? 200;
+  const CUTOFF = opts.fuzzyCutoff ?? 20;
+  const FUZZY_THRESHOLD = opts.fuzzyThreshold ?? 0.15;
+  const ANCH = opts.anchorLength ?? 5;
+
+  // 정규화된 텍스트로 검색 (공백 정규화)
+  const normalizedSearch = searchText.replace(/\s+/g, " ").trim();
+  const normalizedOriginal = originalMd.replace(/\s+/g, " ");
+
+  // 원본 인덱스 매핑 생성
+  const indexMap = createIndexMap(originalMd, normalizedOriginal);
+
+  // 이미 찾은 위치 추적 (중복 방지)
+  const foundPositions = new Set();
+
+  // 컨텍스트 및 매칭 생성 헬퍼
+  const addMatch = (normalizedStart, normalizedEnd, method, distance = null) => {
+    const start = indexMap[normalizedStart] ?? normalizedStart;
+    const end = indexMap[normalizedEnd] ?? normalizedEnd;
+
+    const positionKey = `${start}-${end}`;
+    if (foundPositions.has(positionKey)) {
+      return false;
+    }
+
+    foundPositions.add(positionKey);
+    const context = extractContext(originalMd, start, end, contextLength);
+
+    const match = {
+      start,
+      end,
+      context: context.text,
+      contextStart: context.start,
+      method,
+    };
+
+    if (distance !== null) {
+      match.distance = distance;
+    }
+
+    matches.push(match);
+    return true;
+  };
+
+  // 1순위: 정확한 매칭
+  findExactMatches(normalizedOriginal, normalizedSearch, addMatch);
+
+  // 2순위: Head/Tail 앵커 매칭 (매칭이 없을 때만)
+  if (matches.length === 0 && normalizedSearch.length >= ANCH * 2) {
+    findAnchorMatches(normalizedOriginal, normalizedSearch, ANCH, addMatch);
+  }
+
+  // 3순위: Fuzzy 매칭 (정확한 매칭이 없거나 적을 때)
+  if (matches.length === 0 || (normalizedSearch.length <= FUZZY_MAX && matches.length < 3)) {
+    findFuzzyMatches(
+      normalizedOriginal,
+      normalizedSearch,
+      FUZZY_MAX,
+      CUTOFF,
+      FUZZY_THRESHOLD,  
+      addMatch
+    );
+  }
+
+  // start 위치로 정렬
+  // matches.sort((a, b) => a.start - b.start);
+
+  return matches;
+}
+
+// ==================== Private Helper Functions ====================
+
+/**
+ * HTML을 평문으로 변환
+ */
+function htmlToPlain(htmlOrFragment) {
+  let html = "";
+  if (typeof htmlOrFragment === "string") html = htmlOrFragment;
+  else if (htmlOrFragment && htmlOrFragment.outerHTML)
+    html = htmlOrFragment.outerHTML;
+  else if (htmlOrFragment && htmlOrFragment.innerHTML)
+    html = htmlOrFragment.innerHTML;
+  else return "";
+
+  const div = document.createElement("div");
+  div.innerHTML = html;
+
+  div.querySelectorAll("ruby").forEach((rb) => {
+    const base = rb.cloneNode(true);
+    base.querySelectorAll("rt, rp").forEach((n) => n.remove());
+    const rt = rb.querySelector("rt")?.textContent || "";
+    const text = `${base.textContent || ""}${rt ? `(${rt})` : ""}`;
+    rb.replaceWith(document.createTextNode(text));
+  });
+
+  return div.textContent || "";
+}
+
+/**
+ * 텍스트 정규화 (공백, 타이포 처리) + 인덱스 맵 생성
+ */
+function normalizeWithMap(s) {
+  const out = [];
+  const map = [];
+  const len = s.length;
+  let i = 0;
+
+  const typomap = {
+    "\u2018": "'",
+    "\u2019": "'",
+    "\u201C": '"',
+    "\u201D": '"',
+    "\u2013": "-",
+    "\u2014": "-",
+    "\u3000": " ",
+  };
+
+  while (i < len) {
+    const ch = s[i];
+
+    if (ch === "\r") {
+      const next = s[i + 1];
+      out.push("\n");
+      map.push(i);
+      i += next === "\n" ? 2 : 1;
+      continue;
+    }
+
+    if ((ch >= "\u200B" && ch <= "\u200D") || ch === "\uFEFF") {
+      i++;
+      continue;
+    }
+
+    if (ch === "\u00A0") {
+      out.push(" ");
+      map.push(i);
+      i++;
+      continue;
+    }
+
+    if (typomap[ch]) {
+      out.push(typomap[ch]);
+      map.push(i);
+      i++;
+      continue;
+    }
+
+    if (ch === "\u2026") {
+      out.push(".", ".", ".");
+      map.push(i, i, i);
+      i++;
+      continue;
+    }
+
+    if (ch === " " || ch === "\t") {
+      if (out.length > 0 && out[out.length - 1] === " ") {
+        i++;
+        continue;
+      }
+      out.push(" ");
+      map.push(i);
+      i++;
+      continue;
+    }
+
+    out.push(ch);
+    map.push(i);
+    i++;
+  }
+
+  while (out.length && out[0] === " ") {
+    out.shift();
+    map.shift();
+  }
+  while (out.length && out[out.length - 1] === " ") {
+    out.pop();
+    map.pop();
+  }
+
+  return { norm: out.join(""), map };
+}
+
+/**
+ * Levenshtein Distance 계산 (편집 거리)
+ */
 function fastEditDistance(a, b, cutoff = 30) {
   const n = a.length,
     m = b.length;
@@ -2309,256 +2404,22 @@ function fastEditDistance(a, b, cutoff = 30) {
 }
 
 /**
- * 텍스트에서 모든 매칭 위치를 찾습니다
- * @param {string} originalMd - 원본 마크다운 전체 문자열
- * @param {string} searchText - 검색할 텍스트
- * @param {object} [opts] - 옵션
- * @param {number} [opts.contextLength=30] - 컨텍스트 길이
- * @param {number} [opts.fuzzyMaxLen=200] - Fuzzy 탐색 허용 최대 길이
- * @param {number} [opts.fuzzyCutoff=20] - 편집거리 컷오프
- * @param {number} [opts.fuzzyThreshold=0.15] - Fuzzy 매칭 임계값 (전체 길이의 비율)
- * @param {number} [opts.anchorLength=12] - 앵커 길이
- * @returns {Array<{start: number, end: number, context: string, contextStart: number}>} 매칭 결과 배열
+ * 컨텍스트 추출
  */
-function findAllMatches(originalMd, searchText, opts = {}) {
-  const matches = [];
-  const contextLength = opts.contextLength ?? 30;
-  const FUZZY_MAX = opts.fuzzyMaxLen ?? 200;
-  const CUTOFF = opts.fuzzyCutoff ?? 20;
-  const FUZZY_THRESHOLD = opts.fuzzyThreshold ?? 0.15;
-  const ANCH = opts.anchorLength ?? 5;
-  
-  // 정규화된 텍스트로 검색 (공백 정규화)
-  const normalizedSearch = searchText.replace(/\s+/g, " ").trim();
-  const normalizedOriginal = originalMd.replace(/\s+/g, " ");
-  
-  // 원본 인덱스 매핑 생성
-  const indexMap = createIndexMap(originalMd, normalizedOriginal);
-  
-  // 이미 찾은 위치 추적 (중복 방지)
-  const foundPositions = new Set();
-  
-  // 1순위: 정확한 매칭
-  let searchIndex = 0;
-  while (true) {
-    const lowerNormalized = normalizedOriginal.toLowerCase();
-    const lowerSearch = normalizedSearch.toLowerCase();
-    const index = lowerNormalized.indexOf(lowerSearch, searchIndex);
-    
-    if (index === -1) break;
-    
-    const normalizedStart = index;
-    const normalizedEnd = index + normalizedSearch.length;
-    
-    // 원본 인덱스로 변환
-    const start = indexMap[normalizedStart] ?? normalizedStart;
-    const end = indexMap[normalizedEnd] ?? normalizedEnd;
-    
-    // 중복 체크
-    const positionKey = `${start}-${end}`;
-    if (!foundPositions.has(positionKey)) {
-      foundPositions.add(positionKey);
-      
-      // 컨텍스트 추출
-      const contextStart = Math.max(0, start - contextLength);
-      const contextEnd = Math.min(originalMd.length, end + contextLength);
-      const context = originalMd.slice(contextStart, contextEnd);
-      const trimmedContext = context.trim();
-      
-      // trim으로 인한 앞쪽 공백 길이 계산
-      const leadingWhitespace = context.length - context.trimStart().length;
-      const adjustedContextStart = contextStart + leadingWhitespace;
-      
-      matches.push({
-        start,
-        end,
-        context: trimmedContext,
-        contextStart: adjustedContextStart,
-        method: 'exact',
-      });
-    }
-    
-    searchIndex = normalizedEnd;
-  }
-  
-  // 2순위: Head/Tail 앵커 매칭 (매칭이 없을 때만)
-  if (matches.length === 0 && normalizedSearch.length >= ANCH * 2) {
-    const anchorMatches = findAnchorMatches(
-      normalizedOriginal,
-      normalizedSearch,
-      indexMap,
-      originalMd,
-      contextLength,
-      ANCH,
-      foundPositions
-    );
-    matches.push(...anchorMatches);
-  }
+function extractContext(originalText, start, end, contextLength) {
+  const contextStart = Math.max(0, start - contextLength);
+  const contextEnd = Math.min(originalText.length, end + contextLength);
+  const context = originalText.slice(contextStart, contextEnd);
+  const trimmedContext = context.trim();
 
-  // 3순위: Fuzzy 매칭 (정확한 매칭이 없거나 적을 때)
-  if (matches.length === 0 || (normalizedSearch.length <= FUZZY_MAX && matches.length < 3)) {
-    const fuzzyMatches = findFuzzyMatches(
-      normalizedOriginal,
-      normalizedSearch,
-      indexMap,
-      originalMd,
-      contextLength,
-      FUZZY_MAX,
-      CUTOFF,
-      FUZZY_THRESHOLD,
-      foundPositions
-    );
-    matches.push(...fuzzyMatches);
-  }
-  
-  // start 위치로 정렬
-  // matches.sort((a, b) => a.start - b.start);
-  
-  return matches;
-}
+  // trim으로 인한 앞쪽 공백 길이 계산
+  const leadingWhitespace = context.length - context.trimStart().length;
+  const adjustedContextStart = contextStart + leadingWhitespace;
 
-/**
- * Fuzzy 매칭으로 매칭 위치 찾기
- */
-function findFuzzyMatches(
-  normalizedOriginal,
-  normalizedSearch,
-  indexMap,
-  originalMd,
-  contextLength,
-  FUZZY_MAX,
-  CUTOFF,
-  FUZZY_THRESHOLD,
-  foundPositions
-) {
-  const matches = [];
-  const MAX_FUZZY_MATCHES = 3; // Fuzzy 매칭 결과 최대 개수
-  const lowerNormalized = normalizedOriginal.toLowerCase();
-  const lowerSearch = normalizedSearch.toLowerCase();
-  
-  if (lowerSearch.length > FUZZY_MAX) {
-    return matches;
-  }
-  
-  const step = Math.max(1, Math.floor(lowerSearch.length / 4));
-  const maxDistance = Math.max(5, Math.floor(lowerSearch.length * FUZZY_THRESHOLD));
-  
-  for (let i = 0; i + lowerSearch.length <= lowerNormalized.length; i += step) {
-    // 최대 개수에 도달하면 조기 종료
-    if (matches.length >= MAX_FUZZY_MATCHES) {
-      break;
-    }
-    
-    const seg = lowerNormalized.slice(i, i + lowerSearch.length);
-    const d = fastEditDistance(lowerSearch, seg, CUTOFF);
-    
-    if (d <= maxDistance) {
-      const normalizedStart = i;
-      const normalizedEnd = i + lowerSearch.length;
-      
-      // 원본 인덱스로 변환
-      const start = indexMap[normalizedStart] ?? normalizedStart;
-      const end = indexMap[normalizedEnd] ?? normalizedEnd;
-      
-      // 중복 체크
-      const positionKey = `${start}-${end}`;
-      if (!foundPositions.has(positionKey)) {
-        foundPositions.add(positionKey);
-        
-        // 컨텍스트 추출
-        const contextStart = Math.max(0, start - contextLength);
-        const contextEnd = Math.min(originalMd.length, end + contextLength);
-        const context = originalMd.slice(contextStart, contextEnd);
-        const trimmedContext = context.trim();
-        
-        // trim으로 인한 앞쪽 공백 길이 계산
-        const leadingWhitespace = context.length - context.trimStart().length;
-        const adjustedContextStart = contextStart + leadingWhitespace;
-        
-        matches.push({
-          start,
-          end,
-          context: trimmedContext,
-          contextStart: adjustedContextStart,
-          method: 'fuzzy',
-          distance: d,
-        });
-      }
-    }
-  }
-  
-  return matches;
-}
-
-/**
- * Head/Tail 앵커로 매칭 위치 찾기
- */
-function findAnchorMatches(
-  normalizedOriginal,
-  normalizedSearch,
-  indexMap,
-  originalMd,
-  contextLength,
-  ANCH,
-  foundPositions
-) {
-  const matches = [];
-  const lowerNormalized = normalizedOriginal.toLowerCase();
-  const lowerSearch = normalizedSearch.toLowerCase();
-  
-  const N = Math.max(8, Math.min(ANCH, Math.floor(lowerSearch.length / 3)));
-  if (lowerSearch.length < N * 2) {
-    return matches;
-  }
-  
-  const head = lowerSearch.slice(0, N);
-  const tail = lowerSearch.slice(-N);
-  
-  let searchIndex = 0;
-  while (true) {
-    const headPos = lowerNormalized.indexOf(head, searchIndex);
-    if (headPos === -1) break;
-    
-    const tailPos = lowerNormalized.indexOf(tail, headPos + head.length);
-    if (tailPos >= 0) {
-      const normalizedStart = headPos;
-      const normalizedEnd = tailPos + N;
-      
-      // 원본 인덱스로 변환
-      const start = indexMap[normalizedStart] ?? normalizedStart;
-      const end = indexMap[normalizedEnd] ?? normalizedEnd;
-      
-      // 중복 체크
-      const positionKey = `${start}-${end}`;
-      if (!foundPositions.has(positionKey)) {
-        foundPositions.add(positionKey);
-        
-        // 컨텍스트 추출
-        const contextStart = Math.max(0, start - contextLength);
-        const contextEnd = Math.min(originalMd.length, end + contextLength);
-        const context = originalMd.slice(contextStart, contextEnd);
-        const trimmedContext = context.trim();
-        
-        // trim으로 인한 앞쪽 공백 길이 계산
-        const leadingWhitespace = context.length - context.trimStart().length;
-        const adjustedContextStart = contextStart + leadingWhitespace;
-        
-        matches.push({
-          start,
-          end,
-          context: trimmedContext,
-          contextStart: adjustedContextStart,
-          method: 'anchor',
-        });
-      }
-      
-      searchIndex = tailPos + N;
-    } else {
-      searchIndex = headPos + 1;
-    }
-  }
-  
-  return matches;
+  return {
+    text: trimmedContext,
+    start: adjustedContextStart
+  };
 }
 
 /**
@@ -2568,12 +2429,12 @@ function createIndexMap(original, normalized) {
   const map = [];
   let originalIndex = 0;
   let normalizedIndex = 0;
-  
+
   // 원본의 공백을 정규화된 인덱스에 매핑
   while (originalIndex < original.length && normalizedIndex < normalized.length) {
     const origChar = original[originalIndex];
     const normChar = normalized[normalizedIndex];
-    
+
     // 공백 정규화 처리
     if (/\s/.test(origChar) && /\s/.test(normChar)) {
       // 둘 다 공백이면 매핑
@@ -2593,10 +2454,109 @@ function createIndexMap(original, normalized) {
       originalIndex++;
     }
   }
-  
+
   return map;
 }
 
+/**
+ * 정확한 매칭 찾기
+ */
+function findExactMatches(normalizedOriginal, normalizedSearch, addMatch) {
+  const lowerNormalized = normalizedOriginal.toLowerCase();
+  const lowerSearch = normalizedSearch.toLowerCase();
+
+  let searchIndex = 0;
+  while (true) {
+    const index = lowerNormalized.indexOf(lowerSearch, searchIndex);
+    if (index === -1) break;
+
+    const normalizedStart = index;
+    const normalizedEnd = index + normalizedSearch.length;
+
+    addMatch(normalizedStart, normalizedEnd, 'exact');
+    searchIndex = normalizedEnd;
+  }
+}
+
+/**
+ * Fuzzy 매칭으로 매칭 위치 찾기
+ */
+function findFuzzyMatches(
+  normalizedOriginal,
+  normalizedSearch,
+  FUZZY_MAX,
+  CUTOFF,
+  FUZZY_THRESHOLD,
+  addMatch
+) {
+  const MAX_FUZZY_MATCHES = 3; // Fuzzy 매칭 결과 최대 개수
+  const lowerNormalized = normalizedOriginal.toLowerCase();
+  const lowerSearch = normalizedSearch.toLowerCase();
+
+  if (lowerSearch.length > FUZZY_MAX) {
+    return;
+  }
+
+  const step = Math.max(1, Math.floor(lowerSearch.length / 4));
+  const maxDistance = Math.max(5, Math.floor(lowerSearch.length * FUZZY_THRESHOLD));
+
+  let matchCount = 0;
+  for (let i = 0; i + lowerSearch.length <= lowerNormalized.length; i += step) {
+    if (matchCount >= MAX_FUZZY_MATCHES) {
+      break;
+    }
+
+    const seg = lowerNormalized.slice(i, i + lowerSearch.length);
+    const d = fastEditDistance(lowerSearch, seg, CUTOFF);
+
+    if (d <= maxDistance) {
+      const normalizedStart = i;
+      const normalizedEnd = i + lowerSearch.length;
+
+      if (addMatch(normalizedStart, normalizedEnd, 'fuzzy', d)) {
+        matchCount++;
+      }
+    }
+  }
+}
+
+/**
+ * Head/Tail 앵커로 매칭 위치 찾기
+ */
+function findAnchorMatches(
+  normalizedOriginal,
+  normalizedSearch,
+  ANCH,
+  addMatch
+) {
+  const lowerNormalized = normalizedOriginal.toLowerCase();
+  const lowerSearch = normalizedSearch.toLowerCase();
+
+  const N = Math.max(8, Math.min(ANCH, Math.floor(lowerSearch.length / 3)));
+  if (lowerSearch.length < N * 2) {
+    return;
+  }
+
+  const head = lowerSearch.slice(0, N);
+  const tail = lowerSearch.slice(-N);
+
+  let searchIndex = 0;
+  while (true) {
+    const headPos = lowerNormalized.indexOf(head, searchIndex);
+    if (headPos === -1) break;
+
+    const tailPos = lowerNormalized.indexOf(tail, headPos + head.length);
+    if (tailPos >= 0) {
+      const normalizedStart = headPos;
+      const normalizedEnd = tailPos + N;
+
+      addMatch(normalizedStart, normalizedEnd, 'anchor');
+      searchIndex = tailPos + N;
+    } else {
+      searchIndex = headPos + 1;
+    }
+  }
+}
 
 ;// ./src/core/text-selection-handler.js
 /**
