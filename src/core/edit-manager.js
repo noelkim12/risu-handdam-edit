@@ -18,6 +18,7 @@ export class EditManager {
     this.textSelectionHandler = new TextSelectionHandler(this);
     this.elementEditHandler = new ElementEditHandler(this);
     this.editMode = "selection"; // 기본값: "selection"
+    this.buttonPosition = "top"; // 기본값: "top"
     this.floatingButton = null;
     this.selectionModal = null;
     this.currentSelectionRange = null; // 현재 선택된 텍스트 범위
@@ -26,6 +27,7 @@ export class EditManager {
     this._scrollHandler = null;
     this._clickHandler = null;
     this._modeChangeCallbacks = []; // 모드 변경 콜백 함수들
+    this._buttonPositionChangeCallbacks = []; // 버튼 위치 변경 콜백 함수들
     this._ignoreClickUntil = 0; // 더블클릭 후 클릭 이벤트 무시할 시간
     this.isMobileDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   }
@@ -37,6 +39,10 @@ export class EditManager {
     // plugin-config에서 editMode 읽어오기
     const savedMode = this.pluginArgs.editMode || "selection";
     this.setEditMode(savedMode, true); // 저장하지 않고 모드만 설정 (이미 저장되어 있음)
+
+    // plugin-config에서 buttonPosition 읽어오기
+    const savedPosition = this.pluginArgs.buttonPosition || "top";
+    this.setButtonPosition(savedPosition, false); // 저장하지 않고 위치만 설정 (이미 저장되어 있음)
   }
 
   /**
@@ -116,6 +122,71 @@ export class EditManager {
     const index = this._modeChangeCallbacks.indexOf(callback);
     if (index > -1) {
       this._modeChangeCallbacks.splice(index, 1);
+    }
+  }
+
+  /**
+   * 버튼 위치 설정
+   * @param {string} position - "top" | "bottom"
+   * @param {boolean} save - plugin-config에 저장할지 여부 (기본값: true)
+   */
+  setButtonPosition(position, save = true) {
+    if (position !== "top" && position !== "bottom") {
+      console.warn(`[EditManager] 잘못된 버튼 위치: ${position}`);
+      return;
+    }
+
+    this.buttonPosition = position;
+    console.log(`[EditManager] 버튼 위치: ${position === "top" ? "상단" : "하단"}`);
+
+    // plugin-config에 저장
+    if (save) {
+      this.pluginArgs.buttonPosition = position;
+    }
+
+    // 콜백 호출
+    this._buttonPositionChangeCallbacks.forEach(callback => {
+      try {
+        callback(position);
+      } catch (e) {
+        console.error("[EditManager] 버튼 위치 변경 콜백 오류:", e);
+      }
+    });
+  }
+
+  /**
+   * 버튼 위치 토글
+   */
+  toggleButtonPosition() {
+    const newPosition = this.buttonPosition === "top" ? "bottom" : "top";
+    this.setButtonPosition(newPosition, true);
+  }
+
+  /**
+   * 현재 버튼 위치 반환
+   */
+  getButtonPosition() {
+    return this.buttonPosition;
+  }
+
+  /**
+   * 버튼 위치 변경 콜백 등록
+   * @param {Function} callback - 위치 변경 시 호출될 함수 (position: string) => void
+   */
+  onButtonPositionChange(callback) {
+    if (typeof callback === "function") {
+      this._buttonPositionChangeCallbacks.push(callback);
+    }
+  }
+
+  /**
+   * 버튼 위치 변경 콜백 제거
+   * @param {Function} callback - 제거할 콜백 함수
+   */
+  offButtonPositionChange(callback) {
+    const index = this._buttonPositionChangeCallbacks.indexOf(callback);
+    if (index > -1) {
+      this._buttonPositionChangeCallbacks.splice(index, 1);
     }
   }
 
@@ -440,11 +511,38 @@ export class EditManager {
     
     // 모바일/데스크톱에 따른 위치 계산
     let containerTop, containerLeft;
-    
+
     if (this.isMobileDevice) {
-      // 모바일: position.top이 이미 selection 하단 위치로 계산되어 있음
-      containerTop = position.top;
-      containerLeft = position.left - containerWidth / 2; // selection 중앙 기준으로 버튼 중앙 정렬
+      // 모바일: 상단/하단 여유 공간을 계산하여 최적의 위치 선택
+      // 브라우저 기본 selection toolbar(복사/붙여넣기 등)와의 충돌 방지
+
+      // viewport 기준 여유 공간 계산
+      const topSpace = position.viewportTop;
+      const bottomSpace = window.innerHeight - position.viewportBottom;
+
+      // 브라우저 기본 toolbar 예상 높이 (보통 44-60px, 여유있게 설정)
+      const toolbarGap = 100;
+      const minimumGap = 10; // 최소 여백
+
+      // 상단과 하단 중 더 넓은 공간 선택
+      const preferTop = topSpace > bottomSpace;
+
+      if (preferTop && topSpace > buttonHeight + toolbarGap) {
+        // 상단에 충분한 공간: selection 상단에서 충분히 위로 배치
+        containerTop = position.top - buttonHeight - toolbarGap;
+      } else if (!preferTop && bottomSpace > buttonHeight + toolbarGap) {
+        // 하단에 충분한 공간: selection 하단에서 충분히 아래로 배치
+        containerTop = position.bottom + toolbarGap;
+      } else if (preferTop && topSpace > buttonHeight + minimumGap) {
+        // 상단 공간이 더 크지만 toolbar 간격은 부족: 최소 여백으로 상단 배치
+        containerTop = position.top - buttonHeight - minimumGap;
+      } else {
+        // 하단에 배치 (최소 여백)
+        containerTop = position.bottom + minimumGap;
+      }
+
+      // 좌우 중앙 정렬
+      containerLeft = position.left + position.width / 2 - containerWidth / 2;
     } else {
       // 데스크톱: selection 상단에 버튼 표시
       containerTop = position.top - buttonHeight - 8;

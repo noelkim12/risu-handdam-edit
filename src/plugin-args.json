@@ -20,6 +20,12 @@
       "type": "string",
       "default": "selection",
       "description": "편집 모드 (selection, element)"
-    } 
+    },
+    {
+      "name": "buttonPosition",
+      "type": "string",
+      "default": "top",
+      "description": "버튼 위치 (top, bottom)"
+    }
   ]
 }

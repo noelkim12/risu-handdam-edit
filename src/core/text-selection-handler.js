@@ -289,30 +289,18 @@ export class TextSelectionHandler {
     const scrollX = window.scrollX || window.pageXOffset;
     const scrollY = window.scrollY || window.pageYOffset;
 
-    if (this.isMobileDevice) {
-      // 모바일: selection 하단에 버튼 표시 (브라우저 기본 toolbar와 겹치지 않도록)
-      const buttonHeight = 32;
-      const gap = 8;
-      
-      return {
-        top: rect.bottom + scrollY + gap, // selection 하단에 표시
-        left: rect.left + scrollX + rect.width / 2, // selection 중앙
-        right: rect.right + scrollX,
-        bottom: rect.bottom + scrollY,
-        width: rect.width,
-        height: rect.height,
-      };
-    } else {
-      // 데스크톱: selection 상단에 버튼 표시
-      return {
-        top: rect.top + scrollY,
-        left: rect.left + scrollX,
-        right: rect.right + scrollX,
-        bottom: rect.bottom + scrollY,
-        width: rect.width,
-        height: rect.height,
-      };
-    }
+    // 모바일/데스크톱 모두 selection의 실제 rect 정보 반환
+    // edit-manager에서 최적 위치를 계산하도록 함
+    return {
+      top: rect.top + scrollY,           // selection 상단 (절대 위치)
+      left: rect.left + scrollX,         // selection 좌측 (절대 위치)
+      right: rect.right + scrollX,       // selection 우측 (절대 위치)
+      bottom: rect.bottom + scrollY,     // selection 하단 (절대 위치)
+      width: rect.width,                 // selection 너비
+      height: rect.height,               // selection 높이
+      viewportTop: rect.top,             // viewport 기준 상단 위치
+      viewportBottom: rect.bottom,       // viewport 기준 하단 위치
+    };
   }
 
   /**

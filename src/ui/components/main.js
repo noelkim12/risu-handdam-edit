@@ -3,7 +3,9 @@ import { MENU_BUTTON_TAG } from "./ui/menu-button";
 import { RisuAPI } from "../../core/risu-api";
 import { EditManager } from "../../core/edit-manager.js";
 import { baseStyles } from "../styles/index.js";
-// import "winbox";
+
+// 버거 메뉴 셀렉터 상수
+const BURGER_SELECTOR = "div.right-2.bottom-16.p-5.bg-darkbg.flex.flex-col.gap-3.text-textcolor.rounded-md";
 
 // 메인 애플리케이션 클래스
 export class App {
@@ -13,13 +15,11 @@ export class App {
       this.pluginWindow = null;
       this.pluginWindowRoot = document.createElement("div");
       this.editManager = null;
-      this.modeToggleButton = null;
-      // CSS Modules 클래스 사용 (자동으로 해시된 고유 클래스명)
       this.pluginWindowRoot.className = baseStyles.container;
+      this._positionCallbackRegistered = false;
     }
-  
+
     async initialize() {
-      // RisuAPI 싱글톤 인스턴스 가져오기
       this.risuAPI = RisuAPI.getInstance();
 
       if (!this.risuAPI) {
@@ -31,42 +31,31 @@ export class App {
       this.editManager = new EditManager();
       this.editManager.initialize();
 
+      // 위치 변경 콜백 한 번만 등록
+      this.setupPositionChangeCallback();
+
       // UI 초기화
-      this.initializeUI();
-      this.startObserver(); 
+      this.startObserver();
 
       console.log(`[${PLUGIN_NAME}] plugin loaded`);
       return true;
     }
-  
-    initializeUI() {
+
+    /**
+     * 위치 변경 콜백 설정 (앱 생명주기 동안 한 번만)
+     */
+    setupPositionChangeCallback() {
+      if (!this.editManager || this._positionCallbackRegistered) return;
+
+      this._positionCallbackRegistered = true;
+      this.editManager.onButtonPositionChange(() => {
+        const burgerEl = document.querySelector(BURGER_SELECTOR);
+        if (burgerEl) {
+          this.repositionButtons(burgerEl);
+        }
+      });
     }
-  
-    openPluginWindow() {
-      if (this.pluginWindow) return;
-  
-      // const winboxConfig = {
-      //   title: `${PLUGIN_NAME}`,
-      //   x: "center",
-      //   y: "center",
-      //   width: Math.min(1080, window.innerWidth * 0.9) + "px",
-      //   height: Math.min(800, window.innerHeight * 0.8) + "px",
-      //   mount: this.pluginWindowRoot,
-      //   background: "#0f131a",
-      //   class: ["no-full", "no-max", "no-min", "rb-box"],
-      //   onclose: () => {
-      //     this.pluginWindow = null;
-      //     location.hash = "";
-      //   },
-      // };
-  
-      // this.pluginWindow = new WinBox(winboxConfig);
-      // this.render();
-    }
-  
-    render() {
-    }
-  
+
     startObserver() {
       if (this.observer) this.observer.disconnect();
       this.observer = new MutationObserver(() => {
@@ -80,71 +69,114 @@ export class App {
       });
       setTimeout(() => this.attachButton(), 500);
     }
-  
+
     attachButton() {
-      let burgerEl = document.querySelector(
-        "div.right-2.bottom-16.p-5.bg-darkbg.flex.flex-col.gap-3.text-textcolor.rounded-md"
-      );
+      const burgerEl = document.querySelector(BURGER_SELECTOR);
       if (burgerEl && !burgerEl.classList.contains(`${PLUGIN_NAME}-btn-class`)) {
-        // 편집 모드 토글 버튼 추가
-        this.createModeToggleButton(burgerEl);
-        
+        this.createToggleButtons(burgerEl);
         burgerEl.classList.add(`${PLUGIN_NAME}-btn-class`);
       }
     }
 
     /**
-     * 편집 모드 토글 버튼 생성
+     * 토글 버튼 생성 (모드 + 위치)
      */
-    createModeToggleButton(container) {
+    createToggleButtons(container) {
+      const row = document.createElement("div");
+      row.className = "plugin-toggle-row";
+      row.style.cssText = `
+        width: 200px;
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+      `;
 
-      const buttonDiv = document.createElement("div");
-      buttonDiv.className = "flex items-center cursor-pointer hover:text-green-500 transition-colors";
-      buttonDiv.style.cssText = `
+      // 모드 토글
+      const modeBtn = this.createToggleButton({
+        icon: () => this.editManager.getEditMode() === "selection" ? "📝" : "✏️",
+        label: "모드",
+        value: () => this.editManager.getEditMode() === "selection" ? "텍스트" : "요소",
+        hoverColor: "green",
+        onClick: () => this.editManager.toggleEditMode(),
+        onChange: (cb) => this.editManager.onModeChange(cb)
+      });
+
+      // 위치 토글
+      const posBtn = this.createToggleButton({
+        icon: () => this.editManager.getButtonPosition() === "top" ? "⬆️" : "⬇️",
+        label: "위치",
+        value: () => this.editManager.getButtonPosition() === "top" ? "상단" : "하단",
+        hoverColor: "blue",
+        onClick: () => this.editManager.toggleButtonPosition(),
+        onChange: (cb) => this.editManager.onButtonPositionChange(cb)
+      });
+
+      row.appendChild(modeBtn);
+      row.appendChild(posBtn);
+
+      // 현재 위치에 따라 추가
+      this.insertButton(container, row);
+    }
+
+    /**
+     * 토글 버튼 생성 헬퍼
+     */
+    createToggleButton({ icon, label, value, hoverColor, onClick, onChange }) {
+      const btn = document.createElement("div");
+      btn.className = `flex items-center cursor-pointer hover:text-${hoverColor}-500 transition-colors`;
+      btn.style.cssText = `
+        flex: 1;
         padding: 8px 12px;
         border-radius: 6px;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        margin-top: 8px;
       `;
-      
-      // 버튼 내용 업데이트 함수 
-      const updateButton = (mode) => {
-        const modeText = mode === "selection" ? "텍스트 선택" : "요소 기반";
-        const modeIcon = mode === "selection" ? "📝" : "✏️";
-        buttonDiv.innerHTML = `
-          <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
-            <span style="font-size: 16px;">${modeIcon}</span>
+
+      const update = () => {
+        btn.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 6px; width: 100%;">
+            <span style="font-size: 14px;">${icon()}</span>
             <div style="flex: 1;">
-              <div style="font-size: 12px; color: rgba(255, 255, 255, 0.6);">편집 모드</div>
-              <div style="font-size: 14px; font-weight: 500; margin-top: 2px;">${modeText}</div>
+              <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5);">${label}</div>
+              <div style="font-size: 13px; font-weight: 500;">${value()}</div>
             </div>
-            <span style="font-size: 12px; color: rgba(255, 255, 255, 0.5);">클릭하여 전환</span>
           </div>
         `;
       };
 
-      // 초기 모드 표시
-      if (this.editManager) {
-        updateButton(this.editManager.getEditMode());
-      }
+      btn.addEventListener("click", onClick);
+      update();
+      onChange(update);
 
-      // 버튼 클릭 이벤트
-      buttonDiv.addEventListener("click", () => {
-        if (this.editManager) {
-          this.editManager.toggleEditMode();
-        }
-      });
-
-      // 모드 변경 콜백 등록
-      if (this.editManager) {
-        this.editManager.onModeChange(updateButton);
-      }
-
-      container.appendChild(buttonDiv);
+      return btn;
     }
-  
-    // plugin이 unload될 때 호출되는 함수
+
+    /**
+     * 위치에 따라 버튼 삽입
+     */
+    insertButton(container, button) {
+      const position = this.editManager?.getButtonPosition() || "bottom";
+      if (position === "top") {
+        container.insertBefore(button, container.firstChild);
+      } else {
+        container.appendChild(button);
+      }
+    }
+
+    /**
+     * 버튼 위치 재배치
+     */
+    repositionButtons(container) {
+      const pluginButtons = Array.from(container.children).filter(child =>
+        child.classList.contains('plugin-toggle-row')
+      );
+
+      pluginButtons.forEach(button => {
+        button.remove();
+        this.insertButton(container, button);
+      });
+    }
+
     destroy() {
       if (this.observer) this.observer.disconnect();
       if (this.editManager) {
@@ -153,4 +185,3 @@ export class App {
       console.log(`${PLUGIN_NAME} 언로드`);
     }
   }
-  
