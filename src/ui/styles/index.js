@@ -10,7 +10,8 @@ import "./global.css";
 import baseStyles from "./base.module.css";
 import updateDialogStyles from "./update-dialog.module.css";
 import editStyles from "./edit.module.css";
+import elementEditStyles from "./element-edit.module.css";
 
 // CSS Modules를 사용하는 컴포넌트에서 import 가능하도록 export
-export { baseStyles, updateDialogStyles, editStyles };
+export { baseStyles, updateDialogStyles, editStyles, elementEditStyles };
 

@@ -6,6 +6,7 @@
 import { RisuAPI } from "./risu-api.js";
 import { findOriginalRangeFromHtml } from "../utils/text-matcher.js";
 import { PluginArgs } from "./plugin-config.js";
+import { elementEditStyles } from "../ui/styles/index.js";
 
 const TARGET_SELECTOR = [
   "span.text > h3",
@@ -38,6 +39,8 @@ export class ElementEditHandler {
     this.createdButtons = [];
     this.excludeBotNames = [];
   }
+
+  // ==================== 활성화/비활성화 ====================
 
   /**
    * 요소 기반 편집 활성화
@@ -79,6 +82,8 @@ export class ElementEditHandler {
     this.createdButtons = [];
   }
 
+  // ==================== 옵저버 ====================
+
   /**
    * 옵저버 시작
    */
@@ -115,7 +120,7 @@ export class ElementEditHandler {
     );
     existingContainers.forEach((container) => {
       this.intersectionObserver.observe(container);
-      
+
       // 현재 화면에 보이는 요소는 즉시 버튼 추가
       if (
         this.isElementVisible(container) &&
@@ -171,6 +176,8 @@ export class ElementEditHandler {
     });
   }
 
+  // ==================== 요소 검증 ====================
+
   /**
    * 요소가 타겟 요소인지 확인
    */
@@ -180,7 +187,7 @@ export class ElementEditHandler {
     const selectors = TARGET_SELECTOR.map((selector) => selector.trim());
 
     for (const selector of selectors) {
-      if (this.matchesSelector(element, selector)) {
+      if (this._matchesSelector(element, selector)) {
         return true;
       }
     }
@@ -190,62 +197,6 @@ export class ElementEditHandler {
     }
 
     return false;
-  }
-
-  /**
-   * CSS Selector 매칭
-   */
-  matchesSelector(element, selector) {
-    try {
-      const parts = selector.split(" ");
-      const lastPart = parts[parts.length - 1];
-
-      const tagMatch = lastPart.match(/^(\w+)/);
-      const classMatch = lastPart.match(/\.([\w-]+)/);
-
-      if (!tagMatch) return false;
-
-      const tagName = tagMatch[1];
-      const className = classMatch ? classMatch[1] : null;
-
-      if (element.tagName.toLowerCase() !== tagName) return false;
-
-      if (className && !element.classList.contains(className)) return false;
-
-      if (parts.length > 1) {
-        const parentSelector = parts.slice(0, -1).join(" ");
-        const parentElement = element.parentElement;
-
-        if (
-          parentElement &&
-          !this.matchesParentSelector(parentElement, parentSelector)
-        ) {
-          return false;
-        }
-      }
-
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  /**
-   * Parent Selector 매칭
-   */
-  matchesParentSelector(element, parentSelector) {
-    try {
-      const parts = parentSelector.split(".");
-      const tagName = parts[0];
-      const className = parts[1];
-
-      if (element.tagName.toLowerCase() !== tagName) return false;
-      if (className && !element.classList.contains(className)) return false;
-
-      return true;
-    } catch (error) {
-      return false;
-    }
   }
 
   /**
@@ -266,6 +217,8 @@ export class ElementEditHandler {
     );
   }
 
+  // ==================== 버튼 추가 ====================
+
   /**
    * 요소에 편집 버튼 추가
    */
@@ -274,18 +227,14 @@ export class ElementEditHandler {
     const char = this.risuAPI.getChar();
     if (!char) return;
     if (this.excludeBotNames.includes(char.name)) return;
-    
+
     const chatPage = char.chatPage || 0;
     if (!char.chats || !char.chats[chatPage] || !char.chats[chatPage].message || char.chats[chatPage].message.length === 0) {
       return;
     }
 
     // 텍스트 내용 확인
-    const tempElement = element.cloneNode(true);
-    const risuButtons = tempElement.querySelectorAll("button");
-    risuButtons.forEach((btn) => btn.remove());
-    const textContent = tempElement.textContent.trim();
-
+    const textContent = this._extractTextContent(element);
     if (!textContent) {
       element.classList.add("hddm-btn-appended");
       return;
@@ -299,64 +248,14 @@ export class ElementEditHandler {
 
     if (chatIdx === -1) return;
 
-    // 요소를 relative로 설정
-    if (getComputedStyle(element).position === "static") {
-      element.style.position = "relative";
-    }
-
-    // 버튼 래퍼 생성
-    const wrapper = document.createElement("div");
-    wrapper.className = "hddm-button-wrapper";
-    wrapper.style.cssText = `
-      position: absolute;
-      top: inherit;
-      left: 0px;
-      margin-top: 30px;
-      transform: translateY(-100%);
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      z-index: 1000;
-      display: flex;
-      gap: 4px;
-      padding: 4px 0;
-      pointer-events: auto;
-      user-select: none;
-    `;
-
-    // 편집 버튼 생성
-    const editButton = document.createElement("button");
-    editButton.type = "button";
-    editButton.innerHTML = "✏️";
-    editButton.title = "수정";
-    editButton.className = "chat-modi-btn hddm-edit-button";
-    editButton.style.cssText = `
-      background: rgba(255, 255, 255, 0.65);
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      padding: 4px 4px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      line-height: 1;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      user-select: none;
-    `;
-    editButton.onclick = () => this.editSingleChat(editButton);
-
-    wrapper.appendChild(editButton);
-
-    // 호버 이벤트
-    element.addEventListener("mouseenter", () => {
-      wrapper.style.opacity = "1";
-    });
-
-    element.addEventListener("mouseleave", () => {
-      wrapper.style.opacity = "0";
-    });
-
+    // 버튼 래퍼 생성 및 추가
+    const wrapper = this._createEditButtonWrapper(element);
     element.appendChild(wrapper);
     this.createdButtons.push(wrapper);
     element.classList.add("hddm-btn-appended");
   }
+
+  // ==================== 편집 ====================
 
   /**
    * 단일 채팅 편집
@@ -380,99 +279,18 @@ export class ElementEditHandler {
     const originalText = this.convertHTMLToEditFormat(targetElement);
     const originalHTML = tempElement.innerHTML;
 
-    const chatContainer = targetElement.closest(".chat-message-container");
-    let chatIndex = "";
-    let chatId = "";
-
-    if (chatContainer) {
-      const dataDiv = chatContainer.querySelector(
-        "div[data-chat-index], div[data-chat-id]"
-      );
-      if (dataDiv) {
-        chatIndex = dataDiv.getAttribute("data-chat-index") || "";
-        chatId = dataDiv.getAttribute("data-chat-id") || "";
-      }
-    }
+    const { chatIndex, chatId } = this._getChatInfo(targetElement);
+    if (!chatIndex) return;
 
     targetElement.classList.add("hddm-editing");
 
-    const rect = targetElement.getBoundingClientRect();
-    const actualWidth = rect.width + 10;
-    const actualHeight = Math.max(rect.height + 10, 60);
-
-    const textarea = document.createElement("textarea");
-
-    const char = this.risuAPI.getChar();
-    const chatPage = char.chatPage || 0;
-    const currentChatMessage =
-      char.chats[chatPage].message[chatIndex].data;
-    const hit = findOriginalRangeFromHtml(currentChatMessage, originalText, {
-      extendToEOL: false,
-      snapStartToPrevEOL: false,
-    });
-
-    let taValue = "";
-    if (hit) taValue = currentChatMessage.slice(hit.start, hit.end);
-    else taValue = originalText;
-
-    textarea.value = taValue;
-    textarea.setAttribute("data-chat-index", chatIndex);
-    textarea.setAttribute("data-chat-id", chatId);
-    textarea.className = "chat-edit-textarea";
-    textarea.style.cssText = `
-      width: ${actualWidth}px;
-      height: ${actualHeight}px;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-family: inherit;
-      font-size: inherit;
-      color: #000;
-      resize: both;
-      margin: 4px 0;
-      box-sizing: border-box;
-    `;
-
-    const buttonContainer = document.createElement("div");
-    buttonContainer.className = "chat-edit-buttons";
-    buttonContainer.style.cssText = `
-      display: flex;
-      gap: 8px;
-      margin-top: 8px;
-    `;
-
-    const saveButton = document.createElement("button");
-    saveButton.textContent = "저장";
-    saveButton.className = "chat-save-btn";
-    saveButton.style.cssText = `
-      padding: 6px 12px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-    `;
-    saveButton.onclick = () =>
-      this.saveSingleChat(textarea, targetElement, taValue, originalHTML, hit);
-
-    const cancelButton = document.createElement("button");
-    cancelButton.textContent = "취소";
-    cancelButton.className = "chat-cancel-btn";
-    cancelButton.style.cssText = `
-      padding: 6px 12px;
-      background: #6c757d;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-    `;
-    cancelButton.onclick = () =>
-      this.cancelEdit(targetElement, originalText, originalHTML);
-
-    buttonContainer.appendChild(saveButton);
-    buttonContainer.appendChild(cancelButton);
+    const { textarea, buttonContainer } = this._createEditUI(
+      targetElement,
+      originalText,
+      originalHTML,
+      chatIndex,
+      chatId
+    );
 
     targetElement.innerHTML = "";
     targetElement.appendChild(textarea);
@@ -481,6 +299,55 @@ export class ElementEditHandler {
     textarea.focus();
     textarea.select();
   }
+
+  /**
+   * 편집 저장
+   */
+  saveSingleChat(textarea, targetElement, originalText, originalHTML, hit) {
+    const newText = textarea.value;
+
+    if (newText === originalText) {
+      this.cancelEdit(targetElement, originalText, originalHTML);
+      return;
+    }
+
+    let chatId = textarea.getAttribute("data-chat-id");
+    let chatIndex = textarea.getAttribute("data-chat-index");
+
+    const newHTML = this.convertEditFormatToHTML(newText);
+
+    const char = this.risuAPI.getChar();
+    const chatPage = char.chatPage || 0;
+    let oldFullText = char.chats[chatPage].message[chatIndex].data;
+
+    if (hit) {
+      let { start, end } = hit;
+      const updated =
+        oldFullText.slice(0, start) + newText + oldFullText.slice(end);
+      char.chats[char.chatPage].message[chatIndex].data = updated;
+    } else {
+      let replacedText = oldFullText.replaceAll(originalText, newText);
+      char.chats[char.chatPage].message[chatIndex].data = replacedText;
+    }
+
+    this.risuAPI.setChar(char);
+
+    targetElement.classList.remove("hddm-editing");
+    targetElement.innerHTML = newHTML;
+
+    this._appendEditButtonToElement(targetElement);
+  }
+
+  /**
+   * 편집 취소
+   */
+  cancelEdit(targetElement, originalText, originalHTML) {
+    targetElement.classList.remove("hddm-editing");
+    targetElement.innerHTML = originalHTML;
+    this._appendEditButtonToElement(targetElement);
+  }
+
+  // ==================== 변환 ====================
 
   /**
    * HTML을 편집 가능한 포맷으로 변환
@@ -493,9 +360,7 @@ export class ElementEditHandler {
     );
     buttons.forEach((btn) => btn.remove());
 
-    let result = "";
-
-    function processNode(node) {
+    const processNode = (node) => {
       if (node.nodeType === Node.TEXT_NODE) {
         return node.textContent;
       } else if (node.nodeType === Node.ELEMENT_NODE) {
@@ -523,10 +388,9 @@ export class ElementEditHandler {
         }
       }
       return "";
-    }
+    };
 
-    result = processNode(cloned);
-    return result.trim();
+    return processNode(cloned).trim();
   }
 
   /**
@@ -543,100 +407,130 @@ export class ElementEditHandler {
     return result;
   }
 
+  // ==================== Private Helper Methods ====================
+
   /**
-   * 편집 저장
+   * CSS Selector 매칭
    */
-  saveSingleChat(textarea, targetElement, originalText, originalHTML, hit) {
-    const newText = textarea.value;
+  _matchesSelector(element, selector) {
+    try {
+      const parts = selector.split(" ");
+      const lastPart = parts[parts.length - 1];
 
-    if (newText === originalText) {
-      this.cancelEdit(targetElement, originalText, originalHTML);
-      return;
+      const tagMatch = lastPart.match(/^(\w+)/);
+      const classMatch = lastPart.match(/\.([\w-]+)/);
+
+      if (!tagMatch) return false;
+
+      const tagName = tagMatch[1];
+      const className = classMatch ? classMatch[1] : null;
+
+      if (element.tagName.toLowerCase() !== tagName) return false;
+
+      if (className && !element.classList.contains(className)) return false;
+
+      if (parts.length > 1) {
+        const parentSelector = parts.slice(0, -1).join(" ");
+        const parentElement = element.parentElement;
+
+        if (
+          parentElement &&
+          !this._matchesParentSelector(parentElement, parentSelector)
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    } catch (error) {
+      return false;
     }
-
-    let chatId = textarea.getAttribute("data-chat-id");
-    let chatIndex = textarea.getAttribute("data-chat-index");
-
-    const newHTML = this.convertEditFormatToHTML(newText);
-
-    const char = this.risuAPI.getChar();
-    const chatPage = char.chatPage || 0;
-    let oldFullText =
-      char.chats[chatPage].message[chatIndex].data;
-
-    if (hit) {
-      let { start, end } = hit;
-      const updated =
-        oldFullText.slice(0, start) + newText + oldFullText.slice(end);
-      char.chats[char.chatPage].message[chatIndex].data = updated;
-    } else {
-      let replacedText = oldFullText.replaceAll(originalText, newText);
-      char.chats[char.chatPage].message[chatIndex].data = replacedText;
-    }
-
-    this.risuAPI.setChar(char);
-
-    targetElement.classList.remove("hddm-editing");
-    targetElement.innerHTML = newHTML;
-
-    this.appendEditButtonToElement(targetElement);
   }
 
   /**
-   * 편집 취소
+   * Parent Selector 매칭
    */
-  cancelEdit(targetElement, originalText, originalHTML) {
-    targetElement.classList.remove("hddm-editing");
-    targetElement.innerHTML = originalHTML;
-    this.appendEditButtonToElement(targetElement);
+  _matchesParentSelector(element, parentSelector) {
+    try {
+      const parts = parentSelector.split(".");
+      const tagName = parts[0];
+      const className = parts[1];
+
+      if (element.tagName.toLowerCase() !== tagName) return false;
+      if (className && !element.classList.contains(className)) return false;
+
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   /**
-   * 편집 버튼 다시 추가
+   * 텍스트 내용 추출
    */
-  appendEditButtonToElement(element) {
+  _extractTextContent(element) {
+    const tempElement = element.cloneNode(true);
+    const risuButtons = tempElement.querySelectorAll("button");
+    risuButtons.forEach((btn) => btn.remove());
+    return tempElement.textContent.trim();
+  }
+
+  /**
+   * 채팅 정보 가져오기
+   */
+  _getChatInfo(targetElement) {
+    const chatContainer = targetElement.closest(".chat-message-container");
+    let chatIndex = "";
+    let chatId = "";
+
+    if (chatContainer) {
+      const dataDiv = chatContainer.querySelector(
+        "div[data-chat-index], div[data-chat-id]"
+      );
+      if (dataDiv) {
+        chatIndex = dataDiv.getAttribute("data-chat-index") || "";
+        chatId = dataDiv.getAttribute("data-chat-id") || "";
+      }
+    }
+
+    return { chatIndex, chatId };
+  }
+
+  /**
+   * 편집 버튼 래퍼 생성
+   */
+  _createEditButtonWrapper(element) {
+    const s = elementEditStyles;
+
+    // 요소를 relative로 설정
     if (getComputedStyle(element).position === "static") {
       element.style.position = "relative";
     }
 
+    // 버튼 래퍼 생성
     const wrapper = document.createElement("div");
-    wrapper.className = "hddm-button-wrapper";
-    wrapper.style.cssText = `
-      position: absolute;
-      top: inherit;
-      left: 0px;
-      margin-top: 30px;
-      transform: translateY(-100%);
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      z-index: 1000;
-      display: flex;
-      gap: 4px;
-      padding: 4px 0;
-      pointer-events: auto;
-      user-select: none;
-    `;
+    wrapper.className = `hddm-button-wrapper ${s.buttonWrapper}`;
 
+    // 편집 버튼 생성
     const editButton = document.createElement("button");
     editButton.type = "button";
     editButton.innerHTML = "✏️";
     editButton.title = "수정";
-    editButton.className = "chat-modi-btn hddm-edit-button";
-    editButton.style.cssText = `
-      background: rgba(255, 255, 255, 0.65);
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      padding: 4px 4px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      line-height: 1;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      user-select: none;
-    `;
+    editButton.className = `chat-modi-btn hddm-edit-button ${s.editButton}`;
     editButton.onclick = () => this.editSingleChat(editButton);
 
     wrapper.appendChild(editButton);
 
+    // 호버 이벤트
+    this._attachHoverEvents(element, wrapper);
+
+    return wrapper;
+  }
+
+  /**
+   * 호버 이벤트 연결
+   */
+  _attachHoverEvents(element, wrapper) {
     element.addEventListener("mouseenter", () => {
       wrapper.style.opacity = "1";
     });
@@ -644,9 +538,66 @@ export class ElementEditHandler {
     element.addEventListener("mouseleave", () => {
       wrapper.style.opacity = "0";
     });
+  }
 
+  /**
+   * 편집 UI 생성 (textarea + 버튼)
+   */
+  _createEditUI(targetElement, originalText, originalHTML, chatIndex, chatId) {
+    const rect = targetElement.getBoundingClientRect();
+    const actualWidth = rect.width + 10;
+    const actualHeight = Math.max(rect.height + 10, 60);
+
+    const char = this.risuAPI.getChar();
+    const chatPage = char.chatPage || 0;
+    const currentChatMessage = char.chats[chatPage].message[chatIndex].data;
+    const hit = findOriginalRangeFromHtml(currentChatMessage, originalText, {
+      extendToEOL: false,
+      snapStartToPrevEOL: false,
+    });
+
+    let taValue = "";
+    if (hit) taValue = currentChatMessage.slice(hit.start, hit.end);
+    else taValue = originalText;
+
+    // Textarea 생성
+    const s = elementEditStyles;
+    const textarea = document.createElement("textarea");
+    textarea.value = taValue;
+    textarea.setAttribute("data-chat-index", chatIndex);
+    textarea.setAttribute("data-chat-id", chatId);
+    textarea.className = `chat-edit-textarea ${s.textarea}`;
+    textarea.style.width = `${actualWidth}px`;
+    textarea.style.height = `${actualHeight}px`;
+
+    // 버튼 컨테이너 생성
+    const buttonContainer = document.createElement("div");
+    buttonContainer.className = `chat-edit-buttons ${s.buttonContainer}`;
+
+    const saveButton = document.createElement("button");
+    saveButton.textContent = "저장";
+    saveButton.className = `chat-save-btn ${s.saveButton}`;
+    saveButton.onclick = () =>
+      this.saveSingleChat(textarea, targetElement, taValue, originalHTML, hit);
+
+    const cancelButton = document.createElement("button");
+    cancelButton.textContent = "취소";
+    cancelButton.className = `chat-cancel-btn ${s.cancelButton}`;
+    cancelButton.onclick = () =>
+      this.cancelEdit(targetElement, originalText, originalHTML);
+
+    buttonContainer.appendChild(saveButton);
+    buttonContainer.appendChild(cancelButton);
+
+    return { textarea, buttonContainer };
+  }
+
+  /**
+   * 편집 버튼 다시 추가 (저장/취소 후)
+   */
+  _appendEditButtonToElement(element) {
+    const wrapper = this._createEditButtonWrapper(element);
     element.appendChild(wrapper);
     this.createdButtons.push(wrapper);
   }
 }
-

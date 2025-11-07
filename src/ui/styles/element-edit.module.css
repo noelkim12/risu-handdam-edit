@@ -1,0 +1,118 @@
+/**
+ * Element Edit Handler Styles
+ * 요소 기반 편집 UI 스타일
+ */
+
+/* 버튼 래퍼 */
+.buttonWrapper {
+  position: absolute;
+  top: inherit;
+  left: 0px;
+  margin-top: 30px;
+  transform: translateY(-100%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 1000;
+  display: flex;
+  gap: 4px;
+  padding: 4px 0;
+  pointer-events: auto;
+  user-select: none;
+}
+
+/* 편집 버튼 */
+.editButton {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  padding: 4px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  user-select: none;
+}
+
+/* Textarea */
+.textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #111827;
+  background: #ffffff;
+  resize: both;
+  margin: 4px 0;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* 버튼 컨테이너 */
+.buttonContainer {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* 저장 버튼 */
+.saveButton {
+  padding: 8px 16px;
+  background: #3b82f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.15s ease;
+}
+
+.saveButton:hover {
+  background: #2563eb;
+}
+
+.saveButton:active {
+  background: #1d4ed8;
+}
+
+.saveButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* 취소 버튼 */
+.cancelButton {
+  padding: 8px 16px;
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.cancelButton:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.cancelButton:active {
+  background: #f3f4f6;
+}
+
+.cancelButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.3);
+}

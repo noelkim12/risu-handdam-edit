@@ -597,6 +597,154 @@ module.exports = styleTagTransform;
 
 /***/ }),
 
+/***/ 156:
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(601);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(314);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+// Imports
+
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, `/**
+ * Element Edit Handler Styles
+ * 요소 기반 편집 UI 스타일
+ */
+
+/* 버튼 래퍼 */
+.element-edit-module__buttonWrapper--xsRJa {
+  position: absolute;
+  top: inherit;
+  left: 0px;
+  margin-top: 30px;
+  transform: translateY(-100%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 1000;
+  display: flex;
+  gap: 4px;
+  padding: 4px 0;
+  pointer-events: auto;
+  user-select: none;
+}
+
+/* 편집 버튼 */
+.element-edit-module__editButton--Ye8aJ {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  padding: 4px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  user-select: none;
+}
+
+/* Textarea */
+.element-edit-module__textarea--E5RcW {
+  width: 100%;
+  min-height: 60px;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #111827;
+  background: #ffffff;
+  resize: both;
+  margin: 4px 0;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.element-edit-module__textarea--E5RcW:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* 버튼 컨테이너 */
+.element-edit-module__buttonContainer--Oj3EC {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* 저장 버튼 */
+.element-edit-module__saveButton--Kyg3J {
+  padding: 8px 16px;
+  background: #3b82f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.15s ease;
+}
+
+.element-edit-module__saveButton--Kyg3J:hover {
+  background: #2563eb;
+}
+
+.element-edit-module__saveButton--Kyg3J:active {
+  background: #1d4ed8;
+}
+
+.element-edit-module__saveButton--Kyg3J:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* 취소 버튼 */
+.element-edit-module__cancelButton--qWPzh {
+  padding: 8px 16px;
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.element-edit-module__cancelButton--qWPzh:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.element-edit-module__cancelButton--qWPzh:active {
+  background: #f3f4f6;
+}
+
+.element-edit-module__cancelButton--qWPzh:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.3);
+}
+`, ""]);
+// Exports
+___CSS_LOADER_EXPORT___.locals = {
+	"buttonWrapper": `element-edit-module__buttonWrapper--xsRJa`,
+	"editButton": `element-edit-module__editButton--Ye8aJ`,
+	"textarea": `element-edit-module__textarea--E5RcW`,
+	"buttonContainer": `element-edit-module__buttonContainer--Oj3EC`,
+	"saveButton": `element-edit-module__saveButton--Kyg3J`,
+	"cancelButton": `element-edit-module__cancelButton--qWPzh`
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
 /***/ 199:
 /***/ ((module, __webpack_exports__, __webpack_require__) => {
 
@@ -3100,660 +3248,6 @@ class PluginArgs {
   }
 }
 
-;// ./src/core/element-edit-handler.js
-/**
- * 요소 기반 편집 핸들러
- * 기존 HTML Element 단위 편집 기능
- */
-
-
-
-
-
-const TARGET_SELECTOR = [
-  "span.text > h3",
-  "span.text > h2",
-  "span.text > h1",
-  "span.text > p",
-  "span.text > ul",
-  "span.text > ol",
-  "span.text > div h3",
-  "span.text > div h2",
-  "span.text > div h1",
-  "span.text > div p",
-  "span.text > div ul",
-  "span.text > div ol",
-  "span.text div.x-risu-regex-quote-block",
-  "span.text div.x-risu-regex-thought-block",
-  "span.text div.x-risu-regex-sound-block",
-  "span.text div.x-risu-message",
-  "div.x-risu-lb-nai-character-tags",
-  "div.x-risu-lb-nai-comp-tags",
-];
-
-class ElementEditHandler {
-  constructor(editManager) {
-    this.editManager = editManager;
-    this.risuAPI = risu_api/* RisuAPI */.m.getInstance();
-    this.pluginArgs = new PluginArgs();
-    this.intersectionObserver = null;
-    this.mutationObserver = null;
-    this.createdButtons = [];
-    this.excludeBotNames = [];
-  }
-
-  /**
-   * 요소 기반 편집 활성화
-   */
-  enable() {
-    if (this.isEnabled) return;
-    this.isEnabled = true;
-
-    // 제외할 봇 이름 가져오기
-    const excludeBotStr = this.pluginArgs.excludeBotName;
-    this.excludeBotNames = excludeBotStr
-      ? excludeBotStr.split(",").map((s) => s.trim())
-      : [];
-
-    // 옵저버 시작
-    this.startObserver();
-  }
-
-  /**
-   * 요소 기반 편집 비활성화
-   */
-  disable() {
-    if (!this.isEnabled) return;
-    this.isEnabled = false;
-
-    // 옵저버 정리
-    if (this.intersectionObserver) {
-      this.intersectionObserver.disconnect();
-      this.intersectionObserver = null;
-    }
-    if (this.mutationObserver) {
-      this.mutationObserver.disconnect();
-      this.mutationObserver = null;
-    }
-
-    document.querySelectorAll(".hddm-btn-appended").forEach(_el => _el.classList.remove("hddm-btn-appended"))
-    // 생성된 버튼 제거
-    this.createdButtons.forEach((btn) => btn?.remove());
-    this.createdButtons = [];
-  }
-
-  /**
-   * 옵저버 시작
-   */
-  startObserver() {
-    if (this.intersectionObserver) this.intersectionObserver.disconnect();
-    if (this.mutationObserver) this.mutationObserver.disconnect();
-
-    this.intersectionObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setTimeout(() => {
-              const element = entry.target;
-              if (
-                this.isElementVisible(element) &&
-                !element.classList.contains("hddm-btn-appended")
-              ) {
-                this.addEditButtonToElement(element);
-              }
-            }, 100);
-          }
-        });
-      },
-      {
-        root: null,
-        rootMargin: "0px",
-        threshold: 0.1,
-      }
-    );
-
-    // 기존 요소들에 대해 IntersectionObserver 적용 및 현재 보이는 요소에 버튼 추가
-    const existingContainers = document.querySelectorAll(
-      TARGET_SELECTOR.join(", ")
-    );
-    existingContainers.forEach((container) => {
-      this.intersectionObserver.observe(container);
-      
-      // 현재 화면에 보이는 요소는 즉시 버튼 추가
-      if (
-        this.isElementVisible(container) &&
-        !container.classList.contains("hddm-btn-appended")
-      ) {
-        this.addEditButtonToElement(container);
-      }
-    });
-
-    // 새로운 요소 감지를 위한 MutationObserver
-    this.mutationObserver = new MutationObserver((mutations) => {
-      let shouldReinitialize = false;
-
-      mutations.forEach((mutation) => {
-        if (mutation.type === "childList") {
-          if (
-            mutation.addedNodes.length > 5 ||
-            mutation.removedNodes.length > 5
-          ) {
-            shouldReinitialize = true;
-          }
-
-          mutation.addedNodes.forEach((node) => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              try {
-                if (node?.classList && this.isTargetElement(node)) {
-                  this.intersectionObserver.observe(node);
-                }
-              } catch (error) {}
-              try {
-                const childContainers = node.querySelectorAll(
-                  TARGET_SELECTOR.join(", ")
-                );
-                childContainers.forEach((container) => {
-                  this.intersectionObserver.observe(container);
-                });
-              } catch (error) {}
-            }
-          });
-        }
-      });
-
-      if (shouldReinitialize) {
-        setTimeout(() => this.startObserver(), 300);
-      }
-    });
-
-    this.mutationObserver.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: false,
-      characterData: false,
-    });
-  }
-
-  /**
-   * 요소가 타겟 요소인지 확인
-   */
-  isTargetElement(element) {
-    if (!element || !element.classList) return false;
-
-    const selectors = TARGET_SELECTOR.map((selector) => selector.trim());
-
-    for (const selector of selectors) {
-      if (this.matchesSelector(element, selector)) {
-        return true;
-      }
-    }
-
-    if (element.className && element.className.includes("message")) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /**
-   * CSS Selector 매칭
-   */
-  matchesSelector(element, selector) {
-    try {
-      const parts = selector.split(" ");
-      const lastPart = parts[parts.length - 1];
-
-      const tagMatch = lastPart.match(/^(\w+)/);
-      const classMatch = lastPart.match(/\.([\w-]+)/);
-
-      if (!tagMatch) return false;
-
-      const tagName = tagMatch[1];
-      const className = classMatch ? classMatch[1] : null;
-
-      if (element.tagName.toLowerCase() !== tagName) return false;
-
-      if (className && !element.classList.contains(className)) return false;
-
-      if (parts.length > 1) {
-        const parentSelector = parts.slice(0, -1).join(" ");
-        const parentElement = element.parentElement;
-
-        if (
-          parentElement &&
-          !this.matchesParentSelector(parentElement, parentSelector)
-        ) {
-          return false;
-        }
-      }
-
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  /**
-   * Parent Selector 매칭
-   */
-  matchesParentSelector(element, parentSelector) {
-    try {
-      const parts = parentSelector.split(".");
-      const tagName = parts[0];
-      const className = parts[1];
-
-      if (element.tagName.toLowerCase() !== tagName) return false;
-      if (className && !element.classList.contains(className)) return false;
-
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  /**
-   * 요소가 화면에 보이는지 확인
-   */
-  isElementVisible(element) {
-    const rect = element.getBoundingClientRect();
-    const style = window.getComputedStyle(element);
-
-    return (
-      rect.width > 0 &&
-      rect.height > 0 &&
-      style.display !== "none" &&
-      style.visibility !== "hidden" &&
-      style.opacity !== "0" &&
-      rect.top < window.innerHeight &&
-      rect.bottom > 0
-    );
-  }
-
-  /**
-   * 요소에 편집 버튼 추가
-   */
-  addEditButtonToElement(element) {
-    // 예외처리: 봇 이름 확인
-    const char = this.risuAPI.getChar();
-    if (!char) return;
-    if (this.excludeBotNames.includes(char.name)) return;
-    
-    const chatPage = char.chatPage || 0;
-    if (!char.chats || !char.chats[chatPage] || !char.chats[chatPage].message || char.chats[chatPage].message.length === 0) {
-      return;
-    }
-
-    // 텍스트 내용 확인
-    const tempElement = element.cloneNode(true);
-    const risuButtons = tempElement.querySelectorAll("button");
-    risuButtons.forEach((btn) => btn.remove());
-    const textContent = tempElement.textContent.trim();
-
-    if (!textContent) {
-      element.classList.add("hddm-btn-appended");
-      return;
-    }
-
-    let closestRisuChatDiv = element.closest("div.risu-chat");
-    let chatIdx = -1;
-    if (closestRisuChatDiv) {
-      chatIdx = closestRisuChatDiv.getAttribute("data-chat-index");
-    }
-
-    if (chatIdx === -1) return;
-
-    // 요소를 relative로 설정
-    if (getComputedStyle(element).position === "static") {
-      element.style.position = "relative";
-    }
-
-    // 버튼 래퍼 생성
-    const wrapper = document.createElement("div");
-    wrapper.className = "hddm-button-wrapper";
-    wrapper.style.cssText = `
-      position: absolute;
-      top: inherit;
-      left: 0px;
-      margin-top: 30px;
-      transform: translateY(-100%);
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      z-index: 1000;
-      display: flex;
-      gap: 4px;
-      padding: 4px 0;
-      pointer-events: auto;
-      user-select: none;
-    `;
-
-    // 편집 버튼 생성
-    const editButton = document.createElement("button");
-    editButton.type = "button";
-    editButton.innerHTML = "✏️";
-    editButton.title = "수정";
-    editButton.className = "chat-modi-btn hddm-edit-button";
-    editButton.style.cssText = `
-      background: rgba(255, 255, 255, 0.65);
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      padding: 4px 4px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      line-height: 1;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      user-select: none;
-    `;
-    editButton.onclick = () => this.editSingleChat(editButton);
-
-    wrapper.appendChild(editButton);
-
-    // 호버 이벤트
-    element.addEventListener("mouseenter", () => {
-      wrapper.style.opacity = "1";
-    });
-
-    element.addEventListener("mouseleave", () => {
-      wrapper.style.opacity = "0";
-    });
-
-    element.appendChild(wrapper);
-    this.createdButtons.push(wrapper);
-    element.classList.add("hddm-btn-appended");
-  }
-
-  /**
-   * 단일 채팅 편집
-   */
-  editSingleChat(element) {
-    const targetElement = element.closest(
-      "h1, h2, h3, p, li, div.x-risu-regex-quote-block, div.x-risu-regex-thought-block, div.x-risu-regex-sound-block, div.x-risu-message, div.x-risu-lb-nai-character-tags, div.x-risu-lb-nai-comp-tags, ol, ul"
-    );
-    if (!targetElement) return;
-
-    if (targetElement.classList.contains("hddm-editing")) return;
-
-    element.remove();
-
-    const tempElement = targetElement.cloneNode(true);
-    const buttons = tempElement.querySelectorAll(
-      "button, .chat-modi-btn, .x-risu-button-default"
-    );
-    buttons.forEach((btn) => btn.remove());
-
-    const originalText = this.convertHTMLToEditFormat(targetElement);
-    const originalHTML = tempElement.innerHTML;
-
-    const chatContainer = targetElement.closest(".chat-message-container");
-    let chatIndex = "";
-    let chatId = "";
-
-    if (chatContainer) {
-      const dataDiv = chatContainer.querySelector(
-        "div[data-chat-index], div[data-chat-id]"
-      );
-      if (dataDiv) {
-        chatIndex = dataDiv.getAttribute("data-chat-index") || "";
-        chatId = dataDiv.getAttribute("data-chat-id") || "";
-      }
-    }
-
-    targetElement.classList.add("hddm-editing");
-
-    const rect = targetElement.getBoundingClientRect();
-    const actualWidth = rect.width + 10;
-    const actualHeight = Math.max(rect.height + 10, 60);
-
-    const textarea = document.createElement("textarea");
-
-    const char = this.risuAPI.getChar();
-    const chatPage = char.chatPage || 0;
-    const currentChatMessage =
-      char.chats[chatPage].message[chatIndex].data;
-    const hit = findOriginalRangeFromHtml(currentChatMessage, originalText, {
-      extendToEOL: false,
-      snapStartToPrevEOL: false,
-    });
-
-    let taValue = "";
-    if (hit) taValue = currentChatMessage.slice(hit.start, hit.end);
-    else taValue = originalText;
-
-    textarea.value = taValue;
-    textarea.setAttribute("data-chat-index", chatIndex);
-    textarea.setAttribute("data-chat-id", chatId);
-    textarea.className = "chat-edit-textarea";
-    textarea.style.cssText = `
-      width: ${actualWidth}px;
-      height: ${actualHeight}px;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-family: inherit;
-      font-size: inherit;
-      color: #000;
-      resize: both;
-      margin: 4px 0;
-      box-sizing: border-box;
-    `;
-
-    const buttonContainer = document.createElement("div");
-    buttonContainer.className = "chat-edit-buttons";
-    buttonContainer.style.cssText = `
-      display: flex;
-      gap: 8px;
-      margin-top: 8px;
-    `;
-
-    const saveButton = document.createElement("button");
-    saveButton.textContent = "저장";
-    saveButton.className = "chat-save-btn";
-    saveButton.style.cssText = `
-      padding: 6px 12px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-    `;
-    saveButton.onclick = () =>
-      this.saveSingleChat(textarea, targetElement, taValue, originalHTML, hit);
-
-    const cancelButton = document.createElement("button");
-    cancelButton.textContent = "취소";
-    cancelButton.className = "chat-cancel-btn";
-    cancelButton.style.cssText = `
-      padding: 6px 12px;
-      background: #6c757d;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-    `;
-    cancelButton.onclick = () =>
-      this.cancelEdit(targetElement, originalText, originalHTML);
-
-    buttonContainer.appendChild(saveButton);
-    buttonContainer.appendChild(cancelButton);
-
-    targetElement.innerHTML = "";
-    targetElement.appendChild(textarea);
-    targetElement.appendChild(buttonContainer);
-
-    textarea.focus();
-    textarea.select();
-  }
-
-  /**
-   * HTML을 편집 가능한 포맷으로 변환
-   */
-  convertHTMLToEditFormat(element) {
-    const cloned = element.cloneNode(true);
-
-    const buttons = cloned.querySelectorAll(
-      "button, .chat-modi-btn, .x-risu-button-default"
-    );
-    buttons.forEach((btn) => btn.remove());
-
-    let result = "";
-
-    function processNode(node) {
-      if (node.nodeType === Node.TEXT_NODE) {
-        return node.textContent;
-      } else if (node.nodeType === Node.ELEMENT_NODE) {
-        const tagName = node.tagName.toLowerCase();
-
-        if (tagName === "ruby") {
-          const baseText = Array.from(node.childNodes)
-            .filter(
-              (n) =>
-                n.nodeType === Node.TEXT_NODE ||
-                (n.nodeType === Node.ELEMENT_NODE &&
-                  n.tagName.toLowerCase() !== "rt")
-            )
-            .map((n) => n.textContent)
-            .join("");
-
-          const rtNode = node.querySelector("rt");
-          const rubyText = rtNode ? rtNode.textContent : "";
-
-          return `:${baseText}[${rubyText}]:`;
-        } else if (tagName === "br") {
-          return "";
-        } else {
-          return Array.from(node.childNodes).map(processNode).join("");
-        }
-      }
-      return "";
-    }
-
-    result = processNode(cloned);
-    return result.trim();
-  }
-
-  /**
-   * 편집 포맷을 HTML로 변환
-   */
-  convertEditFormatToHTML(text) {
-    let result = text.replace(
-      /:([^\[\]:]+)\[([^\]]+)\]:/g,
-      "<ruby>$1<rt>$2</rt></ruby>"
-    );
-
-    result = result.replace(/\n/g, "<br>\n");
-
-    return result;
-  }
-
-  /**
-   * 편집 저장
-   */
-  saveSingleChat(textarea, targetElement, originalText, originalHTML, hit) {
-    const newText = textarea.value;
-
-    if (newText === originalText) {
-      this.cancelEdit(targetElement, originalText, originalHTML);
-      return;
-    }
-
-    let chatId = textarea.getAttribute("data-chat-id");
-    let chatIndex = textarea.getAttribute("data-chat-index");
-
-    const newHTML = this.convertEditFormatToHTML(newText);
-
-    const char = this.risuAPI.getChar();
-    const chatPage = char.chatPage || 0;
-    let oldFullText =
-      char.chats[chatPage].message[chatIndex].data;
-
-    if (hit) {
-      let { start, end } = hit;
-      const updated =
-        oldFullText.slice(0, start) + newText + oldFullText.slice(end);
-      char.chats[char.chatPage].message[chatIndex].data = updated;
-    } else {
-      let replacedText = oldFullText.replaceAll(originalText, newText);
-      char.chats[char.chatPage].message[chatIndex].data = replacedText;
-    }
-
-    this.risuAPI.setChar(char);
-
-    targetElement.classList.remove("hddm-editing");
-    targetElement.innerHTML = newHTML;
-
-    this.appendEditButtonToElement(targetElement);
-  }
-
-  /**
-   * 편집 취소
-   */
-  cancelEdit(targetElement, originalText, originalHTML) {
-    targetElement.classList.remove("hddm-editing");
-    targetElement.innerHTML = originalHTML;
-    this.appendEditButtonToElement(targetElement);
-  }
-
-  /**
-   * 편집 버튼 다시 추가
-   */
-  appendEditButtonToElement(element) {
-    if (getComputedStyle(element).position === "static") {
-      element.style.position = "relative";
-    }
-
-    const wrapper = document.createElement("div");
-    wrapper.className = "hddm-button-wrapper";
-    wrapper.style.cssText = `
-      position: absolute;
-      top: inherit;
-      left: 0px;
-      margin-top: 30px;
-      transform: translateY(-100%);
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      z-index: 1000;
-      display: flex;
-      gap: 4px;
-      padding: 4px 0;
-      pointer-events: auto;
-      user-select: none;
-    `;
-
-    const editButton = document.createElement("button");
-    editButton.type = "button";
-    editButton.innerHTML = "✏️";
-    editButton.title = "수정";
-    editButton.className = "chat-modi-btn hddm-edit-button";
-    editButton.style.cssText = `
-      background: rgba(255, 255, 255, 0.65);
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      padding: 4px 4px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      line-height: 1;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      user-select: none;
-    `;
-    editButton.onclick = () => this.editSingleChat(editButton);
-
-    wrapper.appendChild(editButton);
-
-    element.addEventListener("mouseenter", () => {
-      wrapper.style.opacity = "1";
-    });
-
-    element.addEventListener("mouseleave", () => {
-      wrapper.style.opacity = "0";
-    });
-
-    element.appendChild(wrapper);
-    this.createdButtons.push(wrapper);
-  }
-}
-
-
 // EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js
 var injectStylesIntoStyleTag = __webpack_require__(72);
 var injectStylesIntoStyleTag_default = /*#__PURE__*/__webpack_require__.n(injectStylesIntoStyleTag);
@@ -3888,6 +3382,35 @@ var edit_module_update = injectStylesIntoStyleTag_default()(edit_module/* defaul
 
        /* harmony default export */ const styles_edit_module = (edit_module/* default */.A && edit_module/* default */.A.locals ? edit_module/* default */.A.locals : undefined);
 
+// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[0].use[1]!./src/ui/styles/element-edit.module.css
+var element_edit_module = __webpack_require__(156);
+;// ./src/ui/styles/element-edit.module.css
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+var element_edit_module_options = {};
+
+element_edit_module_options.styleTagTransform = (styleTagTransform_default());
+element_edit_module_options.setAttributes = (setAttributesWithoutAttributes_default());
+element_edit_module_options.insert = insertBySelector_default().bind(null, "head");
+element_edit_module_options.domAPI = (styleDomAPI_default());
+element_edit_module_options.insertStyleElement = (insertStyleElement_default());
+
+var element_edit_module_update = injectStylesIntoStyleTag_default()(element_edit_module/* default */.A, element_edit_module_options);
+
+
+
+
+       /* harmony default export */ const styles_element_edit_module = (element_edit_module/* default */.A && element_edit_module/* default */.A.locals ? element_edit_module/* default */.A.locals : undefined);
+
 ;// ./src/ui/styles/index.js
 /**
  * Style Registry
@@ -3902,9 +3425,615 @@ var edit_module_update = injectStylesIntoStyleTag_default()(edit_module/* defaul
 
 
 
+
 // CSS Modules를 사용하는 컴포넌트에서 import 가능하도록 export
 
 
+
+;// ./src/core/element-edit-handler.js
+/**
+ * 요소 기반 편집 핸들러
+ * 기존 HTML Element 단위 편집 기능
+ */
+
+
+
+
+
+
+const TARGET_SELECTOR = [
+  "span.text > h3",
+  "span.text > h2",
+  "span.text > h1",
+  "span.text > p",
+  "span.text > ul",
+  "span.text > ol",
+  "span.text > div h3",
+  "span.text > div h2",
+  "span.text > div h1",
+  "span.text > div p",
+  "span.text > div ul",
+  "span.text > div ol",
+  "span.text div.x-risu-regex-quote-block",
+  "span.text div.x-risu-regex-thought-block",
+  "span.text div.x-risu-regex-sound-block",
+  "span.text div.x-risu-message",
+  "div.x-risu-lb-nai-character-tags",
+  "div.x-risu-lb-nai-comp-tags",
+];
+
+class ElementEditHandler {
+  constructor(editManager) {
+    this.editManager = editManager;
+    this.risuAPI = risu_api/* RisuAPI */.m.getInstance();
+    this.pluginArgs = new PluginArgs();
+    this.intersectionObserver = null;
+    this.mutationObserver = null;
+    this.createdButtons = [];
+    this.excludeBotNames = [];
+  }
+
+  // ==================== 활성화/비활성화 ====================
+
+  /**
+   * 요소 기반 편집 활성화
+   */
+  enable() {
+    if (this.isEnabled) return;
+    this.isEnabled = true;
+
+    // 제외할 봇 이름 가져오기
+    const excludeBotStr = this.pluginArgs.excludeBotName;
+    this.excludeBotNames = excludeBotStr
+      ? excludeBotStr.split(",").map((s) => s.trim())
+      : [];
+
+    // 옵저버 시작
+    this.startObserver();
+  }
+
+  /**
+   * 요소 기반 편집 비활성화
+   */
+  disable() {
+    if (!this.isEnabled) return;
+    this.isEnabled = false;
+
+    // 옵저버 정리
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
+      this.intersectionObserver = null;
+    }
+    if (this.mutationObserver) {
+      this.mutationObserver.disconnect();
+      this.mutationObserver = null;
+    }
+
+    document.querySelectorAll(".hddm-btn-appended").forEach(_el => _el.classList.remove("hddm-btn-appended"))
+    // 생성된 버튼 제거
+    this.createdButtons.forEach((btn) => btn?.remove());
+    this.createdButtons = [];
+  }
+
+  // ==================== 옵저버 ====================
+
+  /**
+   * 옵저버 시작
+   */
+  startObserver() {
+    if (this.intersectionObserver) this.intersectionObserver.disconnect();
+    if (this.mutationObserver) this.mutationObserver.disconnect();
+
+    this.intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setTimeout(() => {
+              const element = entry.target;
+              if (
+                this.isElementVisible(element) &&
+                !element.classList.contains("hddm-btn-appended")
+              ) {
+                this.addEditButtonToElement(element);
+              }
+            }, 100);
+          }
+        });
+      },
+      {
+        root: null,
+        rootMargin: "0px",
+        threshold: 0.1,
+      }
+    );
+
+    // 기존 요소들에 대해 IntersectionObserver 적용 및 현재 보이는 요소에 버튼 추가
+    const existingContainers = document.querySelectorAll(
+      TARGET_SELECTOR.join(", ")
+    );
+    existingContainers.forEach((container) => {
+      this.intersectionObserver.observe(container);
+
+      // 현재 화면에 보이는 요소는 즉시 버튼 추가
+      if (
+        this.isElementVisible(container) &&
+        !container.classList.contains("hddm-btn-appended")
+      ) {
+        this.addEditButtonToElement(container);
+      }
+    });
+
+    // 새로운 요소 감지를 위한 MutationObserver
+    this.mutationObserver = new MutationObserver((mutations) => {
+      let shouldReinitialize = false;
+
+      mutations.forEach((mutation) => {
+        if (mutation.type === "childList") {
+          if (
+            mutation.addedNodes.length > 5 ||
+            mutation.removedNodes.length > 5
+          ) {
+            shouldReinitialize = true;
+          }
+
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              try {
+                if (node?.classList && this.isTargetElement(node)) {
+                  this.intersectionObserver.observe(node);
+                }
+              } catch (error) {}
+              try {
+                const childContainers = node.querySelectorAll(
+                  TARGET_SELECTOR.join(", ")
+                );
+                childContainers.forEach((container) => {
+                  this.intersectionObserver.observe(container);
+                });
+              } catch (error) {}
+            }
+          });
+        }
+      });
+
+      if (shouldReinitialize) {
+        setTimeout(() => this.startObserver(), 300);
+      }
+    });
+
+    this.mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: false,
+      characterData: false,
+    });
+  }
+
+  // ==================== 요소 검증 ====================
+
+  /**
+   * 요소가 타겟 요소인지 확인
+   */
+  isTargetElement(element) {
+    if (!element || !element.classList) return false;
+
+    const selectors = TARGET_SELECTOR.map((selector) => selector.trim());
+
+    for (const selector of selectors) {
+      if (this._matchesSelector(element, selector)) {
+        return true;
+      }
+    }
+
+    if (element.className && element.className.includes("message")) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * 요소가 화면에 보이는지 확인
+   */
+  isElementVisible(element) {
+    const rect = element.getBoundingClientRect();
+    const style = window.getComputedStyle(element);
+
+    return (
+      rect.width > 0 &&
+      rect.height > 0 &&
+      style.display !== "none" &&
+      style.visibility !== "hidden" &&
+      style.opacity !== "0" &&
+      rect.top < window.innerHeight &&
+      rect.bottom > 0
+    );
+  }
+
+  // ==================== 버튼 추가 ====================
+
+  /**
+   * 요소에 편집 버튼 추가
+   */
+  addEditButtonToElement(element) {
+    // 예외처리: 봇 이름 확인
+    const char = this.risuAPI.getChar();
+    if (!char) return;
+    if (this.excludeBotNames.includes(char.name)) return;
+
+    const chatPage = char.chatPage || 0;
+    if (!char.chats || !char.chats[chatPage] || !char.chats[chatPage].message || char.chats[chatPage].message.length === 0) {
+      return;
+    }
+
+    // 텍스트 내용 확인
+    const textContent = this._extractTextContent(element);
+    if (!textContent) {
+      element.classList.add("hddm-btn-appended");
+      return;
+    }
+
+    let closestRisuChatDiv = element.closest("div.risu-chat");
+    let chatIdx = -1;
+    if (closestRisuChatDiv) {
+      chatIdx = closestRisuChatDiv.getAttribute("data-chat-index");
+    }
+
+    if (chatIdx === -1) return;
+
+    // 버튼 래퍼 생성 및 추가
+    const wrapper = this._createEditButtonWrapper(element);
+    element.appendChild(wrapper);
+    this.createdButtons.push(wrapper);
+    element.classList.add("hddm-btn-appended");
+  }
+
+  // ==================== 편집 ====================
+
+  /**
+   * 단일 채팅 편집
+   */
+  editSingleChat(element) {
+    const targetElement = element.closest(
+      "h1, h2, h3, p, li, div.x-risu-regex-quote-block, div.x-risu-regex-thought-block, div.x-risu-regex-sound-block, div.x-risu-message, div.x-risu-lb-nai-character-tags, div.x-risu-lb-nai-comp-tags, ol, ul"
+    );
+    if (!targetElement) return;
+
+    if (targetElement.classList.contains("hddm-editing")) return;
+
+    element.remove();
+
+    const tempElement = targetElement.cloneNode(true);
+    const buttons = tempElement.querySelectorAll(
+      "button, .chat-modi-btn, .x-risu-button-default"
+    );
+    buttons.forEach((btn) => btn.remove());
+
+    const originalText = this.convertHTMLToEditFormat(targetElement);
+    const originalHTML = tempElement.innerHTML;
+
+    const { chatIndex, chatId } = this._getChatInfo(targetElement);
+    if (!chatIndex) return;
+
+    targetElement.classList.add("hddm-editing");
+
+    const { textarea, buttonContainer } = this._createEditUI(
+      targetElement,
+      originalText,
+      originalHTML,
+      chatIndex,
+      chatId
+    );
+
+    targetElement.innerHTML = "";
+    targetElement.appendChild(textarea);
+    targetElement.appendChild(buttonContainer);
+
+    textarea.focus();
+    textarea.select();
+  }
+
+  /**
+   * 편집 저장
+   */
+  saveSingleChat(textarea, targetElement, originalText, originalHTML, hit) {
+    const newText = textarea.value;
+
+    if (newText === originalText) {
+      this.cancelEdit(targetElement, originalText, originalHTML);
+      return;
+    }
+
+    let chatId = textarea.getAttribute("data-chat-id");
+    let chatIndex = textarea.getAttribute("data-chat-index");
+
+    const newHTML = this.convertEditFormatToHTML(newText);
+
+    const char = this.risuAPI.getChar();
+    const chatPage = char.chatPage || 0;
+    let oldFullText = char.chats[chatPage].message[chatIndex].data;
+
+    if (hit) {
+      let { start, end } = hit;
+      const updated =
+        oldFullText.slice(0, start) + newText + oldFullText.slice(end);
+      char.chats[char.chatPage].message[chatIndex].data = updated;
+    } else {
+      let replacedText = oldFullText.replaceAll(originalText, newText);
+      char.chats[char.chatPage].message[chatIndex].data = replacedText;
+    }
+
+    this.risuAPI.setChar(char);
+
+    targetElement.classList.remove("hddm-editing");
+    targetElement.innerHTML = newHTML;
+
+    this._appendEditButtonToElement(targetElement);
+  }
+
+  /**
+   * 편집 취소
+   */
+  cancelEdit(targetElement, originalText, originalHTML) {
+    targetElement.classList.remove("hddm-editing");
+    targetElement.innerHTML = originalHTML;
+    this._appendEditButtonToElement(targetElement);
+  }
+
+  // ==================== 변환 ====================
+
+  /**
+   * HTML을 편집 가능한 포맷으로 변환
+   */
+  convertHTMLToEditFormat(element) {
+    const cloned = element.cloneNode(true);
+
+    const buttons = cloned.querySelectorAll(
+      "button, .chat-modi-btn, .x-risu-button-default"
+    );
+    buttons.forEach((btn) => btn.remove());
+
+    const processNode = (node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        return node.textContent;
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const tagName = node.tagName.toLowerCase();
+
+        if (tagName === "ruby") {
+          const baseText = Array.from(node.childNodes)
+            .filter(
+              (n) =>
+                n.nodeType === Node.TEXT_NODE ||
+                (n.nodeType === Node.ELEMENT_NODE &&
+                  n.tagName.toLowerCase() !== "rt")
+            )
+            .map((n) => n.textContent)
+            .join("");
+
+          const rtNode = node.querySelector("rt");
+          const rubyText = rtNode ? rtNode.textContent : "";
+
+          return `:${baseText}[${rubyText}]:`;
+        } else if (tagName === "br") {
+          return "";
+        } else {
+          return Array.from(node.childNodes).map(processNode).join("");
+        }
+      }
+      return "";
+    };
+
+    return processNode(cloned).trim();
+  }
+
+  /**
+   * 편집 포맷을 HTML로 변환
+   */
+  convertEditFormatToHTML(text) {
+    let result = text.replace(
+      /:([^\[\]:]+)\[([^\]]+)\]:/g,
+      "<ruby>$1<rt>$2</rt></ruby>"
+    );
+
+    result = result.replace(/\n/g, "<br>\n");
+
+    return result;
+  }
+
+  // ==================== Private Helper Methods ====================
+
+  /**
+   * CSS Selector 매칭
+   */
+  _matchesSelector(element, selector) {
+    try {
+      const parts = selector.split(" ");
+      const lastPart = parts[parts.length - 1];
+
+      const tagMatch = lastPart.match(/^(\w+)/);
+      const classMatch = lastPart.match(/\.([\w-]+)/);
+
+      if (!tagMatch) return false;
+
+      const tagName = tagMatch[1];
+      const className = classMatch ? classMatch[1] : null;
+
+      if (element.tagName.toLowerCase() !== tagName) return false;
+
+      if (className && !element.classList.contains(className)) return false;
+
+      if (parts.length > 1) {
+        const parentSelector = parts.slice(0, -1).join(" ");
+        const parentElement = element.parentElement;
+
+        if (
+          parentElement &&
+          !this._matchesParentSelector(parentElement, parentSelector)
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Parent Selector 매칭
+   */
+  _matchesParentSelector(element, parentSelector) {
+    try {
+      const parts = parentSelector.split(".");
+      const tagName = parts[0];
+      const className = parts[1];
+
+      if (element.tagName.toLowerCase() !== tagName) return false;
+      if (className && !element.classList.contains(className)) return false;
+
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * 텍스트 내용 추출
+   */
+  _extractTextContent(element) {
+    const tempElement = element.cloneNode(true);
+    const risuButtons = tempElement.querySelectorAll("button");
+    risuButtons.forEach((btn) => btn.remove());
+    return tempElement.textContent.trim();
+  }
+
+  /**
+   * 채팅 정보 가져오기
+   */
+  _getChatInfo(targetElement) {
+    const chatContainer = targetElement.closest(".chat-message-container");
+    let chatIndex = "";
+    let chatId = "";
+
+    if (chatContainer) {
+      const dataDiv = chatContainer.querySelector(
+        "div[data-chat-index], div[data-chat-id]"
+      );
+      if (dataDiv) {
+        chatIndex = dataDiv.getAttribute("data-chat-index") || "";
+        chatId = dataDiv.getAttribute("data-chat-id") || "";
+      }
+    }
+
+    return { chatIndex, chatId };
+  }
+
+  /**
+   * 편집 버튼 래퍼 생성
+   */
+  _createEditButtonWrapper(element) {
+    const s = styles_element_edit_module;
+
+    // 요소를 relative로 설정
+    if (getComputedStyle(element).position === "static") {
+      element.style.position = "relative";
+    }
+
+    // 버튼 래퍼 생성
+    const wrapper = document.createElement("div");
+    wrapper.className = `hddm-button-wrapper ${s.buttonWrapper}`;
+
+    // 편집 버튼 생성
+    const editButton = document.createElement("button");
+    editButton.type = "button";
+    editButton.innerHTML = "✏️";
+    editButton.title = "수정";
+    editButton.className = `chat-modi-btn hddm-edit-button ${s.editButton}`;
+    editButton.onclick = () => this.editSingleChat(editButton);
+
+    wrapper.appendChild(editButton);
+
+    // 호버 이벤트
+    this._attachHoverEvents(element, wrapper);
+
+    return wrapper;
+  }
+
+  /**
+   * 호버 이벤트 연결
+   */
+  _attachHoverEvents(element, wrapper) {
+    element.addEventListener("mouseenter", () => {
+      wrapper.style.opacity = "1";
+    });
+
+    element.addEventListener("mouseleave", () => {
+      wrapper.style.opacity = "0";
+    });
+  }
+
+  /**
+   * 편집 UI 생성 (textarea + 버튼)
+   */
+  _createEditUI(targetElement, originalText, originalHTML, chatIndex, chatId) {
+    const rect = targetElement.getBoundingClientRect();
+    const actualWidth = rect.width + 10;
+    const actualHeight = Math.max(rect.height + 10, 60);
+
+    const char = this.risuAPI.getChar();
+    const chatPage = char.chatPage || 0;
+    const currentChatMessage = char.chats[chatPage].message[chatIndex].data;
+    const hit = findOriginalRangeFromHtml(currentChatMessage, originalText, {
+      extendToEOL: false,
+      snapStartToPrevEOL: false,
+    });
+
+    let taValue = "";
+    if (hit) taValue = currentChatMessage.slice(hit.start, hit.end);
+    else taValue = originalText;
+
+    // Textarea 생성
+    const s = styles_element_edit_module;
+    const textarea = document.createElement("textarea");
+    textarea.value = taValue;
+    textarea.setAttribute("data-chat-index", chatIndex);
+    textarea.setAttribute("data-chat-id", chatId);
+    textarea.className = `chat-edit-textarea ${s.textarea}`;
+    textarea.style.width = `${actualWidth}px`;
+    textarea.style.height = `${actualHeight}px`;
+
+    // 버튼 컨테이너 생성
+    const buttonContainer = document.createElement("div");
+    buttonContainer.className = `chat-edit-buttons ${s.buttonContainer}`;
+
+    const saveButton = document.createElement("button");
+    saveButton.textContent = "저장";
+    saveButton.className = `chat-save-btn ${s.saveButton}`;
+    saveButton.onclick = () =>
+      this.saveSingleChat(textarea, targetElement, taValue, originalHTML, hit);
+
+    const cancelButton = document.createElement("button");
+    cancelButton.textContent = "취소";
+    cancelButton.className = `chat-cancel-btn ${s.cancelButton}`;
+    cancelButton.onclick = () =>
+      this.cancelEdit(targetElement, originalText, originalHTML);
+
+    buttonContainer.appendChild(saveButton);
+    buttonContainer.appendChild(cancelButton);
+
+    return { textarea, buttonContainer };
+  }
+
+  /**
+   * 편집 버튼 다시 추가 (저장/취소 후)
+   */
+  _appendEditButtonToElement(element) {
+    const wrapper = this._createEditButtonWrapper(element);
+    element.appendChild(wrapper);
+    this.createdButtons.push(wrapper);
+  }
+}
 
 ;// ./src/ui/components/img/del-img-components.js
 const DEL_IMG_LEFT  = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAA9hAAAPYQGoP6dpAAAOQ0lEQVR4nO2deWxVVR7Hn4AKRBAhqLUsmbgQmWICxA6yKEhGBeaPApmgQJDpyCYopECIEIg6DpsyQZsQUAKBsi9aZZRlWhgKyHZZFBBRQIGyyA5FKVt/k+9vPC+np3e/577eB++X3OQtd/197m8759x7YmQihmFUWLxKYWEhDRgwgJo3b05paWn00EMPUdOmTemVV16hxYsX05UrV8qtv2TJEnruuefo119/9XQu+D5jxgzq378/tWzZkmKxGC/4jN/wn5/zryyJWf3hF8r3339PnTt3jivGaoHCjhw5wtusWLGCqlSpQsuWLdN2YWagkgGSViDr1q2jBx98MK70evXqUVZWFo0ZM4beeecd6tu3L2VkZFB2djZ9/fXXvM2XX35J1atXp/T0dLp69areq1OuAyAEDL+WnzRA9u/fzwAA4q677qKcnBw6duxYhfVu3LgR/7xy5UqqWbMmb9OlSxdKhMhgZECRB+IFyq1bt6hDhw6s2GrVqlFeXp7jgWUYWBBbEilRBaMFCJQrFAv35CRYHzFDjikvvfQSVYboSGASBsTtCffq1YuV2qBBA7p8+bLt/r766itet3379lRQUECZmZn8vUmTJnTt2jVKtFWoMSXyQJygQImPP/44K3XgwIG2+8nPz+cAPmrUqHgsyc3N5W3vvfde+vHHH4Nej6vrkLMvsUQl+3IFxA7KiRMn6P7772elfvLJJ5bbL126lBo3bkzLly+vUK8It7V+/fog12J6zkL5MgCh/CgA8A3ECsrRo0epVq1arND58+ebbof6AumvmQUUFRXFgRQWFvq/EofzlcGIJemBmMmlS5fokUceYYVOnDixwv+rVq2iKVOmUGlpqen2CxcujKfKO3futDyOVUWuFpuyoqMWsEOxELOA+Pzzz8cDtZCysjL64YcfaNOmTab7EHfpE088wdvC7X344YeWCnfj59XzM4MTdQnssiAfffQRKw2pLLIoAURulzKD+emnn9J9993H2/bp06fCsdTg68bNyMdRXdNtBcTO/NF+dc8997Bi0Yh48uRJR6Vu3LiRnn32Wd6matWqtGPHDl/HtlpfjRlRjBehAUETCdJWKHf06NHcTmWnELiyjh07xt0R0mC/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`;
