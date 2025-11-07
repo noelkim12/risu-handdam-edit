@@ -1,12 +1,12 @@
 //@name risu-handdam-edit
-//@display-name risu-handdam-edit_v0.1.0
-//@version 0.1.0
+//@display-name risu-handdam-edit_v0.2.0
+//@version 0.2.0
 //@description RisuAI 한땀한땀 수정 지원 Plugin
 //@arg excludeBotName string
 //@arg minLength int
 //@arg editMode string
 
-//@link https://unpkg.com/risu-handdam-edit@0.1.0/dist/risu-handdam-edit.js
+//@link https://unpkg.com/risu-handdam-edit@0.2.0/dist/risu-handdam-edit.js
 var risuHanddamEdit;
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
@@ -1294,7 +1294,7 @@ const PLUGIN_NAME =
    true ? "risu-handdam-edit" : 0;
 
 const PLUGIN_VERSION =
-   true ? "0.1.0" : 0;
+   true ? "0.2.0" : 0;
 
 const PLUGIN_DESCRIPTION =
   (/* unused pure expression or super */ null && ( true ? "RisuAI 한땀한땀 수정 지원 Plugin" : 0));
@@ -2467,7 +2467,7 @@ class TextSelectionHandler {
  * 2. Run npm run build
  * 3. This file will be regenerated automatically
  *
- * Generated at: 2025-11-07T01:42:45.847Z
+ * Generated at: 2025-11-07T01:44:13.793Z
  */
 
 
