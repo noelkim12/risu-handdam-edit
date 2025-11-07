@@ -1,12 +1,12 @@
 //@name risu-handdam-edit
-//@display-name risu-handdam-edit_v0.2.0
-//@version 0.2.0
+//@display-name risu-handdam-edit_v0.3.0
+//@version 0.3.0
 //@description RisuAI 한땀한땀 수정 지원 Plugin
 //@arg excludeBotName string
 //@arg minLength int
 //@arg editMode string
 
-//@link https://unpkg.com/risu-handdam-edit@0.2.0/dist/risu-handdam-edit.js
+//@link https://unpkg.com/risu-handdam-edit@0.3.0/dist/risu-handdam-edit.js
 var risuHanddamEdit;
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
@@ -1294,7 +1294,7 @@ const PLUGIN_NAME =
    true ? "risu-handdam-edit" : 0;
 
 const PLUGIN_VERSION =
-   true ? "0.2.0" : 0;
+   true ? "0.3.0" : 0;
 
 const PLUGIN_DESCRIPTION =
   (/* unused pure expression or super */ null && ( true ? "RisuAI 한땀한땀 수정 지원 Plugin" : 0));
@@ -2467,7 +2467,7 @@ class TextSelectionHandler {
  * 2. Run npm run build
  * 3. This file will be regenerated automatically
  *
- * Generated at: 2025-11-07T01:44:13.793Z
+ * Generated at: 2025-11-07T02:29:32.275Z
  */
 
 
@@ -4600,7 +4600,7 @@ class App {
   
     attachButton() {
       let burgerEl = document.querySelector(
-        "div.absolute.right-2.bottom-16.p-5.bg-darkbg.flex.flex-col.gap-3.text-textcolor.rounded-md"
+        "div.right-2.bottom-16.p-5.bg-darkbg.flex.flex-col.gap-3.text-textcolor.rounded-md"
       );
       if (burgerEl && !burgerEl.classList.contains(`${constants/* PLUGIN_NAME */.AF}-btn-class`)) {
         // 편집 모드 토글 버튼 추가
@@ -5546,12 +5546,9 @@ async function checkForUpdates(options = {}) {
 {}
 
     // 3. 업데이트 체크 (백그라운드, silent 모드-로그 최소화)
-    // 개발 모드에서는 업데이트 체크 비활성화
-    if (true) {
-      checkForUpdates({ silent: true }).catch(err => {
-        console.warn('[App] Update check failed:', err);
-      });
-    }
+    checkForUpdates({ silent: true }).catch(err => {
+      console.warn('[App] Update check failed:', err);
+    });
 
     // 4. 외부 스크립트 import(script 태그 추가)
     injectScripts();

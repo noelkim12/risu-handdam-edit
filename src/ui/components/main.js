@@ -83,7 +83,7 @@ export class App {
   
     attachButton() {
       let burgerEl = document.querySelector(
-        "div.absolute.right-2.bottom-16.p-5.bg-darkbg.flex.flex-col.gap-3.text-textcolor.rounded-md"
+        "div.right-2.bottom-16.p-5.bg-darkbg.flex.flex-col.gap-3.text-textcolor.rounded-md"
       );
       if (burgerEl && !burgerEl.classList.contains(`${PLUGIN_NAME}-btn-class`)) {
         // 편집 모드 토글 버튼 추가
