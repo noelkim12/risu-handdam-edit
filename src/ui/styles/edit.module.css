@@ -69,11 +69,23 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   padding: 0 12px;
   box-sizing: border-box;
+  will-change: transform;
+  contain: paint;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .floatingActionButton:hover {
   background: #f8f9fa;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 선택 중 완전 무력화 */
+.floatingActionButton.is-selecting {
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  opacity: 0;
+  visibility: hidden;
 }
 
 
@@ -347,6 +359,22 @@
   min-width: 400px;
 }
 
+/* 모바일 환경에서는 상단 고정 */
+.editDialogMobile {
+  top: 0;
+  left: 0;
+  right: 0;
+  transform: none;
+  width: 100% !important;
+  min-width: unset;
+  max-width: unset;
+  border-radius: 0 0 8px 8px;
+  max-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
 .editDialogTextarea {
   width: 100%;
   min-height: 100px;
@@ -357,6 +385,16 @@
   font-size: 14px;
   box-sizing: border-box;
   resize: vertical;
+  overflow-y: auto;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 모바일 환경에서 textarea는 flex-grow */
+.editDialogTextareaMobile {
+  flex: 1;
+  resize: none;
+  min-height: unset;
 }
 
 .editDialogButtons {
@@ -364,6 +402,12 @@
   gap: 8px;
   margin-top: 15px;
   justify-content: flex-end;
+}
+
+/* 모바일 환경에서 버튼은 항상 보이도록 */
+.editDialogButtonsMobile {
+  flex-shrink: 0;
+  margin-top: 12px;
 }
 
 .editDialogButton {

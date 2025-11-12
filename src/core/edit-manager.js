@@ -148,7 +148,7 @@ export class EditManager {
     this._ignoreClickUntil = Date.now() + 300;
 
     this.showFloatingButton(position, () => {
-      // this._clearSelection();
+      this._clearSelection();
 
       if (match) {
         this.openEditDialog(match);
@@ -174,6 +174,7 @@ export class EditManager {
       gap: 8px;
       z-index: 10000;
       align-items: center;
+      pointer-events: auto;
     `;
 
     const editButton = this._createButton("편집", "✏️", "edit");
@@ -221,13 +222,32 @@ export class EditManager {
 
   hideFloatingButton() {
     if (this.floatingButton) {
-      if (this._scrollHandler) {
-        window.removeEventListener("scroll", this._scrollHandler);
-        this._scrollHandler = null;
+      // 모든 이벤트 핸들러 제거
+      if (this._selectionStartHandler) {
+        document.removeEventListener("selectstart", this._selectionStartHandler);
+        this._selectionStartHandler = null;
+      }
+      if (this._selectionChangeHandler) {
+        document.removeEventListener("selectionchange", this._selectionChangeHandler);
+        this._selectionChangeHandler = null;
+      }
+      if (this._selectionEndHandler) {
+        document.removeEventListener("mouseup", this._selectionEndHandler);
+        document.removeEventListener("touchend", this._selectionEndHandler);
+        document.removeEventListener("pointerup", this._selectionEndHandler);
+        this._selectionEndHandler = null;
       }
       if (this._clickHandler) {
         document.removeEventListener("click", this._clickHandler);
         this._clickHandler = null;
+      }
+      if (this._blurHandler) {
+        window.removeEventListener("blur", this._blurHandler);
+        this._blurHandler = null;
+      }
+      if (this._visibilityChangeHandler) {
+        document.removeEventListener("visibilitychange", this._visibilityChangeHandler);
+        this._visibilityChangeHandler = null;
       }
 
       document.body.removeChild(this.floatingButton);
@@ -290,19 +310,35 @@ export class EditManager {
     const { width, height, textareaHeight } = this._calculateDialogDimensions(selectedText);
 
     const dialog = document.createElement("div");
-    dialog.className = s.editDialog;
+    const dialogClasses = this.isMobileDevice
+      ? `${s.editDialog} ${s.editDialogMobile}`
+      : s.editDialog;
+    dialog.className = dialogClasses;
     dialog.setAttribute("role", "dialog");
     dialog.setAttribute("aria-modal", "true");
 
-    dialog.style.width = `${width.calculated}px`;
-    dialog.style.minWidth = `${width.min}px`;
-    dialog.style.maxWidth = `${width.max}px`;
-    dialog.style.height = `${height.calculated}px`;
-    dialog.style.maxHeight = `${height.max}px`;
+    // 모바일이 아닐 때만 크기 스타일 적용
+    if (!this.isMobileDevice) {
+      dialog.style.width = `${width.calculated}px`;
+      dialog.style.minWidth = `${width.min}px`;
+      dialog.style.maxWidth = `${width.max}px`;
+      dialog.style.height = `${height.calculated}px`;
+      dialog.style.maxHeight = `${height.max}px`;
+    }
+
+    const textareaClasses = this.isMobileDevice
+      ? `${s.editDialogTextarea} ${s.editDialogTextareaMobile}`
+      : s.editDialogTextarea;
+    const textareaStyleAttr = this.isMobileDevice
+      ? ''
+      : `style="min-height: ${textareaHeight.min}px; height: ${textareaHeight.calculated}px; max-height: ${textareaHeight.max}px;"`;
+    const buttonsClasses = this.isMobileDevice
+      ? `${s.editDialogButtons} ${s.editDialogButtonsMobile}`
+      : s.editDialogButtons;
 
     dialog.innerHTML = `
-      <textarea class="${s.editDialogTextarea}" data-action="textarea" style="min-height: ${textareaHeight.min}px; height: ${textareaHeight.calculated}px; max-height: ${textareaHeight.max}px;">${this.escapeHtml(selectedText)}</textarea>
-      <div class="${s.editDialogButtons}">
+      <textarea class="${textareaClasses}" data-action="textarea" ${textareaStyleAttr}>${this.escapeHtml(selectedText)}</textarea>
+      <div class="${buttonsClasses}">
         <button class="${s.editDialogButton} ${s.editDialogCancelButton}" data-action="cancel">취소</button>
         <button class="${s.editDialogButton} ${s.editDialogSaveButton}" data-action="save">저장</button>
       </div>
@@ -315,6 +351,12 @@ export class EditManager {
     if (textarea) {
       textarea.focus();
       textarea.select();
+      this._attachTextareaScrollHandler(textarea);
+
+      // 모바일에서 키보드 표시 감지 및 높이 조정
+      if (this.isMobileDevice) {
+        this._attachKeyboardResizeHandler(dialog);
+      }
     }
   }
 
@@ -593,31 +635,168 @@ export class EditManager {
   }
 
   /**
-   * Floating 버튼 이벤트 핸들러 연결
+   * Floating 버튼 핸들러 연결 (개선판 v2)
+   * - rAF 폴링으로 매 프레임 위치 추적 (모바일 selectionchange 빈도 낮음 대응)
+   * - visibility:hidden 사용하여 레이아웃/측정 유지
+   * - getClientRects()로 멀티라인 선택 정확도 향상
    */
   _attachFloatingButtonHandlers(buttonContainer) {
-    const handleScroll = () => {
-      // this.hideFloatingButton();
-      // this._clearSelection();
+    const END_DEBOUNCE = 100;  // 종료 판정은 느긋하게
+    let endTimer = null;
+    let selecting = false;
+    let rafId = null;
+
+    // rAF 폴링 시작
+    const startTrack = () => {
+      if (rafId != null) cancelAnimationFrame(rafId);
+      const loop = () => {
+        maybeReposition();  // 프레임마다 회피/재배치
+        rafId = requestAnimationFrame(loop);
+      };
+      rafId = requestAnimationFrame(loop);
+    };
+
+    // rAF 폴링 중지
+    const stopTrack = () => {
+      if (rafId != null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    };
+
+    // 선택 상태 토글
+    const setSelecting = (on) => {
+      selecting = on; 
+      if (on) {
+        buttonContainer.setAttribute('inert', '');
+        buttonContainer.style.pointerEvents = 'none';
+        buttonContainer.style.userSelect = 'none';
+        buttonContainer.style.touchAction = 'none';
+        buttonContainer.style.visibility = 'hidden';  // display:none 금지, 측정 유지
+        buttonContainer.classList.add('is-selecting');
+        startTrack();  // rAF 시작
+      } else {
+        stopTrack();   // rAF 중지
+        buttonContainer.removeAttribute('inert');
+        buttonContainer.style.pointerEvents = 'auto';
+        buttonContainer.style.userSelect = '';
+        buttonContainer.style.touchAction = '';
+        buttonContainer.style.visibility = 'visible';
+        buttonContainer.classList.remove('is-selecting');
+        buttonContainer.style.transform = '';
+      }
+    };
+
+    // 선택 영역 Rect 가져오기 (멀티라인 대응)
+    const getSelectionRect = () => {
+      const sel = window.getSelection?.();
+      if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return null;
+      const range = sel.getRangeAt(0);
+
+      // 1) 멀티라인은 마지막 rect가 핸들 위치에 가깝다
+      const rects = range.getClientRects?.();
+      if (rects && rects.length) {
+        const last = rects[rects.length - 1];
+        if (last.width || last.height) return last;
+      }
+
+      // 2) 폴백
+      const r = range.getBoundingClientRect();
+      if (r && (r.width || r.height)) return r;
+      return null;
+    };
+
+    // 겹침 감지 후 회피 (버튼 영역 확장 체크)
+    const maybeReposition = () => {
+      if (!selecting) return;
+
+      const r = getSelectionRect();
+      if (!r) return;
+
+      const f = buttonContainer.getBoundingClientRect();
+      // rAF 중이라 측정 가능. visibility:hidden이어도 OK
+
+      // 버튼 영역 확장 후 겹침 체크
+      const pad = 40;
+      const expandedF = {
+        left: f.left - pad,
+        right: f.right + pad,
+        top: f.top - pad,
+        bottom: f.bottom + pad
+      };
+
+      const overlap = !(expandedF.right < r.left || expandedF.left > r.right ||
+        expandedF.bottom < r.top || expandedF.top > r.bottom);
+        
+      console.log('overlap', overlap);
+
+      if (overlap) {
+        // 선택 영역 하단으로 20px 스냅
+        const dy = (r.bottom - f.top) + 20;
+        buttonContainer.style.transform = `translate3d(0, ${dy}px, 0)`;
+      } else {
+        buttonContainer.style.transform = '';
+      }
+    };
+
+    // 이벤트 핸들러들
+    const handleSelectionStart = () => setSelecting(true);
+
+    const handleSelectionChange = () => {
+      console.log('handleSelectionChange', Date.now());
+      // 종료 판정 디바운스
+      clearTimeout(endTimer);
+      const sel = window.getSelection?.();
+      setSelecting(true)
+      maybeReposition();
+      const active = sel && sel.rangeCount > 0 && !sel.isCollapsed;
+      if (!active) setSelecting(false);
+      // endTimer = setTimeout(() => {
+      // }, END_DEBOUNCE);
+    };
+
+    const handleSelectionEnd = () => {
+      // 약간 늦춰 최종 상태 확인
+      setTimeout(() => {
+        const sel = window.getSelection?.();
+        const active = sel && sel.rangeCount > 0 && !sel.isCollapsed;
+        if (!active) setSelecting(false);
+      }, 50);
     };
 
     const handleClick = (e) => {
-      if (Date.now() < this._ignoreClickUntil) {
-        return;
-      }
-
-      if (buttonContainer.contains(e.target)) {
-        return;
-      }
+      if (Date.now() < this._ignoreClickUntil) return;
+      if (buttonContainer.contains(e.target)) return;
       this.hideFloatingButton();
-      // this._clearSelection();
     };
 
-    window.addEventListener("scroll", handleScroll, { once: true, capture: true });
-    document.addEventListener("click", handleClick, { once: false });
+    // 모바일에서 selectionchange 드물게 올 때 대비용 (rAF가 돌고 있어 별도 처리 불필요)
+    const poke = () => { /* no-op */ };
 
-    this._scrollHandler = handleScroll;
+    // 이벤트 연결
+    document.addEventListener('selectstart', handleSelectionStart, { passive: true });
+    document.addEventListener('selectionchange', handleSelectionChange);
+    document.addEventListener('mouseup', handleSelectionEnd, { passive: true });
+    document.addEventListener('touchend', handleSelectionEnd, { passive: true });
+    document.addEventListener('pointerup', handleSelectionEnd, { passive: true });
+    document.addEventListener('touchmove', poke, { passive: true });
+    document.addEventListener('pointermove', poke, { passive: true });
+    document.addEventListener('click', handleClick);
+    window.addEventListener('blur', handleSelectionEnd);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible') handleSelectionEnd();
+    });
+
+    // Cleanup 저장
+    this._selectionStartHandler = handleSelectionStart;
+    this._selectionChangeHandler = handleSelectionChange;
+    this._selectionEndHandler = handleSelectionEnd;
+    this._pokeHandler = poke;
     this._clickHandler = handleClick;
+    this._blurHandler = handleSelectionEnd;
+    this._visibilityChangeHandler = () => {
+      if (document.visibilityState !== 'visible') handleSelectionEnd();
+    };
   }
 
   /**
@@ -789,8 +968,12 @@ export class EditManager {
     const totalPadding = dialogPadding + textareaPadding;
     const calculatedWidth = Math.max(minWidth, Math.min(maxWidth, maxLineLength * charWidth + totalPadding));
 
-    const minTextareaHeight = 100;
-    const maxDialogHeight = Math.min(window.innerHeight * 0.7, 600);
+    // 모바일 환경에서는 더 큰 높이 사용
+    const minTextareaHeight = this.isMobileDevice ? 250 : 100;
+    const viewportHeightRatio = this.isMobileDevice ? 0.85 : 0.7;
+    const maxDialogHeight = this.isMobileDevice
+      ? Math.min(window.innerHeight * viewportHeightRatio, window.innerHeight - 60)
+      : Math.min(window.innerHeight * viewportHeightRatio, 600);
     const lineHeight = 24;
     const textareaVerticalPadding = 16;
     const buttonsHeight = 60;
@@ -874,6 +1057,9 @@ export class EditManager {
   _closeEditDialog(dialog) {
     if (dialog._cleanup) {
       dialog._cleanup();
+    }
+    if (dialog._cleanupKeyboardHandler) {
+      dialog._cleanupKeyboardHandler();
     }
     if (dialog.parentNode) {
       document.body.removeChild(dialog);
@@ -970,6 +1156,77 @@ export class EditManager {
     }
 
     return `<span class="${badgeClass}" title="${badgeTitle}">${badgeText}</span>`;
+  }
+
+  /**
+   * 모바일 환경에서 textarea 스크롤 활성화
+   * 터치 이벤트가 부모로 전파되어 스크롤이 안 되는 문제 해결
+   */
+  _attachTextareaScrollHandler(textarea) {
+    let startY = 0;
+
+    textarea.addEventListener('touchstart', (e) => {
+      startY = e.touches[0].pageY;
+    }, { passive: true });
+
+    textarea.addEventListener('touchmove', (e) => {
+      const currentY = e.touches[0].pageY;
+      const deltaY = currentY - startY;
+
+      const scrollTop = textarea.scrollTop;
+      const scrollHeight = textarea.scrollHeight;
+      const clientHeight = textarea.clientHeight;
+      const isScrollable = scrollHeight > clientHeight;
+
+      if (!isScrollable) {
+        // 스크롤 불가능하면 부모로 전파
+        return;
+      }
+
+      const isAtTop = scrollTop <= 0;
+      const isAtBottom = scrollTop + clientHeight >= scrollHeight;
+
+      // 위쪽 경계에서 아래로 스크롤하거나, 아래쪽 경계에서 위로 스크롤하는 경우
+      const shouldPreventDefault =
+        (!isAtTop && !isAtBottom) ||  // 중간에서 스크롤
+        (isAtTop && deltaY < 0) ||     // 위쪽 경계에서 아래로 스크롤
+        (isAtBottom && deltaY > 0);    // 아래쪽 경계에서 위로 스크롤
+
+      if (shouldPreventDefault) {
+        e.stopPropagation();
+      }
+    }, { passive: false });
+  }
+
+  /**
+   * 모바일에서 키보드 표시 감지 및 다이얼로그 높이 조정
+   */
+  _attachKeyboardResizeHandler(dialog) {
+    if (!window.visualViewport) {
+      return;
+    }
+
+    const updateDialogHeight = () => {
+      // visualViewport.height는 키보드를 제외한 실제 보이는 영역의 높이
+      const availableHeight = window.visualViewport.height;
+      dialog.style.maxHeight = `${availableHeight}px`;
+      dialog.style.height = `${availableHeight}px`;
+    };
+
+    // 초기 높이 설정
+    updateDialogHeight();
+
+    // 키보드 표시/숨김 감지
+    const handleResize = () => {
+      updateDialogHeight();
+    };
+
+    window.visualViewport.addEventListener('resize', handleResize);
+
+    // 다이얼로그에 cleanup 함수 저장
+    dialog._cleanupKeyboardHandler = () => {
+      window.visualViewport.removeEventListener('resize', handleResize);
+    };
   }
 
   /**
