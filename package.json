@@ -1,6 +1,6 @@
 {
   "name": "risu-handdam-edit",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "RisuAI 한땀한땀 수정 지원 Plugin",
   "main": "src/index.js",
   "browser": "dist/risu-handdam-edit.js",

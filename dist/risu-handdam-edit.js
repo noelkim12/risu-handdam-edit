@@ -1,13 +1,13 @@
 //@name risu-handdam-edit
-//@display-name risu-handdam-edit_v0.4.0
-//@version 0.4.0
+//@display-name risu-handdam-edit_v0.5.0
+//@version 0.5.0
 //@description RisuAI 한땀한땀 수정 지원 Plugin
 //@arg excludeBotName string
 //@arg minLength int
 //@arg editMode string
 //@arg buttonPosition string
 
-//@link https://unpkg.com/risu-handdam-edit@0.4.0/dist/risu-handdam-edit.js
+//@link https://unpkg.com/risu-handdam-edit@0.5.0/dist/risu-handdam-edit.js
 var risuHanddamEdit;
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
@@ -1492,7 +1492,7 @@ const PLUGIN_NAME =
    true ? "risu-handdam-edit" : 0;
 
 const PLUGIN_VERSION =
-   true ? "0.4.0" : 0;
+   true ? "0.5.0" : 0;
 
 const PLUGIN_DESCRIPTION =
   (/* unused pure expression or super */ null && ( true ? "RisuAI 한땀한땀 수정 지원 Plugin" : 0));
