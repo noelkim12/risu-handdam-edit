@@ -1,13 +1,13 @@
 //@name risu-handdam-edit
-//@display-name risu-handdam-edit_v0.5.0
-//@version 0.5.0
+//@display-name risu-handdam-edit_v0.6.0
+//@version 0.6.0
 //@description RisuAI 한땀한땀 수정 지원 Plugin
 //@arg excludeBotName string
 //@arg minLength int
 //@arg editMode string
 //@arg buttonPosition string
 
-//@link https://unpkg.com/risu-handdam-edit@0.5.0/dist/risu-handdam-edit.js
+//@link https://unpkg.com/risu-handdam-edit@0.6.0/dist/risu-handdam-edit.js
 var risuHanddamEdit;
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
@@ -39,7 +39,7 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* 편집 기능 관련 스타일 */
   transform: translateY(-100%);
   opacity: 0;
   transition: opacity 0.2s ease;
-  z-index: 1000;
+  z-index: 20;
   display: flex;
   gap: 4px;
   padding: 4px 0;
@@ -674,7 +674,7 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/**
   transform: translateY(-100%);
   opacity: 0;
   transition: opacity 0.2s ease;
-  z-index: 1000;
+  z-index: 10;
   display: flex;
   gap: 4px;
   padding: 4px 0;
@@ -817,10 +817,12 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* UpdateDialog 컴포넌트 스타일
   display: grid;
   place-items: center;
   background: rgba(0, 0, 0, 0.4);
+  padding: 16px;
 }
 
 .update-dialog-module__udCard--QaBAr {
-  width: min(520px, 92vw);
+  width: min(520px, 100%);
+  max-height: 90vh;
   border-radius: 16px;
   padding: 20px;
   background: var(--bg, #111);
@@ -828,6 +830,7 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* UpdateDialog 컴포넌트 스타일
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   transform: scale(0.97);
   animation: update-dialog-module__udPop--wt5vi 0.16s ease-out forwards;
+  overflow-y: auto;
 }
 
 .update-dialog-module__udTitle--VQB_3 {
@@ -835,12 +838,16 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* UpdateDialog 컴포넌트 스타일
   justify-content: space-between;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .update-dialog-module__udTitle--VQB_3 h3 {
   margin: 0;
   font-size: 18px;
   font-weight: 700;
+  word-break: break-word;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .update-dialog-module__udPill--pW87e {
@@ -849,23 +856,29 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* UpdateDialog 컴포넌트 스타일
   border-radius: 999px;
   background: #2a2a2a;
   color: #cfcfcf;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .update-dialog-module__udSub--Y03Tv {
   margin: 8px 0 12px;
   color: #9aa0a6;
   font: 13px/1.5 system-ui;
+  word-break: break-word;
 }
 
 .update-dialog-module__udList--HduVR {
   margin: 10px 0 16px;
   padding-left: 18px;
   max-height: 180px;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .update-dialog-module__udList--HduVR li {
   margin: 6px 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .update-dialog-module__udFeat--JNLt9::marker {
@@ -888,6 +901,7 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* UpdateDialog 컴포넌트 스타일
   display: flex;
   gap: 8px;
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .update-dialog-module__udBtn--EstXt {
@@ -896,6 +910,9 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* UpdateDialog 컴포넌트 스타일
   border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  flex: 0 1 auto;
 }
 
 .update-dialog-module__udBtnPrimary--H3naJ {
@@ -904,8 +921,11 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* UpdateDialog 컴포넌트 스타일
   border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
+  font-size: 14px;
   background: #4f7cff;
   color: white;
+  white-space: nowrap;
+  flex: 0 1 auto;
 }
 
 .update-dialog-module__udBtnGhost--juD9P {
@@ -914,14 +934,86 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* UpdateDialog 컴포넌트 스타일
   border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
+  font-size: 14px;
   background: transparent;
   color: #cfcfcf;
+  white-space: nowrap;
+  flex: 0 1 auto;
 }
 
 .update-dialog-module__udBtn--EstXt:hover,
 .update-dialog-module__udBtnPrimary--H3naJ:hover,
 .update-dialog-module__udBtnGhost--juD9P:hover {
   filter: brightness(1.05);
+}
+
+/* 모바일 대응 */
+@media (max-width: 480px) {
+  .update-dialog-module__udCard--QaBAr {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .update-dialog-module__udTitle--VQB_3 {
+    gap: 8px;
+  }
+
+  .update-dialog-module__udTitle--VQB_3 h3 {
+    font-size: 16px;
+  }
+
+  .update-dialog-module__udPill--pW87e {
+    font-size: 11px;
+    padding: 0 6px;
+  }
+
+  .update-dialog-module__udSub--Y03Tv {
+    font-size: 12px;
+    margin: 6px 0 10px;
+  }
+
+  .update-dialog-module__udList--HduVR {
+    font-size: 14px;
+    max-height: 150px;
+    padding-left: 16px;
+  }
+
+  .update-dialog-module__udList--HduVR li {
+    margin: 5px 0;
+    line-height: 1.5;
+  }
+
+  /* 버튼 영역 - 3개일 때 세로 배치 */
+  .update-dialog-module__udActions--AuWA7 {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .update-dialog-module__udBtn--EstXt,
+  .update-dialog-module__udBtnPrimary--H3naJ,
+  .update-dialog-module__udBtnGhost--juD9P {
+    width: 100%;
+    padding: 11px 16px;
+    font-size: 14px;
+  }
+}
+
+/* 중간 크기 화면 대응 (480px ~ 600px) */
+@media (min-width: 481px) and (max-width: 600px) {
+  .update-dialog-module__udCard--QaBAr {
+    padding: 18px;
+  }
+
+  .update-dialog-module__udActions--AuWA7 {
+    gap: 6px;
+  }
+
+  .update-dialog-module__udBtn--EstXt,
+  .update-dialog-module__udBtnPrimary--H3naJ,
+  .update-dialog-module__udBtnGhost--juD9P {
+    padding: 9px 11px;
+    font-size: 13px;
+  }
 }
 
 @media (prefers-color-scheme: light) {
@@ -967,6 +1059,7 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* UpdateDialog 컴포넌트 스타일
   line-height: 1.6;
   color: var(--fg, #eaeaea);
   white-space: pre-line;
+  word-break: break-word;
 }
 
 .update-dialog-module__udAlert--URrlp .update-dialog-module__udActions--AuWA7 {
@@ -979,9 +1072,120 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* UpdateDialog 컴포넌트 스타일
   min-width: 120px;
 }
 
+/* AlertDialog 모바일 대응 */
+@media (max-width: 480px) {
+  .update-dialog-module__udAlert--URrlp {
+    max-width: 100%;
+  }
+
+  .update-dialog-module__udAlertMessage--fUewu {
+    font-size: 15px;
+    margin: 12px 0 16px;
+  }
+
+  .update-dialog-module__udAlert--URrlp .update-dialog-module__udBtn--EstXt,
+  .update-dialog-module__udAlert--URrlp .update-dialog-module__udBtnPrimary--H3naJ,
+  .update-dialog-module__udAlert--URrlp .update-dialog-module__udBtnGhost--juD9P {
+    min-width: 100px;
+    padding: 11px 16px;
+  }
+}
+
 @media (prefers-color-scheme: light) {
   .update-dialog-module__udAlertMessage--fUewu {
     color: var(--fg, #111);
+  }
+}
+
+/* LoadingDialog 컴포넌트 스타일 */
+.update-dialog-module__udLoading--Arn7h {
+  max-width: 320px;
+  text-align: center;
+  padding: 32px 24px;
+}
+
+.update-dialog-module__udLoadingSpinner--VazSE {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.update-dialog-module__udLoadingSvg--uGgOc {
+  width: 50px;
+  height: 50px;
+  animation: update-dialog-module__udRotate--V1GtI 1.4s linear infinite;
+}
+
+.update-dialog-module__udLoadingCircle--jLYch {
+  stroke: #4f7cff;
+  stroke-linecap: round;
+  animation: update-dialog-module__udDash--EaK4F 1.4s ease-in-out infinite;
+}
+
+.update-dialog-module__udLoadingMessage--lY1sH {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--fg, #eaeaea);
+  font-weight: 500;
+  word-break: break-word;
+}
+
+/* LoadingDialog 모바일 대응 */
+@media (max-width: 480px) {
+  .update-dialog-module__udLoading--Arn7h {
+    max-width: 100%;
+    padding: 28px 20px;
+  }
+
+  .update-dialog-module__udLoadingSpinner--VazSE {
+    margin-bottom: 16px;
+  }
+
+  .update-dialog-module__udLoadingSvg--uGgOc {
+    width: 44px;
+    height: 44px;
+  }
+
+  .update-dialog-module__udLoadingMessage--lY1sH {
+    font-size: 14px;
+  }
+}
+
+@keyframes update-dialog-module__udRotate--V1GtI {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes update-dialog-module__udDash--EaK4F {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .update-dialog-module__udLoadingMessage--lY1sH {
+    color: var(--fg, #111);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .update-dialog-module__udLoadingSvg--uGgOc {
+    animation: none;
+  }
+  .update-dialog-module__udLoadingCircle--jLYch {
+    animation: none;
+    stroke-dasharray: 90, 150;
   }
 }
 `, ""]);
@@ -1003,7 +1207,14 @@ ___CSS_LOADER_EXPORT___.locals = {
 	"udBtnPrimary": `update-dialog-module__udBtnPrimary--H3naJ`,
 	"udBtnGhost": `update-dialog-module__udBtnGhost--juD9P`,
 	"udAlert": `update-dialog-module__udAlert--URrlp`,
-	"udAlertMessage": `update-dialog-module__udAlertMessage--fUewu`
+	"udAlertMessage": `update-dialog-module__udAlertMessage--fUewu`,
+	"udLoading": `update-dialog-module__udLoading--Arn7h`,
+	"udLoadingSpinner": `update-dialog-module__udLoadingSpinner--VazSE`,
+	"udLoadingSvg": `update-dialog-module__udLoadingSvg--uGgOc`,
+	"udRotate": `update-dialog-module__udRotate--V1GtI`,
+	"udLoadingCircle": `update-dialog-module__udLoadingCircle--jLYch`,
+	"udDash": `update-dialog-module__udDash--EaK4F`,
+	"udLoadingMessage": `update-dialog-module__udLoadingMessage--lY1sH`
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -1468,7 +1679,12 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* Pretendard 폰트 CDN */
 .x-risu-lb-nai-character-card,
 .x-risu-lb-nai-comp-card {
   overflow: visible !important;
-}`, ""]);
+}
+
+.message-edit-area {
+  max-height: 80vh;
+  overflow-y: auto;
+} `, ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -1492,7 +1708,7 @@ const PLUGIN_NAME =
    true ? "risu-handdam-edit" : 0;
 
 const PLUGIN_VERSION =
-   true ? "0.5.0" : 0;
+   true ? "0.6.0" : 0;
 
 const PLUGIN_DESCRIPTION =
   (/* unused pure expression or super */ null && ( true ? "RisuAI 한땀한땀 수정 지원 Plugin" : 0));
@@ -3519,7 +3735,16 @@ class ElementEditHandler {
     editButton.innerHTML = "✏️";
     editButton.title = "수정";
     editButton.className = `chat-modi-btn hddm-edit-button ${s.editButton}`;
-    editButton.onclick = () => this.editSingleChat(editButton);
+
+    // 클릭 시 버튼이 실제로 보이는지 확인
+    editButton.onclick = (e) => {
+      if (!this._isButtonClickable(editButton, e)) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+      this.editSingleChat(editButton);
+    };
 
     wrapper.appendChild(editButton);
 
@@ -3527,6 +3752,77 @@ class ElementEditHandler {
     this._attachHoverEvents(element, wrapper);
 
     return wrapper;
+  }
+
+  /**
+   * 모바일 환경 감지
+   */
+  _isMobile() {
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  }
+
+  /**
+   * 버튼이 실제로 클릭 가능한지 확인
+   * (다른 요소에 가려져 있지 않은지 체크)
+   */
+  _isButtonClickable(button, event) {
+
+    if ( this._isMobile() ) {
+      const toggleDiv = document.querySelector("div.top-0.w-full.h-full.left-0.z-30.flex.flex-row.items-center");
+      if ( toggleDiv.classList.contains("fixed")) {
+        return false;
+      }
+    }
+
+    // 1. 버튼이 화면에 보이는지 기본 체크
+    const style = getComputedStyle(button);
+    if (style.display === "none" || style.visibility === "hidden" || parseFloat(style.opacity) === 0) {
+      return false;
+    }
+
+    // 2. 버튼의 위치 확인
+    const rect = button.getBoundingClientRect();
+
+    // 버튼이 뷰포트 밖에 있는지 확인
+    if (rect.width === 0 || rect.height === 0 ||
+        rect.bottom < 0 || rect.top > window.innerHeight ||
+        rect.right < 0 || rect.left > window.innerWidth) {
+      return false;
+    }
+
+    // 3. 클릭 위치 또는 버튼 중심에서 실제 요소 확인
+    let checkX, checkY;
+
+    if (event && event.clientX !== undefined && event.clientY !== undefined) {
+      // 실제 클릭 좌표 사용
+      checkX = event.clientX;
+      checkY = event.clientY;
+    } else {
+      // 버튼 중심점 사용
+      checkX = rect.left + rect.width / 2;
+      checkY = rect.top + rect.height / 2;
+    }
+
+    // elementFromPoint로 해당 위치의 최상단 요소 확인
+    const elementAtPoint = document.elementFromPoint(checkX, checkY);
+
+    if (!elementAtPoint) {
+      return false;
+    }
+
+    // 클릭된 요소가 버튼 본인이거나 버튼의 자식이면 OK
+    if (elementAtPoint === button || button.contains(elementAtPoint)) {
+      return true;
+    }
+
+    // 버튼의 부모 wrapper도 확인
+    const wrapper = button.parentElement;
+    if (wrapper && (elementAtPoint === wrapper || wrapper.contains(elementAtPoint))) {
+      return true;
+    }
+
+    // 다른 요소에 가려져 있음
+    return false;
   }
 
   /**
@@ -5174,6 +5470,115 @@ function showAlert(message, confirmText = "확인") {
   });
 }
 
+;// ./src/ui/components/updateManager/loading-dialog.js
+
+
+
+/**
+ * LoadingDialog Custom Element
+ * 업데이트 처리 중 표시되는 로딩 다이얼로그 컴포넌트
+ */
+
+const loading_dialog_ELEMENT_TAG = `${constants/* PLUGIN_NAME */.AF}-loading-dialog`;
+
+class LoadingDialog extends HTMLElement {
+  constructor() {
+    super();
+    this._cleanup = null;
+  }
+
+  static get observedAttributes() {
+    return ["message", "duration"];
+  }
+
+  connectedCallback() {
+    this.render();
+  }
+
+  disconnectedCallback() {
+    if (this._cleanup) {
+      this._cleanup();
+    }
+  }
+
+  get message() {
+    return this.getAttribute("message") || "업데이트를 처리하고 있습니다...";
+  }
+
+  get duration() {
+    return parseInt(this.getAttribute("duration")) || 3000;
+  }
+
+  render() {
+    this.setAttribute("role", "dialog");
+    this.setAttribute("aria-modal", "true");
+    this.setAttribute("aria-busy", "true");
+    this.className = styles_update_dialog_module.udRoot;
+
+    this.innerHTML = `
+      <div class="${styles_update_dialog_module.udCard} ${styles_update_dialog_module.udLoading}" data-loading-card>
+        <div class="${styles_update_dialog_module.udLoadingSpinner}">
+          <svg class="${styles_update_dialog_module.udLoadingSvg}" viewBox="0 0 50 50">
+            <circle
+              class="${styles_update_dialog_module.udLoadingCircle}"
+              cx="25"
+              cy="25"
+              r="20"
+              fill="none"
+              stroke-width="4"
+            />
+          </svg>
+        </div>
+        <div class="${styles_update_dialog_module.udLoadingMessage}">
+          ${this.escapeHtml(this.message)}
+        </div>
+      </div>
+    `;
+  }
+
+  escapeHtml(s) {
+    return String(s).replace(
+      /[&<>"']/g,
+      (m) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        }[m])
+    );
+  }
+}
+
+// Custom Element 등록
+if (!customElements.get(loading_dialog_ELEMENT_TAG)) {
+  customElements.define(loading_dialog_ELEMENT_TAG, LoadingDialog);
+}
+
+const LOADING_DIALOG_TAG = loading_dialog_ELEMENT_TAG;
+
+/**
+ * LoadingDialog를 표시하고 지정된 시간 후 자동으로 닫음
+ * @param {string} message - 표시할 메시지
+ * @param {number} [duration=3000] - 표시 시간 (밀리초)
+ * @returns {Promise<void>}
+ */
+function showLoading(message = "업데이트를 처리하고 있습니다...", duration = 3000) {
+  return new Promise((resolve) => {
+    const dialog = document.createElement(LOADING_DIALOG_TAG);
+    dialog.setAttribute("message", message);
+    dialog.setAttribute("duration", String(duration));
+
+    document.body.appendChild(dialog);
+
+    setTimeout(() => {
+      dialog.remove();
+      resolve();
+    }, duration);
+  });
+}
+
 ;// ./src/ui/components/updateManager/update-dialog.js
 /**
  * UpdateDialog Custom Element
@@ -5549,6 +5954,7 @@ function mergeRealArgs(oldRealArg, newArguments) {
 
 
 
+
 /**
  * unpkg에서 최신 버전의 메타데이터를 파싱
  * @returns {Promise<Object|null>} manifest 객체 또는 null
@@ -5773,15 +6179,19 @@ function checkVersionUpdateNeeded(latestVersion, currentVersion, silent) {
  */
 async function executeUpdate(manifest, latestVersion) {
   console.log("[UpdateManager] Updating to version", latestVersion);
-  console.log("update test")  
+
+  // 업데이트 스크립트 실행
   const updateResult = await updatePluginScript(manifest);
 
-  if (updateResult.success) {  
+  if (updateResult.success) {
     console.log("[UpdateManager] Plugin script updated successfully");
-    setTimeout(async () => {
-      await showAlert("업데이트가 완료되었습니다.\n\n업데이트된 스크립트를 적용하기 위해\n페이지를 새로고침합니다.");
-      window.location.reload();
-    }, 3000);
+
+    // 3초간 로딩 다이얼로그 표시 (스크립트 적용 시간 확보)
+    await showLoading("업데이트를 적용하고 있습니다...", 4000);
+
+    // 업데이트 완료 알림 및 새로고침
+    await showAlert("업데이트가 완료되었습니다.\n\n업데이트된 스크립트를 적용하기 위해\n페이지를 새로고침합니다.");
+    window.location.reload();
     return { available: true, action: "updated", version: latestVersion };
   }
 
@@ -5889,6 +6299,7 @@ async function checkForUpdates(options = {}) {
 
 
 
+  
 ;// ./src/index.js
 
 
@@ -5915,25 +6326,25 @@ async function checkForUpdates(options = {}) {
 {}
 
     // 3. 업데이트 체크 (백그라운드, silent 모드-로그 최소화)
-    checkForUpdates({ silent: true }).catch(err => {
+    checkForUpdates({ silent: true }).catch(err => {  
       console.warn('[App] Update check failed:', err);
-    });
-
+    }); 
+  
     // 4. 외부 스크립트 import(script 태그 추가)
     injectScripts();
-
-    // 5. App 초기화
+ 
+    // 5. App 초기화  
     const app = new App();
     await app.initialize();
-
-    console.log(`${constants/* PLUGIN_NAME */.AF} v${constants/* PLUGIN_VERSION */.jN} loaded`);
+  
+    console.log(`${constants/* PLUGIN_NAME */.AF} v${constants/* PLUGIN_VERSION */.jN} loaded`); 
 
     // 6. 언로드 핸들러 등록
     risuAPI.onUnload(() => {
-      app.destroy();
+      app.destroy();   
     });
 
-  } catch (error) {
+  } catch (error) { 
     console.error(`[${constants/* PLUGIN_NAME */.AF}] Initialization failed:`, error);
   }
 })();

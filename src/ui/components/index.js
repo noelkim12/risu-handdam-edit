@@ -9,5 +9,6 @@ export * from "./ui/menu-button.js";
 // 업데이트 매니저 컴포넌트
 export * from "./updateManager/update-dialog.js";
 export * from "./updateManager/alert-dialog.js";
+export * from "./updateManager/loading-dialog.js";
 
-export * from "./img/del-img-components.js";
+export * from "./img/del-img-components.js";  

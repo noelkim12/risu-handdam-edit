@@ -7,3 +7,8 @@
 .x-risu-lb-nai-comp-card {
   overflow: visible !important;
 }
+
+.message-edit-area {
+  max-height: 80vh;
+  overflow-y: auto;
+} 

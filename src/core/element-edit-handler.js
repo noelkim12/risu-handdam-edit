@@ -517,7 +517,16 @@ export class ElementEditHandler {
     editButton.innerHTML = "✏️";
     editButton.title = "수정";
     editButton.className = `chat-modi-btn hddm-edit-button ${s.editButton}`;
-    editButton.onclick = () => this.editSingleChat(editButton);
+
+    // 클릭 시 버튼이 실제로 보이는지 확인
+    editButton.onclick = (e) => {
+      if (!this._isButtonClickable(editButton, e)) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+      this.editSingleChat(editButton);
+    };
 
     wrapper.appendChild(editButton);
 
@@ -525,6 +534,77 @@ export class ElementEditHandler {
     this._attachHoverEvents(element, wrapper);
 
     return wrapper;
+  }
+
+  /**
+   * 모바일 환경 감지
+   */
+  _isMobile() {
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  }
+
+  /**
+   * 버튼이 실제로 클릭 가능한지 확인
+   * (다른 요소에 가려져 있지 않은지 체크)
+   */
+  _isButtonClickable(button, event) {
+
+    if ( this._isMobile() ) {
+      const toggleDiv = document.querySelector("div.top-0.w-full.h-full.left-0.z-30.flex.flex-row.items-center");
+      if ( toggleDiv.classList.contains("fixed")) {
+        return false;
+      }
+    }
+
+    // 1. 버튼이 화면에 보이는지 기본 체크
+    const style = getComputedStyle(button);
+    if (style.display === "none" || style.visibility === "hidden" || parseFloat(style.opacity) === 0) {
+      return false;
+    }
+
+    // 2. 버튼의 위치 확인
+    const rect = button.getBoundingClientRect();
+
+    // 버튼이 뷰포트 밖에 있는지 확인
+    if (rect.width === 0 || rect.height === 0 ||
+        rect.bottom < 0 || rect.top > window.innerHeight ||
+        rect.right < 0 || rect.left > window.innerWidth) {
+      return false;
+    }
+
+    // 3. 클릭 위치 또는 버튼 중심에서 실제 요소 확인
+    let checkX, checkY;
+
+    if (event && event.clientX !== undefined && event.clientY !== undefined) {
+      // 실제 클릭 좌표 사용
+      checkX = event.clientX;
+      checkY = event.clientY;
+    } else {
+      // 버튼 중심점 사용
+      checkX = rect.left + rect.width / 2;
+      checkY = rect.top + rect.height / 2;
+    }
+
+    // elementFromPoint로 해당 위치의 최상단 요소 확인
+    const elementAtPoint = document.elementFromPoint(checkX, checkY);
+
+    if (!elementAtPoint) {
+      return false;
+    }
+
+    // 클릭된 요소가 버튼 본인이거나 버튼의 자식이면 OK
+    if (elementAtPoint === button || button.contains(elementAtPoint)) {
+      return true;
+    }
+
+    // 버튼의 부모 wrapper도 확인
+    const wrapper = button.parentElement;
+    if (wrapper && (elementAtPoint === wrapper || wrapper.contains(elementAtPoint))) {
+      return true;
+    }
+
+    // 다른 요소에 가려져 있음
+    return false;
   }
 
   /**

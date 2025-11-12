@@ -23,33 +23,33 @@ import "./ui/components"; // Web Components 레지스트리
       try {
         // Static import - 메인 번들에 포함 (chunk 분리 없음)
         const { initHotReload } = require('./core/dev-reload.js');
-        initHotReload();
-        console.log(`[${PLUGIN_NAME}] 🔥 Hot Reload enabled`);
-      } catch (error) {
-        console.warn('[App] Hot reload initialization failed:', error);
+        initHotReload(); 
+        console.log(`[${PLUGIN_NAME}] 🔥 Hot Reload enabled`); 
+      } catch (error) { 
+        console.warn('[App] Hot reload initialization failed:', error);  
       }
     }
 
     // 3. 업데이트 체크 (백그라운드, silent 모드-로그 최소화)
-    checkForUpdates({ silent: true }).catch(err => {
+    checkForUpdates({ silent: true }).catch(err => {  
       console.warn('[App] Update check failed:', err);
-    });
-
+    }); 
+  
     // 4. 외부 스크립트 import(script 태그 추가)
     injectScripts();
-
-    // 5. App 초기화
+ 
+    // 5. App 초기화  
     const app = new App();
     await app.initialize();
-
-    console.log(`${PLUGIN_NAME} v${PLUGIN_VERSION} loaded`);
+  
+    console.log(`${PLUGIN_NAME} v${PLUGIN_VERSION} loaded`); 
 
     // 6. 언로드 핸들러 등록
     risuAPI.onUnload(() => {
-      app.destroy();
+      app.destroy();   
     });
 
-  } catch (error) {
+  } catch (error) { 
     console.error(`[${PLUGIN_NAME}] Initialization failed:`, error);
   }
 })();

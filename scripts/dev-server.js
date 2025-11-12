@@ -94,6 +94,7 @@ function initWebSocketServer(port) {
   actualPort = port;
 
   wss = new WebSocket.Server({
+    host: '0.0.0.0',
     port: actualPort,
     clientTracking: true
   });
