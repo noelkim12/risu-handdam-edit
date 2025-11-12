@@ -2506,7 +2506,7 @@ class TextSelectionHandler {
       // 선택은 유지 (버튼 클릭 시에만 해제)
     } catch (error) {
       console.error("[TextSelectionHandler] Error processing selection:", error);
-      this.clearSelection();
+      // this.clearSelection();
     }
   }
 
@@ -3709,7 +3709,7 @@ class EditManager {
     this._ignoreClickUntil = Date.now() + 300;
 
     this.showFloatingButton(position, () => {
-      this._clearSelection();
+      // this._clearSelection();
 
       if (match) {
         this.openEditDialog(match);
@@ -3900,9 +3900,6 @@ class EditManager {
 
       messages[match.chatIndex].data = updated;
       this.risuAPI.setChar(char);
-
-      // 페이지 새로고침
-      // location.reload();
     } catch (error) {
       console.error("[EditManager] Error saving edit:", error);
       alert("편집 저장 중 오류가 발생했습니다.");
@@ -3950,8 +3947,6 @@ class EditManager {
 
       const char = this.risuAPI.getChar();
       this.risuAPI.setChar(char);
-      // 페이지 새로고침
-      // location.reload();
     } catch (error) {
       console.error("[EditManager] Error deleting match:", error);
       alert("삭제 중 오류가 발생했습니다.");
@@ -4163,8 +4158,8 @@ class EditManager {
    */
   _attachFloatingButtonHandlers(buttonContainer) {
     const handleScroll = () => {
-      this.hideFloatingButton();
-      this._clearSelection();
+      // this.hideFloatingButton();
+      // this._clearSelection();
     };
 
     const handleClick = (e) => {
@@ -4176,7 +4171,7 @@ class EditManager {
         return;
       }
       this.hideFloatingButton();
-      this._clearSelection();
+      // this._clearSelection();
     };
 
     window.addEventListener("scroll", handleScroll, { once: true, capture: true });
@@ -5477,8 +5472,10 @@ async function executeUpdate(manifest, latestVersion) {
 
   if (updateResult.success) {  
     console.log("[UpdateManager] Plugin script updated successfully");
-    await showAlert("업데이트가 완료되었습니다.\n\n업데이트된 스크립트를 적용하기 위해\n페이지를 새로고침합니다.");
-    window.location.reload();
+    setTimeout(async () => {
+      await showAlert("업데이트가 완료되었습니다.\n\n업데이트된 스크립트를 적용하기 위해\n페이지를 새로고침합니다.");
+      window.location.reload();
+    }, 3000);
     return { available: true, action: "updated", version: latestVersion };
   }
 

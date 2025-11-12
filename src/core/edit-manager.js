@@ -148,7 +148,7 @@ export class EditManager {
     this._ignoreClickUntil = Date.now() + 300;
 
     this.showFloatingButton(position, () => {
-      this._clearSelection();
+      // this._clearSelection();
 
       if (match) {
         this.openEditDialog(match);
@@ -339,9 +339,6 @@ export class EditManager {
 
       messages[match.chatIndex].data = updated;
       this.risuAPI.setChar(char);
-
-      // 페이지 새로고침
-      // location.reload();
     } catch (error) {
       console.error("[EditManager] Error saving edit:", error);
       alert("편집 저장 중 오류가 발생했습니다.");
@@ -389,8 +386,6 @@ export class EditManager {
 
       const char = this.risuAPI.getChar();
       this.risuAPI.setChar(char);
-      // 페이지 새로고침
-      // location.reload();
     } catch (error) {
       console.error("[EditManager] Error deleting match:", error);
       alert("삭제 중 오류가 발생했습니다.");
@@ -602,8 +597,8 @@ export class EditManager {
    */
   _attachFloatingButtonHandlers(buttonContainer) {
     const handleScroll = () => {
-      this.hideFloatingButton();
-      this._clearSelection();
+      // this.hideFloatingButton();
+      // this._clearSelection();
     };
 
     const handleClick = (e) => {
@@ -615,7 +610,7 @@ export class EditManager {
         return;
       }
       this.hideFloatingButton();
-      this._clearSelection();
+      // this._clearSelection();
     };
 
     window.addEventListener("scroll", handleScroll, { once: true, capture: true });

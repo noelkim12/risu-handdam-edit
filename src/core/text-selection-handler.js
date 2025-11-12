@@ -277,7 +277,7 @@ export class TextSelectionHandler {
       // 선택은 유지 (버튼 클릭 시에만 해제)
     } catch (error) {
       console.error("[TextSelectionHandler] Error processing selection:", error);
-      this.clearSelection();
+      // this.clearSelection();
     }
   }
 
