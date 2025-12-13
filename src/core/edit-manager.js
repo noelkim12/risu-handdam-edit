@@ -408,29 +408,27 @@ export class EditManager {
    * 매칭 항목 삭제
    */
   async deleteMatch(match) {
-    if (!confirm("정말 삭제하시겠습니까?")) {
-      return;
-    }
-
-    try {
-      const messages = this._getCharMessages();
-      if (!messages || !messages[match.chatIndex]) {
-        return;
+    if (confirm("정말 삭제하시겠습니까?")) {
+      try {
+        const messages = this._getCharMessages();
+        if (!messages || !messages[match.chatIndex]) {
+          return;
+        }
+  
+        const messageData = messages[match.chatIndex].data;
+        const updated = messageData.slice(0, match.start) + messageData.slice(match.end);
+  
+        const targetElement = this.findElementByMatch(match);
+        await this.performDeleteAnimation(targetElement || window.document.body);
+  
+        messages[match.chatIndex].data = updated;
+  
+        const char = this.risuAPI.getChar();
+        this.risuAPI.setChar(char);
+      } catch (error) {
+        console.error("[EditManager] Error deleting match:", error);
+        alert("삭제 중 오류가 발생했습니다.");
       }
-
-      const messageData = messages[match.chatIndex].data;
-      const updated = messageData.slice(0, match.start) + messageData.slice(match.end);
-
-      const targetElement = this.findElementByMatch(match);
-      await this.performDeleteAnimation(targetElement || window.document.body);
-
-      messages[match.chatIndex].data = updated;
-
-      const char = this.risuAPI.getChar();
-      this.risuAPI.setChar(char);
-    } catch (error) {
-      console.error("[EditManager] Error deleting match:", error);
-      alert("삭제 중 오류가 발생했습니다.");
     }
   }
 
