@@ -12,7 +12,11 @@ const MIN_SELECTION_LENGTH = 5;
  * 모바일 환경 감지
  */
 function isMobile() {
-  return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const userAgent = navigator.userAgent;
+  // Android나 iPhone/iPad 문자열이 포함되었는지 확인
+  const isMobileOS = /Android|iPhone|iPad|iPod/i.test(userAgent);
+  
+  return isMobileOS;
 }
 
 export class TextSelectionHandler {
