@@ -130,20 +130,20 @@ export function findAllMatches(originalMd, searchText, opts = {}) {
   const FUZZY_THRESHOLD = opts.fuzzyThreshold ?? 0.15;
   const ANCH = opts.anchorLength ?? 5;
 
-  // 정규화된 텍스트로 검색 (공백 정규화)
-  const normalizedSearch = searchText.replace(/\s+/g, " ").trim();
-  const normalizedOriginal = originalMd.replace(/\s+/g, " ");
-
-  // 원본 인덱스 매핑 생성
-  const indexMap = createIndexMap(originalMd, normalizedOriginal);
+  // normalizeWithMap으로 정규화 (스마트 따옴표, 말줄임표 등 타이포 처리)
+  const { norm: normalizedOriginal, map: indexMap } = normalizeWithMap(originalMd);
+  const { norm: normalizedSearch } = normalizeWithMap(searchText);
 
   // 이미 찾은 위치 추적 (중복 방지)
   const foundPositions = new Set();
 
   // 컨텍스트 및 매칭 생성 헬퍼
   const addMatch = (normalizedStart, normalizedEnd, method, distance = null) => {
+    // normalizeWithMap의 map을 사용하여 원본 인덱스 복원
     const start = indexMap[normalizedStart] ?? normalizedStart;
-    const end = indexMap[normalizedEnd] ?? normalizedEnd;
+    const end = normalizedEnd - 1 < indexMap.length
+      ? indexMap[normalizedEnd - 1] + 1
+      : originalMd.length;
 
     const positionKey = `${start}-${end}`;
     if (foundPositions.has(positionKey)) {
@@ -156,7 +156,7 @@ export function findAllMatches(originalMd, searchText, opts = {}) {
     const match = {
       start,
       end,
-      context: context.text,
+      context: context.text, 
       contextStart: context.start,
       method,
     };

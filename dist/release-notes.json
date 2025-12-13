@@ -48,5 +48,15 @@
         "text": "모바일환경 요소기반 버튼이 다른 영역 이벤트를 방해하는 오류 수정"
       }
     ]
+  },
+  "0.7.0": {
+    "released_at": "2025-12-13T08:55:04.107Z",
+    "mandatory": false,
+    "notes": [
+      {
+        "type": "feat",
+        "text": "delete confirm 및 특수문자 텍스트 매칭 개선"
+      }
+    ]
   }
 }

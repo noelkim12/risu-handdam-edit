@@ -238,7 +238,6 @@ export class TextSelectionHandler {
         currentNode = currentNode.parentElement;
       }
 
-      // 167번 줄 근처에 로그 추가
       // data-chat-index를 찾지 못한 경우 처리하지 않음
       if (targetChatIndex === null || targetChatIndex < 0 || targetChatIndex >= messages.length) {
         // this.clearSelection();

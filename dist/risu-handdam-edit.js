@@ -1,13 +1,13 @@
 //@name risu-handdam-edit
-//@display-name risu-handdam-edit_v0.6.0
-//@version 0.6.0
+//@display-name risu-handdam-edit_v0.7.0
+//@version 0.7.0
 //@description RisuAI 한땀한땀 수정 지원 Plugin
 //@arg excludeBotName string
 //@arg minLength int
 //@arg editMode string
 //@arg buttonPosition string
 
-//@link https://unpkg.com/risu-handdam-edit@0.6.0/dist/risu-handdam-edit.js
+//@link https://unpkg.com/risu-handdam-edit@0.7.0/dist/risu-handdam-edit.js
 var risuHanddamEdit;
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
@@ -1708,7 +1708,7 @@ const PLUGIN_NAME =
    true ? "risu-handdam-edit" : 0;
 
 const PLUGIN_VERSION =
-   true ? "0.6.0" : 0;
+   true ? "0.7.0" : 0;
 
 const PLUGIN_DESCRIPTION =
   (/* unused pure expression or super */ null && ( true ? "RisuAI 한땀한땀 수정 지원 Plugin" : 0));
@@ -2134,20 +2134,20 @@ function findAllMatches(originalMd, searchText, opts = {}) {
   const FUZZY_THRESHOLD = opts.fuzzyThreshold ?? 0.15;
   const ANCH = opts.anchorLength ?? 5;
 
-  // 정규화된 텍스트로 검색 (공백 정규화)
-  const normalizedSearch = searchText.replace(/\s+/g, " ").trim();
-  const normalizedOriginal = originalMd.replace(/\s+/g, " ");
-
-  // 원본 인덱스 매핑 생성
-  const indexMap = createIndexMap(originalMd, normalizedOriginal);
+  // normalizeWithMap으로 정규화 (스마트 따옴표, 말줄임표 등 타이포 처리)
+  const { norm: normalizedOriginal, map: indexMap } = normalizeWithMap(originalMd);
+  const { norm: normalizedSearch } = normalizeWithMap(searchText);
 
   // 이미 찾은 위치 추적 (중복 방지)
   const foundPositions = new Set();
 
   // 컨텍스트 및 매칭 생성 헬퍼
   const addMatch = (normalizedStart, normalizedEnd, method, distance = null) => {
+    // normalizeWithMap의 map을 사용하여 원본 인덱스 복원
     const start = indexMap[normalizedStart] ?? normalizedStart;
-    const end = indexMap[normalizedEnd] ?? normalizedEnd;
+    const end = normalizedEnd - 1 < indexMap.length
+      ? indexMap[normalizedEnd - 1] + 1
+      : originalMd.length;
 
     const positionKey = `${start}-${end}`;
     if (foundPositions.has(positionKey)) {
@@ -2160,7 +2160,7 @@ function findAllMatches(originalMd, searchText, opts = {}) {
     const match = {
       start,
       end,
-      context: context.text,
+      context: context.text, 
       contextStart: context.start,
       method,
     };
@@ -2506,7 +2506,11 @@ const MIN_SELECTION_LENGTH = 5;
  * 모바일 환경 감지
  */
 function isMobile() {
-  return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const userAgent = navigator.userAgent;
+  // Android나 iPhone/iPad 문자열이 포함되었는지 확인
+  const isMobileOS = /Android|iPhone|iPad|iPod/i.test(userAgent);
+  
+  return isMobileOS;
 }
 
 class TextSelectionHandler {
@@ -2728,7 +2732,6 @@ class TextSelectionHandler {
         currentNode = currentNode.parentElement;
       }
 
-      // 167번 줄 근처에 로그 추가
       // data-chat-index를 찾지 못한 경우 처리하지 않음
       if (targetChatIndex === null || targetChatIndex < 0 || targetChatIndex >= messages.length) {
         // this.clearSelection();
@@ -4314,29 +4317,29 @@ class EditManager {
    * 매칭 항목 삭제
    */
   async deleteMatch(match) {
-    if (!confirm("정말 삭제하시겠습니까?")) {
-      return;
-    }
-
-    try {
-      const messages = this._getCharMessages();
-      if (!messages || !messages[match.chatIndex]) {
-        return;
+    if (confirm("정말 삭제하시겠습니까?")) {
+      try {
+        const messages = this._getCharMessages();
+        if (!messages || !messages[match.chatIndex]) {
+          return;
+        }
+  
+        const messageData = messages[match.chatIndex].data;
+        const updated = messageData.slice(0, match.start) + messageData.slice(match.end);
+  
+        const targetElement = this.findElementByMatch(match);
+        await this.performDeleteAnimation(targetElement || window.document.body);
+  
+        messages[match.chatIndex].data = updated;
+  
+        const char = this.risuAPI.getChar();
+        this.risuAPI.setChar(char);
+      } catch (error) {
+        console.error("[EditManager] Error deleting match:", error);
+        alert("삭제 중 오류가 발생했습니다.");
+      } finally {
+        this.hideFloatingButton(); 
       }
-
-      const messageData = messages[match.chatIndex].data;
-      const updated = messageData.slice(0, match.start) + messageData.slice(match.end);
-
-      const targetElement = this.findElementByMatch(match);
-      await this.performDeleteAnimation(targetElement || window.document.body);
-
-      messages[match.chatIndex].data = updated;
-
-      const char = this.risuAPI.getChar();
-      this.risuAPI.setChar(char);
-    } catch (error) {
-      console.error("[EditManager] Error deleting match:", error);
-      alert("삭제 중 오류가 발생했습니다.");
     }
   }
 
@@ -4649,7 +4652,6 @@ class EditManager {
     const handleSelectionStart = () => setSelecting(true);
 
     const handleSelectionChange = () => {
-      console.log('handleSelectionChange', Date.now());
       // 종료 판정 디바운스
       clearTimeout(endTimer);
       const sel = window.getSelection?.();
