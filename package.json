@@ -17,7 +17,8 @@
   "license": "MIT",
   "scripts": {
     "prepublishOnly": "npm run build",
-    "dev": "cross-env NODE_ENV=development concurrently \"npm run dev:server\" \"npm run dev:webpack\"",
+    "dev": "cross-env NODE_ENV=development concurrently \"caddy run --config caddy.config --adapter caddyfile\" \"npm run dev:server\" \"npm run dev:webpack\"",
+    "dev:caddy": "caddy run --config caddy.config --adapter caddyfile",
     "dev:server": "node scripts/dev-server.js",
     "dev:webpack": "cross-env NODE_ENV=development webpack --mode production --watch",
     "build": "webpack --mode production",

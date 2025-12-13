@@ -428,6 +428,8 @@ export class EditManager {
       } catch (error) {
         console.error("[EditManager] Error deleting match:", error);
         alert("삭제 중 오류가 발생했습니다.");
+      } finally {
+        this.hideFloatingButton(); 
       }
     }
   }
@@ -741,7 +743,6 @@ export class EditManager {
     const handleSelectionStart = () => setSelecting(true);
 
     const handleSelectionChange = () => {
-      console.log('handleSelectionChange', Date.now());
       // 종료 판정 디바운스
       clearTimeout(endTimer);
       const sel = window.getSelection?.();
