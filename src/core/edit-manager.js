@@ -30,6 +30,15 @@ export class EditManager {
     this._buttonPositionChangeCallbacks = []; // 버튼 위치 변경 콜백 함수들
     this._ignoreClickUntil = 0; // 더블클릭 후 클릭 이벤트 무시할 시간
     this.isMobileDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+    // Anchoring: 수정 후 스크롤 위치 복원을 위한 정보
+    this._anchorInfo = {
+      chatIndex: null,
+      scrollTop: null,
+      scrollContainer: null,
+      headText: null,
+      tailText: null,
+    };
   }
 
   // ==================== 초기화 ====================
@@ -369,6 +378,9 @@ export class EditManager {
     }
 
     try {
+      // Anchor 캡처: 저장 전에 현재 위치 정보 저장
+      this._captureAnchor(match, originalText);
+
       const char = this.risuAPI.getChar();
       const chatPage = char.chatPage || 0;
       const messages = char.chats[chatPage].message;
@@ -381,6 +393,9 @@ export class EditManager {
 
       messages[match.chatIndex].data = updated;
       this.risuAPI.setChar(char);
+
+      // 정규식 적용 완료 후 스크롤 위치 복원
+      this._scheduleAnchorRestoration();
     } catch (error) {
       console.error("[EditManager] Error saving edit:", error);
       alert("편집 저장 중 오류가 발생했습니다.");
@@ -514,6 +529,134 @@ export class EditManager {
   }
 
   // ==================== Private Helper Methods ====================
+
+  // ==================== Anchoring 메서드 ====================
+
+  /**
+   * Anchor 캡처: 저장 전에 현재 위치 정보 저장
+   */
+  _captureAnchor(match, originalText) {
+    const ANCHOR_LENGTH = 30;
+    const scrollContainer = this._findScrollContainer();
+
+    this._anchorInfo = {
+      chatIndex: match.chatIndex,
+      scrollTop: scrollContainer ? scrollContainer.scrollTop : 0,
+      scrollContainer: scrollContainer,
+      headText: originalText.substring(0, Math.min(ANCHOR_LENGTH, originalText.length)),
+      tailText: originalText.slice(-Math.min(ANCHOR_LENGTH, originalText.length)),
+    };
+    console.log("[EditManager] Anchor captured:", {
+      chatIndex: this._anchorInfo.chatIndex,
+      scrollTop: this._anchorInfo.scrollTop,
+      containerFound: !!scrollContainer,
+    });
+  }
+
+  /**
+   * SPA 스크롤 컨테이너 찾기
+   */
+  _findScrollContainer() {
+    // 1차: data-chat-index가 있는 요소의 스크롤 가능한 부모 찾기
+    const chatElement = document.querySelector('[data-chat-index]');
+    if (chatElement) {
+      let parent = chatElement.parentElement;
+      while (parent && parent !== document.body) {
+        const style = getComputedStyle(parent);
+        const isScrollable =
+          (style.overflowY === 'auto' || style.overflowY === 'scroll') &&
+          parent.scrollHeight > parent.clientHeight;
+        if (isScrollable) {
+          return parent;
+        }
+        parent = parent.parentElement;
+      }
+    }
+
+    // 2차: 일반적인 스크롤 컨테이너 선택자 시도
+    const selectors = [
+      '.chat-container',
+      '.message-container',
+      '.chat-scroll',
+      '[class*="scroll"]',
+      'main',
+    ];
+
+    for (const selector of selectors) {
+      const el = document.querySelector(selector);
+      if (el && el.scrollHeight > el.clientHeight) {
+        return el;
+      }
+    }
+
+    // 3차: body나 documentElement가 스크롤 컨테이너인 경우
+    if (document.documentElement.scrollHeight > document.documentElement.clientHeight) {
+      return document.documentElement;
+    }
+
+    return null;
+  }
+
+  /**
+   * 정규식 적용 완료 후 스크롤 위치 복원 스케줄링
+   */
+  _scheduleAnchorRestoration() {
+    // RisuAI 정규식 적용 완료까지 대기 (150ms)
+    setTimeout(() => {
+      this._restoreScrollPosition();
+    }, 500);
+  }
+
+  /**
+   * 스크롤 위치 복원
+   */
+  _restoreScrollPosition() {
+    const { chatIndex, scrollTop, scrollContainer } = this._anchorInfo;
+
+    if (chatIndex === null) {
+      console.log("[EditManager] No anchor info, skipping restoration");
+      return;
+    }
+
+    try {
+      // 1차: 저장된 scrollTop으로 컨테이너 스크롤 복원 (가장 정확)
+      const container = scrollContainer || this._findScrollContainer();
+      if (container && scrollTop !== null) {
+        container.scrollTop = scrollTop;
+        console.log("[EditManager] Scroll restored via scrollTop:", scrollTop);
+        this._clearAnchorInfo();
+        return;
+      }
+
+      // 2차: scrollTop 실패 시 data-chat-index로 요소 찾아 스크롤
+      const element = document.querySelector(`[data-chat-index="${chatIndex}"]`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'instant', block: 'center' });
+        console.log("[EditManager] Scroll restored via data-chat-index fallback");
+        this._clearAnchorInfo();
+        return;
+      }
+
+      console.log("[EditManager] Could not restore scroll position");
+    } catch (error) {
+      console.error("[EditManager] Error restoring scroll position:", error);
+    }
+
+    this._clearAnchorInfo();
+  }
+
+  /**
+   * Anchor 정보 초기화
+   */
+  _clearAnchorInfo() {
+    this._anchorInfo = {
+      chatIndex: null,
+      scrollTop: null,
+      scrollContainer: null,
+      headText: null,
+      tailText: null,
+    };
+  }
 
   /**
    * 콜백 함수 호출

@@ -314,6 +314,11 @@ export class ElementEditHandler {
     let chatId = textarea.getAttribute("data-chat-id");
     let chatIndex = textarea.getAttribute("data-chat-index");
 
+    // Anchor 캡처: 저장 전에 현재 위치 정보 저장
+    const match = { chatIndex: parseInt(chatIndex, 10) };
+    this.editManager._captureAnchor(match, originalText);
+
+    console.log('originalText', originalText)
     const newHTML = this.convertEditFormatToHTML(newText);
 
     const char = this.risuAPI.getChar();
@@ -331,6 +336,9 @@ export class ElementEditHandler {
     }
 
     this.risuAPI.setChar(char);
+
+    // 정규식 적용 완료 후 스크롤 위치 복원
+    this.editManager._scheduleAnchorRestoration();
 
     targetElement.classList.remove("hddm-editing");
     targetElement.innerHTML = newHTML;
@@ -633,7 +641,7 @@ export class ElementEditHandler {
     const currentChatMessage = char.chats[chatPage].message[chatIndex].data;
     const hit = findOriginalRangeFromHtml(currentChatMessage, originalText, {
       extendToEOL: false,
-      snapStartToPrevEOL: false,
+      snapStartToPrevEOL: false, 
     });
 
     let taValue = "";
