@@ -38,6 +38,7 @@ export class EditManager {
       scrollContainer: null,
       headText: null,
       tailText: null,
+      newText: null, // 수정된 텍스트 (하이라이트용)
     };
   }
 
@@ -119,7 +120,6 @@ export class EditManager {
     }
 
     this.buttonPosition = position;
-    console.log(`[EditManager] 버튼 위치: ${position === "top" ? "상단" : "하단"}`);
 
     if (save) {
       this.pluginArgs.buttonPosition = position;
@@ -378,8 +378,8 @@ export class EditManager {
     }
 
     try {
-      // Anchor 캡처: 저장 전에 현재 위치 정보 저장
-      this._captureAnchor(match, originalText);
+      // Anchor 캡처: 저장 전에 현재 위치 정보 저장 (newText도 함께 저장)
+      this._captureAnchor(match, originalText, newText);
 
       const char = this.risuAPI.getChar();
       const chatPage = char.chatPage || 0;
@@ -429,22 +429,29 @@ export class EditManager {
         if (!messages || !messages[match.chatIndex]) {
           return;
         }
-  
+
         const messageData = messages[match.chatIndex].data;
+        const deletedText = messageData.slice(match.start, match.end);
         const updated = messageData.slice(0, match.start) + messageData.slice(match.end);
-  
+
+        // Anchor 캡처: 삭제 전에 현재 위치 정보 저장 (삭제는 하이라이트 없음)
+        this._captureAnchor(match, deletedText, null);
+
         const targetElement = this.findElementByMatch(match);
         await this.performDeleteAnimation(targetElement || window.document.body);
-  
+
         messages[match.chatIndex].data = updated;
-  
+
         const char = this.risuAPI.getChar();
         this.risuAPI.setChar(char);
+
+        // 정규식 적용 완료 후 스크롤 위치 복원
+        this._scheduleAnchorRestoration();
       } catch (error) {
         console.error("[EditManager] Error deleting match:", error);
         alert("삭제 중 오류가 발생했습니다.");
       } finally {
-        this.hideFloatingButton(); 
+        this.hideFloatingButton();
       }
     }
   }
@@ -535,7 +542,7 @@ export class EditManager {
   /**
    * Anchor 캡처: 저장 전에 현재 위치 정보 저장
    */
-  _captureAnchor(match, originalText) {
+  _captureAnchor(match, originalText, newText = null) {
     const ANCHOR_LENGTH = 30;
     const scrollContainer = this._findScrollContainer();
 
@@ -545,6 +552,7 @@ export class EditManager {
       scrollContainer: scrollContainer,
       headText: originalText.substring(0, Math.min(ANCHOR_LENGTH, originalText.length)),
       tailText: originalText.slice(-Math.min(ANCHOR_LENGTH, originalText.length)),
+      newText: newText,
     };
     console.log("[EditManager] Anchor captured:", {
       chatIndex: this._anchorInfo.chatIndex,
@@ -601,7 +609,7 @@ export class EditManager {
    * 정규식 적용 완료 후 스크롤 위치 복원 스케줄링
    */
   _scheduleAnchorRestoration() {
-    // RisuAI 정규식 적용 완료까지 대기 (150ms)
+    // RisuAI 정규식 적용 완료까지 대기 (500ms)
     setTimeout(() => {
       this._restoreScrollPosition();
     }, 500);
@@ -611,7 +619,7 @@ export class EditManager {
    * 스크롤 위치 복원
    */
   _restoreScrollPosition() {
-    const { chatIndex, scrollTop, scrollContainer } = this._anchorInfo;
+    const { chatIndex, scrollTop, scrollContainer, newText } = this._anchorInfo;
 
     if (chatIndex === null) {
       console.log("[EditManager] No anchor info, skipping restoration");
@@ -624,6 +632,9 @@ export class EditManager {
       if (container && scrollTop !== null) {
         container.scrollTop = scrollTop;
         console.log("[EditManager] Scroll restored via scrollTop:", scrollTop);
+
+        // 수정된 영역 하이라이트
+        this._highlightEditedArea(chatIndex, newText);
         this._clearAnchorInfo();
         return;
       }
@@ -633,6 +644,9 @@ export class EditManager {
       if (element) {
         element.scrollIntoView({ behavior: 'instant', block: 'center' });
         console.log("[EditManager] Scroll restored via data-chat-index fallback");
+
+        // 수정된 영역 하이라이트
+        this._highlightEditedArea(chatIndex, newText);
         this._clearAnchorInfo();
         return;
       }
@@ -646,6 +660,72 @@ export class EditManager {
   }
 
   /**
+   * 수정된 영역 하이라이트
+   */
+  _highlightEditedArea(chatIndex, newText) {
+    if (!newText) return;
+
+    try {
+      const messageElement = document.querySelector(`[data-chat-index="${chatIndex}"]`);
+      if (!messageElement) return;
+
+      // newText의 앞부분으로 텍스트 노드 찾기
+      const searchText = newText.substring(0, Math.min(30, newText.length));
+      const targetElement = this._findElementContainingText(messageElement, searchText);
+
+      if (targetElement) {
+        // 하이라이트 클래스 추가
+        targetElement.classList.add('hddm-highlight-aura');
+
+        // 250ms 후 하이라이트 제거
+        setTimeout(() => {
+          targetElement.classList.remove('hddm-highlight-aura');
+        }, 500);
+      }
+    } catch (error) {
+      console.error("[EditManager] Error highlighting edited area:", error);
+    }
+  }
+
+  /**
+   * 텍스트를 포함하는 가장 가까운 요소 찾기
+   */
+  _findElementContainingText(root, searchText) {
+    // 정규식 특수문자 이스케이프
+    const escapedText = searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // TreeWalker로 텍스트 노드 순회
+    const walker = document.createTreeWalker(
+      root,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+
+    let node;
+    while ((node = walker.nextNode())) {
+      if (node.textContent.includes(searchText)) {
+        // 텍스트 노드의 부모 중 적절한 블록 요소 반환
+        let parent = node.parentElement;
+        while (parent && parent !== root) {
+          const tagName = parent.tagName.toLowerCase();
+          // 블록 레벨 요소이거나 의미 있는 컨테이너면 반환
+          if (['p', 'div', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre'].includes(tagName) ||
+              parent.classList.contains('x-risu-regex-quote-block') ||
+              parent.classList.contains('x-risu-regex-thought-block')) {
+            return parent;
+          }
+          parent = parent.parentElement;
+        }
+        // 적절한 블록 요소가 없으면 텍스트 노드의 직접 부모 반환
+        return node.parentElement;
+      }
+    }
+
+    return null;
+  }
+
+  /**
    * Anchor 정보 초기화
    */
   _clearAnchorInfo() {
@@ -655,6 +735,7 @@ export class EditManager {
       scrollContainer: null,
       headText: null,
       tailText: null,
+      newText: null,
     };
   }
 
@@ -870,8 +951,6 @@ export class EditManager {
 
       const overlap = !(expandedF.right < r.left || expandedF.left > r.right ||
         expandedF.bottom < r.top || expandedF.top > r.bottom);
-        
-      console.log('overlap', overlap);
 
       if (overlap) {
         // 선택 영역 하단으로 20px 스냅

@@ -314,11 +314,9 @@ export class ElementEditHandler {
     let chatId = textarea.getAttribute("data-chat-id");
     let chatIndex = textarea.getAttribute("data-chat-index");
 
-    // Anchor 캡처: 저장 전에 현재 위치 정보 저장
+    // Anchor 캡처: 저장 전에 현재 위치 정보 저장 (newText도 함께 저장)
     const match = { chatIndex: parseInt(chatIndex, 10) };
-    this.editManager._captureAnchor(match, originalText);
-
-    console.log('originalText', originalText)
+    this.editManager._captureAnchor(match, originalText, newText);
     const newHTML = this.convertEditFormatToHTML(newText);
 
     const char = this.risuAPI.getChar();
