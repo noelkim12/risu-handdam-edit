@@ -1,275 +1,125 @@
-# risu-handdam-edit
+# RisuAI 한땀한땀 수정 플러그인
 
-RisuAI를 위한 플러그인 개발 스캐폴드 프로젝트입니다.
+RisuAI에서 LLM 응답을 **정밀하게 수정**할 수 있는 플러그인입니다.
 
-## 📋 목차
+## 주요 기능
 
-- [빠른 시작](#-빠른-시작)
-- [특징](#-특징)
-- [개발 환경](#-개발-환경)
-- [빌드 & 배포](#-빌드--배포)
-- [프로젝트 구조](#-프로젝트-구조)
-- [문서](#-문서)
+### 텍스트 선택 편집 모드 (기본)
 
+텍스트를 드래그해서 선택하면 **편집/삭제** 버튼이 나타납니다.
+
+- 원하는 텍스트를 마우스로 드래그하여 선택 (최소 5글자)
+- 선택 영역 위에 플로팅 버튼 표시
+- **편집**: 선택한 텍스트를 수정
+- **삭제**: 선택한 텍스트를 제거
+
+### 요소 기반 편집 모드
+
+단락/블록 단위로 편집 버튼이 표시됩니다.
+
+- 채팅 메시지에 마우스를 올리면 편집 버튼(✏️) 표시
+- 버튼 클릭 시 해당 블록 전체 편집 가능
+- `Ctrl+Shift+E`로 모드 전환
+
+### 스크롤 위치 자동 복원 (Anchoring)
+
+수정 후에도 **원래 보던 위치가 유지**됩니다.
+
+- 정규식 적용으로 DOM이 재생성되어도 스크롤 위치 복원
+- 수정된 영역 하이라이트 표시로 수정 위치 시각적 확인
+
+### 다중 매칭 처리
+
+같은 텍스트가 여러 곳에 있으면 **선택 모달**이 표시됩니다.
+
+- 컨텍스트와 줄 번호로 정확한 위치 파악
+- 매칭 방법 표시 (정확/유사/앵커)
+
+### 삭제 애니메이션
+
+텍스트 삭제 시 **시각적 피드백**을 제공합니다.
 
 ---
 
-## 🚀 빠른 시작
+## 사용법
 
-### 1. 의존성 설치
+### 텍스트 선택 편집 (권장)
+
+1. 수정할 텍스트를 마우스로 드래그
+2. 나타나는 **편집** 버튼 클릭
+3. 다이얼로그에서 텍스트 수정
+4. **저장** 클릭 (또는 `Ctrl+Enter`)
+
+### 요소 기반 편집
+
+1. `Ctrl+Shift+E`로 모드 전환
+2. 메시지에 마우스 올리면 ✏️ 버튼 표시
+3. 버튼 클릭하여 블록 편집
+4. **저장** 또는 **취소**
+
+### 단축키
+
+| 단축키 | 기능 |
+|--------|------|
+| `Ctrl+Shift+E` | 편집 모드 전환 |
+| `Ctrl+Enter` | 편집 저장 |
+| `Esc` | 편집 취소 |
+
+---
+
+## 설치 방법
+
+1. RisuAI 설정 → 플러그인
+2. 플러그인 URL 입력:
+   ```
+   https://unpkg.com/risu-handdam-edit@latest/dist/risu-handdam-edit.js
+   ```
+3. 플러그인 활성화
+
+---
+
+## 설정 옵션
+
+| 옵션 | 설명 | 기본값 |
+|------|------|--------|
+| 편집 모드 | `selection` (텍스트 선택) / `element` (요소 기반) | `selection` |
+| 버튼 위치 | `top` (상단) / `bottom` (하단) | `top` |
+| 제외할 봇 이름 | 편집 비활성화할 캐릭터 이름 (쉼표 구분) | - |
+
+---
+
+## 개발자 정보
+
+### 빌드
 
 ```bash
 npm install
+npm run build
 ```
 
-### 2. 개발 모드 시작 (Hot Reload)
+### 개발 모드 (Hot Reload)
 
 ```bash
 npm run dev
 ```
 
-**실행 내용**:
-- WebSocket 서버 시작 (`ws://localhost:13131`)
-- Webpack watch 모드 시작
-- 파일 변경 시 자동 리빌드 및 RisuAI에 실시간 반영
-
-**사용 방법**:
-1. RisuAI에서 개발 모드 빌드된 플러그인 import
-2. 코드 수정 후 저장
-3. RisuAI에서 자동으로 업데이트되고 Toast 알림 표시
-
-### 3. 프로덕션 빌드
-
-```bash
-npm run build
-```
-
-빌드 결과물: `dist/risu-handdam-edit.js`
-
----
-
-## ✨ 특징
-
-### ✏️ 편집 기능
-- **요소 기반 편집**: HTML 요소 단위로 편집 버튼 표시 및 편집
-- **텍스트 선택 편집**: 텍스트를 선택하여 Contextual Floating Action Button으로 편집
-- **편집 모드 토글**: Ctrl+Shift+E로 요소 기반/텍스트 선택 모드 전환
-- **다중 매칭 처리**: 동일한 텍스트가 여러 곳에 있을 경우 선택 모달 표시
-- **최소 길이 검증**: 텍스트 선택 시 최소 5글자 이상만 편집 가능
-
-### 🔥 Hot Reload 개발 환경
-- **실시간 업데이트**: 코드 수정 즉시 RisuAI에 자동 반영
-- **Toast 알림**: 업데이트 완료 시 시각적 피드백
-- **WebSocket 기반**: 포트 13131에서 로컬 개발 서버 실행
-- **프로덕션 안전**: 개발 코드가 프로덕션 빌드에서 완전히 제거됨
-
-### 🚀 자동화된 릴리즈 시스템
-- **원스톱 배포**: 한 명령으로 버전 업데이트 → 빌드 → npm 배포 → Git 푸시
-- **릴리즈 노트 자동 생성**: 버전별 변경사항 자동 기록
-- **작업 중 릴리즈**: Git working directory가 clean하지 않아도 배포 가능
-
-### 🎨 현대적인 개발 스택
-- **Web Components**: 재사용 가능한 Custom Elements 기반 UI
-- **CSS Modules**: 스타일 충돌 방지 및 스코프 격리 
-- **Webpack 5**: 최신 번들링 시스템
-- **IndexedDB**: 클라이언트 사이드 데이터 저장
-
-### 🔄 자동 업데이트 시스템
-- **unpkg CDN 연동**: 최신 버전 자동 감지
-- **사용자 알림**: 업데이트 가능 시 다이얼로그 표시
-- **릴리즈 노트 표시**: 변경사항 자동 표시
----
-
-## 🛠️ 개발 환경
-
-### 스크립트 명령어
-
-#### 개발
-```bash
-# Hot Reload 개발 모드 (권장)
-npm run dev
-
-# WebSocket 서버만 시작
-npm run dev:server
-
-# Webpack watch 모드만 시작
-npm run dev:webpack
-```
-
-#### 빌드
-```bash
-# 프로덕션 빌드
-npm run build
-
-# 개발 모드 빌드 (디버깅용)
-npm run build:dev
-```
-
-#### 릴리즈 (자동화)
-```bash
-# Patch 릴리즈 (0.6.8 → 0.6.9) - 버그 수정
-npm run release -- patch "fix: 로그인 에러 해결"
-npm run release:patch  # 대화형 입력
-
-# Minor 릴리즈 (0.6.8 → 0.7.0) - 새 기능
-npm run release -- minor "feat: 다크모드 지원"
-npm run release:minor  # 대화형 입력
-
-# Major 릴리즈 (0.6.8 → 1.0.0) - Breaking Change
-npm run release -- major "breaking: API 구조 변경"
-npm run release:major  # 대화형 입력
-```
-
-**릴리즈 스크립트가 자동으로 수행하는 작업**:
-1. ✅ Git 저장소 확인
-2. ✅ NPM 로그인 확인
-3. ✅ 버전 업데이트 (`package.json`)
-4. ✅ 프로덕션 빌드
-5. ✅ 릴리즈 노트 생성 (`dist/release-notes.json`)
-6. ✅ Git 커밋 & 태그
-7. ✅ NPM 배포
-8. ✅ Git 푸시 (커밋 + 태그)
-
----
-
-## 📦 빌드 & 배포
-
-### 빠른 배포 (권장)
-
-```bash
-# 작업 중... (커밋 안 해도 됨!)
-# 변경사항이 있어도 OK!
-
-# 릴리즈 한 번에 완료
-npm run release -- patch "fix: 버그 수정"
-
-# 끝! 🎉
-# - 모든 변경사항이 하나의 커밋으로 통합
-# - npm에 자동 배포
-# - git에 자동 푸시 (커밋 + 태그)
-```
-
-### 수동 배포
-
-상세한 배포 가이드는 [docs/how_to_publish.md](docs/how_to_publish.md) 참조
-
----
-
-## 📁 프로젝트 구조
+### 프로젝트 구조
 
 ```
-risu-handdam-edit/
-├── dist/                          # 빌드 결과물
-│   ├── risu-handdam-edit.js              # 번들 파일
-│   └── release-notes.json        # 릴리즈 노트
-│
-├── docs/                          # 문서
-│   ├── how_to_publish.md         # 배포 가이드
-│   ├── development-guide.md      # 개발 가이드 (Web Components)
-│   └── css-modules.md            # CSS Modules 가이드
-│
-├── scripts/                       # 자동화 스크립트
-│   ├── dev-server.js             # WebSocket 개발 서버 (Hot Reload)
-│   ├── webpack-plugin-devmode.js # 개발 모드 플러그인
-│   ├── webpack-plugin-args.js    # Plugin Args 자동 생성
-│   ├── release.js                # 릴리즈 자동화
-│   ├── sync-version.js           # 버전 동기화
-│   └── script-util.js            # 유틸리티
-│
-├── src/                           # 소스 코드
-│   ├── index.js                  # 메인 엔트리 포인트
-│   ├── constants.js              # 상수 정의
-│   ├── plugin-args.json          # 플러그인 인자 정의
-│   │
-│   ├── core/                     # 핵심 로직
-│   │   ├── risu-api.js          # RisuAPI 래퍼
-│   │   ├── update-manager.js    # 자동 업데이트 시스템
-│   │   ├── script-updater.js    # 스크립트 업데이터
-│   │   ├── plugin-config.js     # Plugin Args Config (자동 생성)
-│   │   ├── dev-reload.js        # Hot Reload 클라이언트 (자동 생성)
-│   │   ├── image-storage.js     # IndexedDB 이미지 저장소
-│   │   ├── edit-manager.js      # 편집 기능 관리자
-│   │   ├── element-edit-handler.js  # 요소 기반 편집 핸들러
-│   │   └── text-selection-handler.js # 텍스트 선택 편집 핸들러
-│   │
-│   ├── ui/                       # UI 관련
-│   │   ├── styles/              # CSS 스타일
-│   │   │   ├── index.js         # 스타일 레지스트리
-│   │   │   ├── global.css       # 전역 스타일
-│   │   │   └── *.module.css     # CSS Modules
-│   │   │
-│   │   └── components/          # Web Components
-│   │       ├── index.js         # 컴포넌트 레지스트리
-│   │       ├── main.js          # 메인 앱
-│   │       ├── ui/              # UI 컴포넌트
-│   │       └── updateManager/   # 업데이트 매니저
-│   │
-│   ├── data/                    # 데이터
-│   │   └── img.js              # 이미지 데이터
-│   │
-│   └── utils/                   # 유틸리티
-│       ├── script-injector.js  # 외부 스크립트 주입
-│       ├── helpers.js          # 헬퍼 함수
-│       └── text-matcher.js     # 텍스트 매칭 유틸리티
-│
-├── .gitignore                    # Git 제외 파일
-├── package.json                  # 패키지 설정
-├── webpack.config.js             # Webpack 설정
-└── README.md                     # 프로젝트 문서
+src/
+├── core/
+│   ├── edit-manager.js          # 편집 기능 총괄
+│   ├── text-selection-handler.js # 텍스트 선택 처리
+│   └── element-edit-handler.js   # 요소 기반 편집
+├── ui/
+│   ├── styles/                   # CSS 스타일
+│   └── components/               # UI 컴포넌트
+└── utils/
+    └── text-matcher.js           # 텍스트 매칭 유틸리티
 ```
 
 ---
 
-## 📚 문서
+## 라이선스
 
-### 개발 가이드
-- **[개발 가이드](docs/development-guide.md)**: Web Components, Custom Elements 상세 가이드
-- **[CSS Modules 가이드](docs/css-modules.md)**: CSS Modules 사용법 및 Best Practices
-- **[배포 가이드](docs/how_to_publish.md)**: npm 배포 및 릴리즈 프로세스
-
-### 사용법
-
-#### 편집 모드 전환
-- **Ctrl+Shift+E**: 요소 기반 편집 모드 ↔ 텍스트 선택 편집 모드 전환
-
-#### 요소 기반 편집 (기본 모드)
-1. 채팅 메시지에 마우스를 올리면 편집 버튼(✏️)이 나타납니다
-2. 편집 버튼을 클릭하면 해당 메시지가 편집 모드로 전환됩니다
-3. 텍스트를 수정한 후 "저장" 버튼을 클릭하여 변경사항을 저장합니다
-4. "취소" 버튼을 클릭하면 변경사항을 취소하고 원래 상태로 돌아갑니다
-
-#### 텍스트 선택 편집
-1. **Ctrl+Shift+E**를 눌러 텍스트 선택 편집 모드로 전환합니다
-2. 편집하고 싶은 텍스트를 선택합니다 (최소 5글자 이상)
-3. 선택된 텍스트 위에 Floating Action Button(✏️)이 나타납니다
-4. 버튼을 클릭하여 편집 다이얼로그를 엽니다
-5. 동일한 텍스트가 여러 곳에 있는 경우, 선택 모달이 표시됩니다
-6. 원하는 항목을 선택하여 편집합니다
-
-### 주요 기능
-- **Hot Reload**: 실시간 코드 업데이트 시스템 (포트 13131)
-- **자동 업데이트**: unpkg CDN 기반 자동 업데이트
-- **릴리즈 자동화**: 원스톱 배포 시스템
-
----
-
-## 🔧 기술 스택
-
-- **빌드**: Webpack 5
-- **UI**: Web Components (Custom Elements)
-- **스타일**: CSS Modules
-- **저장소**: IndexedDB (idb)
-- **개발**: Hot Reload (WebSocket)
-- **배포**: npm + unpkg CDN
-
----
-
-## 📄 라이선스
-
-MIT License 
-
----
-
-## 📞 문의
-
-프로젝트 관련 문의사항은 Issue를 통해 남겨주세요.
+MIT License
