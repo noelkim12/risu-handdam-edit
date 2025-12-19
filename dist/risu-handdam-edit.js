@@ -1,13 +1,13 @@
 //@name risu-handdam-edit
-//@display-name risu-handdam-edit_v0.7.0
-//@version 0.7.0
+//@display-name risu-handdam-edit_v0.8.0
+//@version 0.8.0
 //@description RisuAI 한땀한땀 수정 지원 Plugin
 //@arg excludeBotName string
 //@arg minLength int
 //@arg editMode string
 //@arg buttonPosition string
 
-//@link https://unpkg.com/risu-handdam-edit@0.7.0/dist/risu-handdam-edit.js
+//@link https://unpkg.com/risu-handdam-edit@0.8.0/dist/risu-handdam-edit.js
 var risuHanddamEdit;
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
@@ -1221,13 +1221,471 @@ ___CSS_LOADER_EXPORT___.locals = {
 
 /***/ }),
 
-/***/ 300:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+/***/ 314:
+/***/ ((module) => {
+
+
+
+/*
+  MIT License http://www.opensource.org/licenses/mit-license.php
+  Author Tobias Koppers @sokra
+*/
+module.exports = function (cssWithMappingToString) {
+  var list = [];
+
+  // return the list of modules as css string
+  list.toString = function toString() {
+    return this.map(function (item) {
+      var content = "";
+      var needLayer = typeof item[5] !== "undefined";
+      if (item[4]) {
+        content += "@supports (".concat(item[4], ") {");
+      }
+      if (item[2]) {
+        content += "@media ".concat(item[2], " {");
+      }
+      if (needLayer) {
+        content += "@layer".concat(item[5].length > 0 ? " ".concat(item[5]) : "", " {");
+      }
+      content += cssWithMappingToString(item);
+      if (needLayer) {
+        content += "}";
+      }
+      if (item[2]) {
+        content += "}";
+      }
+      if (item[4]) {
+        content += "}";
+      }
+      return content;
+    }).join("");
+  };
+
+  // import a list of modules into the list
+  list.i = function i(modules, media, dedupe, supports, layer) {
+    if (typeof modules === "string") {
+      modules = [[null, modules, undefined]];
+    }
+    var alreadyImportedModules = {};
+    if (dedupe) {
+      for (var k = 0; k < this.length; k++) {
+        var id = this[k][0];
+        if (id != null) {
+          alreadyImportedModules[id] = true;
+        }
+      }
+    }
+    for (var _k = 0; _k < modules.length; _k++) {
+      var item = [].concat(modules[_k]);
+      if (dedupe && alreadyImportedModules[item[0]]) {
+        continue;
+      }
+      if (typeof layer !== "undefined") {
+        if (typeof item[5] === "undefined") {
+          item[5] = layer;
+        } else {
+          item[1] = "@layer".concat(item[5].length > 0 ? " ".concat(item[5]) : "", " {").concat(item[1], "}");
+          item[5] = layer;
+        }
+      }
+      if (media) {
+        if (!item[2]) {
+          item[2] = media;
+        } else {
+          item[1] = "@media ".concat(item[2], " {").concat(item[1], "}");
+          item[2] = media;
+        }
+      }
+      if (supports) {
+        if (!item[4]) {
+          item[4] = "".concat(supports);
+        } else {
+          item[1] = "@supports (".concat(item[4], ") {").concat(item[1], "}");
+          item[4] = supports;
+        }
+      }
+      list.push(item);
+    }
+  };
+  return list;
+};
+
+/***/ }),
+
+/***/ 362:
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
 
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   m: () => (/* binding */ RisuAPI)
+/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(521);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(601);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(314);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+// Imports
+
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, `/* 플러그인 컨테이너 스타일 */
+.base-module__container--l6yV4 {
+  font-family: "Pretendard", "Noto Sans KR", system-ui, sans-serif !important;
+  font-weight: 600;
+  font-size: 19px;
+}
+
+/* container 내부의 모든 요소에 폰트 적용 */
+.base-module__container--l6yV4 * {
+  font-family: "Pretendard", "Noto Sans KR", system-ui, sans-serif !important;
+}
+
+/* WinBox 윈도우 커스텀 스타일 (전역으로 적용) */
+.rb-box * {
+  font-family: "Pretendard", "Noto Sans KR", system-ui, sans-serif !important;
+}
+`, ""]);
+// Exports
+___CSS_LOADER_EXPORT___.locals = {
+	"container": `base-module__container--l6yV4`
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
+/***/ 436:
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(601);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(314);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+// Imports
+
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
+___CSS_LOADER_EXPORT___.push([module.id, "@import url(https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css);"]);
+___CSS_LOADER_EXPORT___.push([module.id, "@import url(//fonts.googleapis.com/earlyaccess/notosanskr.css);"]);
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, `/* Pretendard 폰트 CDN */
+
+/* 편집 기능 전역 스타일 */
+.x-risu-lb-nai-character-card,
+.x-risu-lb-nai-comp-card {
+  overflow: visible !important;
+}
+
+.message-edit-area {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/* 수정된 영역 하이라이트 애니메이션 */
+.hddm-highlight-edited {
+  animation: hddm-highlight-pulse 2s ease-out;
+  border-radius: 4px;
+}
+
+@keyframes hddm-highlight-pulse {
+  0% {
+    background-color: rgba(250, 204, 21, 0.4);
+    box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.6);
+  }
+  50% {
+    background-color: rgba(250, 204, 21, 0.2);
+    box-shadow: 0 0 0 1px rgba(250, 204, 21, 0.3);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+  }
+} /* 성스러운 하이라이트 적용 클래스 */
+.hddm-highlight-holy {
+  animation: hddm-divine-glow 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  border-radius: 4px;
+}
+
+@keyframes hddm-divine-glow {
+  0% {
+    /* 강렬한 순백의 빛으로 시작 */
+    background-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.9);
+    transform: scale(1.02); /* 살짝 떠오르는 느낌 */
+    opacity: 0.5;
+  }
+  100% {
+    /* 빛이 자연스럽게 소멸 */
+    background-color: transparent;
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
+    transform: scale(1.0);
+    opacity: 0.5;
+  }
+}
+
+.hddm-highlight-aura {
+  animation: hddm-aura-pulse 0.5s ease-out;
+  border-radius: 4px;
+}
+
+@keyframes hddm-aura-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
+  }
+  12.5% { 
+    /* 정확히 0.25초(250ms) 시점에 최대 발광 */
+    /* spread-radius를 적게 주어 테두리에 맺히는 느낌 강조 */
+    box-shadow: 0 0 5px 1px rgba(255, 255, 255, 0.7);
+  }
+  100% {
+    /* 이후 천천히 퍼지며 사라짐 */
+    box-shadow: 0 0 15px 4px rgba(255, 215, 0, 0);
+  }
+}`, ""]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
+/***/ 540:
+/***/ ((module) => {
+
+
+
+/* istanbul ignore next  */
+function insertStyleElement(options) {
+  var element = document.createElement("style");
+  options.setAttributes(element, options.attributes);
+  options.insert(element, options.options);
+  return element;
+}
+module.exports = insertStyleElement;
+
+/***/ }),
+
+/***/ 601:
+/***/ ((module) => {
+
+
+
+module.exports = function (i) {
+  return i[1];
+};
+
+/***/ }),
+
+/***/ 659:
+/***/ ((module) => {
+
+
+
+var memo = {};
+
+/* istanbul ignore next  */
+function getTarget(target) {
+  if (typeof memo[target] === "undefined") {
+    var styleTarget = document.querySelector(target);
+
+    // Special case to return head of iframe instead of iframe itself
+    if (window.HTMLIFrameElement && styleTarget instanceof window.HTMLIFrameElement) {
+      try {
+        // This will throw an exception if access to iframe is blocked
+        // due to cross-origin restrictions
+        styleTarget = styleTarget.contentDocument.head;
+      } catch (e) {
+        // istanbul ignore next
+        styleTarget = null;
+      }
+    }
+    memo[target] = styleTarget;
+  }
+  return memo[target];
+}
+
+/* istanbul ignore next  */
+function insertBySelector(insert, style) {
+  var target = getTarget(insert);
+  if (!target) {
+    throw new Error("Couldn't find a style target. This probably means that the value for the 'insert' parameter is invalid.");
+  }
+  target.appendChild(style);
+}
+module.exports = insertBySelector;
+
+/***/ }),
+
+/***/ 825:
+/***/ ((module) => {
+
+
+
+/* istanbul ignore next  */
+function apply(styleElement, options, obj) {
+  var css = "";
+  if (obj.supports) {
+    css += "@supports (".concat(obj.supports, ") {");
+  }
+  if (obj.media) {
+    css += "@media ".concat(obj.media, " {");
+  }
+  var needLayer = typeof obj.layer !== "undefined";
+  if (needLayer) {
+    css += "@layer".concat(obj.layer.length > 0 ? " ".concat(obj.layer) : "", " {");
+  }
+  css += obj.css;
+  if (needLayer) {
+    css += "}";
+  }
+  if (obj.media) {
+    css += "}";
+  }
+  if (obj.supports) {
+    css += "}";
+  }
+  var sourceMap = obj.sourceMap;
+  if (sourceMap && typeof btoa !== "undefined") {
+    css += "\n/*# sourceMappingURL=data:application/json;base64,".concat(btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))), " */");
+  }
+
+  // For old IE
+  /* istanbul ignore if  */
+  options.styleTagTransform(css, styleElement, options.options);
+}
+function removeStyleElement(styleElement) {
+  // istanbul ignore if
+  if (styleElement.parentNode === null) {
+    return false;
+  }
+  styleElement.parentNode.removeChild(styleElement);
+}
+
+/* istanbul ignore next  */
+function domAPI(options) {
+  if (typeof document === "undefined") {
+    return {
+      update: function update() {},
+      remove: function remove() {}
+    };
+  }
+  var styleElement = options.insertStyleElement(options);
+  return {
+    update: function update(obj) {
+      apply(styleElement, options, obj);
+    },
+    remove: function remove() {
+      removeStyleElement(styleElement);
+    }
+  };
+}
+module.exports = domAPI;
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			id: moduleId,
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/nonce */
+/******/ 	(() => {
+/******/ 		__webpack_require__.nc = undefined;
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+
+;// ./src/constants.js
+/**
+ * 빌드 타임 상수 (webpack DefinePlugin으로 주입)
+ * 개발 환경(webpack 없이 직접 실행)을 위한 fallback 제공
+ */
+const constants_PLUGIN_NAME =
+   true ? "risu-handdam-edit" : 0;
+
+const PLUGIN_VERSION =
+   true ? "0.8.0" : 0;
+
+const PLUGIN_DESCRIPTION =
+  (/* unused pure expression or super */ null && ( true ? "RisuAI 한땀한땀 수정 지원 Plugin" : 0));
+
+const RANDOM_HASH = "";
+
+/**
+ * 외부 스크립트 목록
+ * NPM에 등록되지 않은 스크립트를 별도로 등록할 때 사용
+ * 외부 스크립트를 사용하기 위해서는 모듈 로드 후 해당 모듈을 사용하는 파일에서 사용할 수 있도록 설정해야 함
+ * @type {Array<{src: string, global: string}>}
+ * @param {string} src - 스크립트 URL
+ * @param {string} global - 스크립트를 사용할 수 있도록 설정할 전역 변수 이름
+ */
+const EXTERNAL_SCRIPTS = [
+  /* 
+  {
+    src: "https://cdn.jsdelivr.net/npm/idb@8/build/umd.js",
+    global: "idb"
+  },
+  {
+    src: "https://cdn.jsdelivr.net/npm/winbox@0.2.82/dist/winbox.bundle.min.js",
+    global: "WinBox"
+  }
+   */
+];
+
+;// ./src/core/risu-api.js
 
 
 /**
@@ -1241,7 +1699,7 @@ class RisuAPI {
   constructor(pluginApis) {
     // 싱글톤 체크
     if (RisuAPI._instance) {
-      console.log(`[${_constants_js__WEBPACK_IMPORTED_MODULE_0__/* .PLUGIN_NAME */ .AF}] Returning existing RisuAPI instance`);
+      console.log(`[${constants_PLUGIN_NAME}] Returning existing RisuAPI instance`);
       return RisuAPI._instance;
     }
 
@@ -1276,12 +1734,12 @@ class RisuAPI {
     try {
       // eval은 최초 스크립트 실행 컨텍스트에서만 작동
       // 싱글톤이므로 한 번만 실행되고 이후 재사용됨
-      this._getDatabase = eval("getDatabase");
-      this._setDatabaseLite = eval("setDatabaseLite");
-      console.log(`[${_constants_js__WEBPACK_IMPORTED_MODULE_0__/* .PLUGIN_NAME */ .AF}] RisuAPI initialized successfully`);
+      this._getDatabase = getDatabase
+      this._setDatabaseLite = setDatabaseLite
+      console.log(`[${constants_PLUGIN_NAME}] RisuAPI initialized successfully`);
       return true;
     } catch (error) {
-      console.log(`[${_constants_js__WEBPACK_IMPORTED_MODULE_0__/* .PLUGIN_NAME */ .AF}] Failed to initialize RisuAPI:`, error);
+      console.log(`[${constants_PLUGIN_NAME}] Failed to initialize RisuAPI:`, error);
       return false;
     }
   }
@@ -1521,431 +1979,11 @@ class RisuAPI {
   }
 }
 
-
-/***/ }),
-
-/***/ 314:
-/***/ ((module) => {
-
-
-
-/*
-  MIT License http://www.opensource.org/licenses/mit-license.php
-  Author Tobias Koppers @sokra
-*/
-module.exports = function (cssWithMappingToString) {
-  var list = [];
-
-  // return the list of modules as css string
-  list.toString = function toString() {
-    return this.map(function (item) {
-      var content = "";
-      var needLayer = typeof item[5] !== "undefined";
-      if (item[4]) {
-        content += "@supports (".concat(item[4], ") {");
-      }
-      if (item[2]) {
-        content += "@media ".concat(item[2], " {");
-      }
-      if (needLayer) {
-        content += "@layer".concat(item[5].length > 0 ? " ".concat(item[5]) : "", " {");
-      }
-      content += cssWithMappingToString(item);
-      if (needLayer) {
-        content += "}";
-      }
-      if (item[2]) {
-        content += "}";
-      }
-      if (item[4]) {
-        content += "}";
-      }
-      return content;
-    }).join("");
-  };
-
-  // import a list of modules into the list
-  list.i = function i(modules, media, dedupe, supports, layer) {
-    if (typeof modules === "string") {
-      modules = [[null, modules, undefined]];
-    }
-    var alreadyImportedModules = {};
-    if (dedupe) {
-      for (var k = 0; k < this.length; k++) {
-        var id = this[k][0];
-        if (id != null) {
-          alreadyImportedModules[id] = true;
-        }
-      }
-    }
-    for (var _k = 0; _k < modules.length; _k++) {
-      var item = [].concat(modules[_k]);
-      if (dedupe && alreadyImportedModules[item[0]]) {
-        continue;
-      }
-      if (typeof layer !== "undefined") {
-        if (typeof item[5] === "undefined") {
-          item[5] = layer;
-        } else {
-          item[1] = "@layer".concat(item[5].length > 0 ? " ".concat(item[5]) : "", " {").concat(item[1], "}");
-          item[5] = layer;
-        }
-      }
-      if (media) {
-        if (!item[2]) {
-          item[2] = media;
-        } else {
-          item[1] = "@media ".concat(item[2], " {").concat(item[1], "}");
-          item[2] = media;
-        }
-      }
-      if (supports) {
-        if (!item[4]) {
-          item[4] = "".concat(supports);
-        } else {
-          item[1] = "@supports (".concat(item[4], ") {").concat(item[1], "}");
-          item[4] = supports;
-        }
-      }
-      list.push(item);
-    }
-  };
-  return list;
-};
-
-/***/ }),
-
-/***/ 362:
-/***/ ((module, __webpack_exports__, __webpack_require__) => {
-
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(601);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(314);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
-// Imports
-
-
-var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
-// Module
-___CSS_LOADER_EXPORT___.push([module.id, `/* 플러그인 컨테이너 스타일 */
-.base-module__container--l6yV4 {
-  font-family: "Pretendard", "Noto Sans KR", system-ui, sans-serif !important;
-  font-weight: 600;
-  font-size: 19px;
-}
-
-/* container 내부의 모든 요소에 폰트 적용 */
-.base-module__container--l6yV4 * {
-  font-family: "Pretendard", "Noto Sans KR", system-ui, sans-serif !important;
-}
-
-/* WinBox 윈도우 커스텀 스타일 (전역으로 적용) */
-.rb-box * {
-  font-family: "Pretendard", "Noto Sans KR", system-ui, sans-serif !important;
-}
-`, ""]);
-// Exports
-___CSS_LOADER_EXPORT___.locals = {
-	"container": `base-module__container--l6yV4`
-};
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
-
-
-/***/ }),
-
-/***/ 436:
-/***/ ((module, __webpack_exports__, __webpack_require__) => {
-
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(601);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(314);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
-// Imports
-
-
-var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
-___CSS_LOADER_EXPORT___.push([module.id, "@import url(https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css);"]);
-___CSS_LOADER_EXPORT___.push([module.id, "@import url(//fonts.googleapis.com/earlyaccess/notosanskr.css);"]);
-// Module
-___CSS_LOADER_EXPORT___.push([module.id, `/* Pretendard 폰트 CDN */
-
-/* 편집 기능 전역 스타일 */
-.x-risu-lb-nai-character-card,
-.x-risu-lb-nai-comp-card {
-  overflow: visible !important;
-}
-
-.message-edit-area {
-  max-height: 80vh;
-  overflow-y: auto;
-} `, ""]);
-// Exports
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
-
-
-/***/ }),
-
-/***/ 521:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   AF: () => (/* binding */ PLUGIN_NAME),
-/* harmony export */   jN: () => (/* binding */ PLUGIN_VERSION),
-/* harmony export */   rZ: () => (/* binding */ EXTERNAL_SCRIPTS)
-/* harmony export */ });
-/* unused harmony exports PLUGIN_DESCRIPTION, RANDOM_HASH */
-/**
- * 빌드 타임 상수 (webpack DefinePlugin으로 주입)
- * 개발 환경(webpack 없이 직접 실행)을 위한 fallback 제공
- */
-const PLUGIN_NAME =
-   true ? "risu-handdam-edit" : 0;
-
-const PLUGIN_VERSION =
-   true ? "0.7.0" : 0;
-
-const PLUGIN_DESCRIPTION =
-  (/* unused pure expression or super */ null && ( true ? "RisuAI 한땀한땀 수정 지원 Plugin" : 0));
-
-const RANDOM_HASH = "";
-
-/**
- * 외부 스크립트 목록
- * NPM에 등록되지 않은 스크립트를 별도로 등록할 때 사용
- * 외부 스크립트를 사용하기 위해서는 모듈 로드 후 해당 모듈을 사용하는 파일에서 사용할 수 있도록 설정해야 함
- * @type {Array<{src: string, global: string}>}
- * @param {string} src - 스크립트 URL
- * @param {string} global - 스크립트를 사용할 수 있도록 설정할 전역 변수 이름
- */
-const EXTERNAL_SCRIPTS = [
-  /* 
-  {
-    src: "https://cdn.jsdelivr.net/npm/idb@8/build/umd.js",
-    global: "idb"
-  },
-  {
-    src: "https://cdn.jsdelivr.net/npm/winbox@0.2.82/dist/winbox.bundle.min.js",
-    global: "WinBox"
-  }
-   */
-];
-
-
-/***/ }),
-
-/***/ 540:
-/***/ ((module) => {
-
-
-
-/* istanbul ignore next  */
-function insertStyleElement(options) {
-  var element = document.createElement("style");
-  options.setAttributes(element, options.attributes);
-  options.insert(element, options.options);
-  return element;
-}
-module.exports = insertStyleElement;
-
-/***/ }),
-
-/***/ 601:
-/***/ ((module) => {
-
-
-
-module.exports = function (i) {
-  return i[1];
-};
-
-/***/ }),
-
-/***/ 659:
-/***/ ((module) => {
-
-
-
-var memo = {};
-
-/* istanbul ignore next  */
-function getTarget(target) {
-  if (typeof memo[target] === "undefined") {
-    var styleTarget = document.querySelector(target);
-
-    // Special case to return head of iframe instead of iframe itself
-    if (window.HTMLIFrameElement && styleTarget instanceof window.HTMLIFrameElement) {
-      try {
-        // This will throw an exception if access to iframe is blocked
-        // due to cross-origin restrictions
-        styleTarget = styleTarget.contentDocument.head;
-      } catch (e) {
-        // istanbul ignore next
-        styleTarget = null;
-      }
-    }
-    memo[target] = styleTarget;
-  }
-  return memo[target];
-}
-
-/* istanbul ignore next  */
-function insertBySelector(insert, style) {
-  var target = getTarget(insert);
-  if (!target) {
-    throw new Error("Couldn't find a style target. This probably means that the value for the 'insert' parameter is invalid.");
-  }
-  target.appendChild(style);
-}
-module.exports = insertBySelector;
-
-/***/ }),
-
-/***/ 825:
-/***/ ((module) => {
-
-
-
-/* istanbul ignore next  */
-function apply(styleElement, options, obj) {
-  var css = "";
-  if (obj.supports) {
-    css += "@supports (".concat(obj.supports, ") {");
-  }
-  if (obj.media) {
-    css += "@media ".concat(obj.media, " {");
-  }
-  var needLayer = typeof obj.layer !== "undefined";
-  if (needLayer) {
-    css += "@layer".concat(obj.layer.length > 0 ? " ".concat(obj.layer) : "", " {");
-  }
-  css += obj.css;
-  if (needLayer) {
-    css += "}";
-  }
-  if (obj.media) {
-    css += "}";
-  }
-  if (obj.supports) {
-    css += "}";
-  }
-  var sourceMap = obj.sourceMap;
-  if (sourceMap && typeof btoa !== "undefined") {
-    css += "\n/*# sourceMappingURL=data:application/json;base64,".concat(btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))), " */");
-  }
-
-  // For old IE
-  /* istanbul ignore if  */
-  options.styleTagTransform(css, styleElement, options.options);
-}
-function removeStyleElement(styleElement) {
-  // istanbul ignore if
-  if (styleElement.parentNode === null) {
-    return false;
-  }
-  styleElement.parentNode.removeChild(styleElement);
-}
-
-/* istanbul ignore next  */
-function domAPI(options) {
-  if (typeof document === "undefined") {
-    return {
-      update: function update() {},
-      remove: function remove() {}
-    };
-  }
-  var styleElement = options.insertStyleElement(options);
-  return {
-    update: function update(obj) {
-      apply(styleElement, options, obj);
-    },
-    remove: function remove() {
-      removeStyleElement(styleElement);
-    }
-  };
-}
-module.exports = domAPI;
-
-/***/ })
-
-/******/ 	});
-/************************************************************************/
-/******/ 	// The module cache
-/******/ 	var __webpack_module_cache__ = {};
-/******/ 	
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/ 		// Check if module is in cache
-/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
-/******/ 		if (cachedModule !== undefined) {
-/******/ 			return cachedModule.exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = __webpack_module_cache__[moduleId] = {
-/******/ 			id: moduleId,
-/******/ 			// no module.loaded needed
-/******/ 			exports: {}
-/******/ 		};
-/******/ 	
-/******/ 		// Execute the module function
-/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
-/******/ 	
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/ 	
-/************************************************************************/
-/******/ 	/* webpack/runtime/compat get default export */
-/******/ 	(() => {
-/******/ 		// getDefaultExport function for compatibility with non-harmony modules
-/******/ 		__webpack_require__.n = (module) => {
-/******/ 			var getter = module && module.__esModule ?
-/******/ 				() => (module['default']) :
-/******/ 				() => (module);
-/******/ 			__webpack_require__.d(getter, { a: getter });
-/******/ 			return getter;
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/define property getters */
-/******/ 	(() => {
-/******/ 		// define getter functions for harmony exports
-/******/ 		__webpack_require__.d = (exports, definition) => {
-/******/ 			for(var key in definition) {
-/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 				}
-/******/ 			}
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	(() => {
-/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/nonce */
-/******/ 	(() => {
-/******/ 		__webpack_require__.nc = undefined;
-/******/ 	})();
-/******/ 	
-/************************************************************************/
-var __webpack_exports__ = {};
-
-// EXTERNAL MODULE: ./src/constants.js
-var constants = __webpack_require__(521);
-// EXTERNAL MODULE: ./src/core/risu-api.js
-var risu_api = __webpack_require__(300);
 ;// ./src/utils/script-injector.js
 
 
 function injectScripts() {
-  constants/* EXTERNAL_SCRIPTS */.rZ.forEach((scriptConfig) => {
+  EXTERNAL_SCRIPTS.forEach((scriptConfig) => {
     const existingScript = document.querySelector(
       `script[src="${scriptConfig.src}"]`
     );
@@ -1988,15 +2026,15 @@ class MenuButton extends HTMLElement {
           <path d="M6 15 L7 17 M14 15 L13 17"></path>
           <line x1="10" y1="15" x2="10" y2="18"></line>
         </svg>
-        <span class="ml-2">${constants/* PLUGIN_NAME */.AF}</span>
+        <span class="ml-2">${constants_PLUGIN_NAME}</span>
       </div>
     `;
   }
 }
 
 // 커스텀 엘리먼트 등록
-if (!customElements.get(`menu-button-${constants/* PLUGIN_NAME */.AF}`)) {
-  customElements.define(`menu-button-${constants/* PLUGIN_NAME */.AF}`, MenuButton);
+if (!customElements.get(`menu-button-${constants_PLUGIN_NAME}`)) {
+  customElements.define(`menu-button-${constants_PLUGIN_NAME}`, MenuButton);
 }
 
 const MENU_BUTTON_TAG = (/* unused pure expression or super */ null && (`menu-button-${PLUGIN_NAME}`));
@@ -2516,7 +2554,7 @@ function isMobile() {
 class TextSelectionHandler {
   constructor(editManager) {
     this.editManager = editManager;
-    this.risuAPI = risu_api/* RisuAPI */.m.getInstance();
+    this.risuAPI = RisuAPI.getInstance();
     this.isEnabled = false;
     this.currentSelection = null;
     this.selectionTimeout = null;
@@ -2861,7 +2899,7 @@ class PluginArgs {
    */
   constructor(risuAPI = null) {
     // Use singleton instance if not provided
-    this._api = risuAPI || risu_api/* RisuAPI */.m.getInstance();
+    this._api = risuAPI || RisuAPI.getInstance();
     this._cache = new Map();
     this._ttl = 5000; // Cache TTL in milliseconds (5 seconds)
     this._timestamps = new Map();
@@ -2965,7 +3003,7 @@ class PluginArgs {
    * @returns {string|number} Argument value
    */
   _get(name, defaultValue) {
-    const key = `${constants/* PLUGIN_NAME */.AF}::${name}`;
+    const key = `${constants_PLUGIN_NAME}::${name}`;
     const now = Date.now();
 
     // Check cache validity
@@ -2990,7 +3028,7 @@ class PluginArgs {
    * @param {string|number} value - Argument value
    */
   _set(name, value) {
-    const key = `${constants/* PLUGIN_NAME */.AF}::${name}`;
+    const key = `${constants_PLUGIN_NAME}::${name}`;
     this._api.setArg(key, value);
     this._cache.set(key, value);
     this._timestamps.set(key, Date.now());
@@ -3003,7 +3041,7 @@ class PluginArgs {
    * @param {string} name - Argument name
    */
   invalidate(name) {
-    const key = `${constants/* PLUGIN_NAME */.AF}::${name}`;
+    const key = `${constants_PLUGIN_NAME}::${name}`;
     this._cache.delete(key);
     this._timestamps.delete(key);
   }
@@ -3032,7 +3070,7 @@ class PluginArgs {
    * @returns {string[]} Array of cached argument names
    */
   getCachedArgs() {
-    return Array.from(this._cache.keys()).map(key => key.replace(`${constants/* PLUGIN_NAME */.AF}::`, ''));
+    return Array.from(this._cache.keys()).map(key => key.replace(`${constants_PLUGIN_NAME}::`, ''));
   }
 }
 
@@ -3253,7 +3291,7 @@ const TARGET_SELECTOR = [
 class ElementEditHandler {
   constructor(editManager) {
     this.editManager = editManager;
-    this.risuAPI = risu_api/* RisuAPI */.m.getInstance();
+    this.risuAPI = RisuAPI.getInstance();
     this.pluginArgs = new PluginArgs();
     this.intersectionObserver = null;
     this.mutationObserver = null;
@@ -3535,6 +3573,9 @@ class ElementEditHandler {
     let chatId = textarea.getAttribute("data-chat-id");
     let chatIndex = textarea.getAttribute("data-chat-index");
 
+    // Anchor 캡처: 저장 전에 현재 위치 정보 저장 (newText도 함께 저장)
+    const match = { chatIndex: parseInt(chatIndex, 10) };
+    this.editManager._captureAnchor(match, originalText, newText);
     const newHTML = this.convertEditFormatToHTML(newText);
 
     const char = this.risuAPI.getChar();
@@ -3552,6 +3593,9 @@ class ElementEditHandler {
     }
 
     this.risuAPI.setChar(char);
+
+    // 정규식 적용 완료 후 스크롤 위치 복원
+    this.editManager._scheduleAnchorRestoration();
 
     targetElement.classList.remove("hddm-editing");
     targetElement.innerHTML = newHTML;
@@ -3854,7 +3898,7 @@ class ElementEditHandler {
     const currentChatMessage = char.chats[chatPage].message[chatIndex].data;
     const hit = findOriginalRangeFromHtml(currentChatMessage, originalText, {
       extendToEOL: false,
-      snapStartToPrevEOL: false,
+      snapStartToPrevEOL: false, 
     });
 
     let taValue = "";
@@ -3922,7 +3966,7 @@ const DEL_IMG_RIGHT = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAY
 
 class EditManager {
   constructor() {
-    this.risuAPI = risu_api/* RisuAPI */.m.getInstance();
+    this.risuAPI = RisuAPI.getInstance();
     this.pluginArgs = new PluginArgs();
     this.textSelectionHandler = new TextSelectionHandler(this);
     this.elementEditHandler = new ElementEditHandler(this);
@@ -3939,6 +3983,16 @@ class EditManager {
     this._buttonPositionChangeCallbacks = []; // 버튼 위치 변경 콜백 함수들
     this._ignoreClickUntil = 0; // 더블클릭 후 클릭 이벤트 무시할 시간
     this.isMobileDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+    // Anchoring: 수정 후 스크롤 위치 복원을 위한 정보
+    this._anchorInfo = {
+      chatIndex: null,
+      scrollTop: null,
+      scrollContainer: null,
+      headText: null,
+      tailText: null,
+      newText: null, // 수정된 텍스트 (하이라이트용)
+    };
   }
 
   // ==================== 초기화 ====================
@@ -4019,7 +4073,6 @@ class EditManager {
     }
 
     this.buttonPosition = position;
-    console.log(`[EditManager] 버튼 위치: ${position === "top" ? "상단" : "하단"}`);
 
     if (save) {
       this.pluginArgs.buttonPosition = position;
@@ -4278,6 +4331,9 @@ class EditManager {
     }
 
     try {
+      // Anchor 캡처: 저장 전에 현재 위치 정보 저장 (newText도 함께 저장)
+      this._captureAnchor(match, originalText, newText);
+
       const char = this.risuAPI.getChar();
       const chatPage = char.chatPage || 0;
       const messages = char.chats[chatPage].message;
@@ -4290,6 +4346,9 @@ class EditManager {
 
       messages[match.chatIndex].data = updated;
       this.risuAPI.setChar(char);
+
+      // 정규식 적용 완료 후 스크롤 위치 복원
+      this._scheduleAnchorRestoration();
     } catch (error) {
       console.error("[EditManager] Error saving edit:", error);
       alert("편집 저장 중 오류가 발생했습니다.");
@@ -4323,22 +4382,29 @@ class EditManager {
         if (!messages || !messages[match.chatIndex]) {
           return;
         }
-  
+
         const messageData = messages[match.chatIndex].data;
+        const deletedText = messageData.slice(match.start, match.end);
         const updated = messageData.slice(0, match.start) + messageData.slice(match.end);
-  
+
+        // Anchor 캡처: 삭제 전에 현재 위치 정보 저장 (삭제는 하이라이트 없음)
+        this._captureAnchor(match, deletedText, null);
+
         const targetElement = this.findElementByMatch(match);
         await this.performDeleteAnimation(targetElement || window.document.body);
-  
+
         messages[match.chatIndex].data = updated;
-  
+
         const char = this.risuAPI.getChar();
         this.risuAPI.setChar(char);
+
+        // 정규식 적용 완료 후 스크롤 위치 복원
+        this._scheduleAnchorRestoration();
       } catch (error) {
         console.error("[EditManager] Error deleting match:", error);
         alert("삭제 중 오류가 발생했습니다.");
       } finally {
-        this.hideFloatingButton(); 
+        this.hideFloatingButton();
       }
     }
   }
@@ -4423,6 +4489,311 @@ class EditManager {
   }
 
   // ==================== Private Helper Methods ====================
+
+  // ==================== Anchoring 메서드 ====================
+
+  /**
+   * Anchor 캡처: 저장 전에 현재 위치 정보 저장
+   */
+  _captureAnchor(match, originalText, newText = null) {
+    const ANCHOR_LENGTH = 30;
+    const scrollContainer = this._findScrollContainer();
+
+    this._anchorInfo = {
+      chatIndex: match.chatIndex,
+      scrollTop: scrollContainer ? scrollContainer.scrollTop : 0,
+      scrollContainer: scrollContainer,
+      headText: originalText.substring(0, Math.min(ANCHOR_LENGTH, originalText.length)),
+      tailText: originalText.slice(-Math.min(ANCHOR_LENGTH, originalText.length)),
+      newText: newText,
+    };
+    console.log("[EditManager] Anchor captured:", {
+      chatIndex: this._anchorInfo.chatIndex,
+      scrollTop: this._anchorInfo.scrollTop,
+      containerFound: !!scrollContainer,
+    });
+  }
+
+  /**
+   * SPA 스크롤 컨테이너 찾기
+   */
+  _findScrollContainer() {
+    // 1차: data-chat-index가 있는 요소의 스크롤 가능한 부모 찾기
+    const chatElement = document.querySelector('[data-chat-index]');
+    if (chatElement) {
+      let parent = chatElement.parentElement;
+      while (parent && parent !== document.body) {
+        const style = getComputedStyle(parent);
+        const isScrollable =
+          (style.overflowY === 'auto' || style.overflowY === 'scroll') &&
+          parent.scrollHeight > parent.clientHeight;
+        if (isScrollable) {
+          return parent;
+        }
+        parent = parent.parentElement;
+      }
+    }
+
+    // 2차: 일반적인 스크롤 컨테이너 선택자 시도
+    const selectors = [
+      '.chat-container',
+      '.message-container',
+      '.chat-scroll',
+      '[class*="scroll"]',
+      'main',
+    ];
+
+    for (const selector of selectors) {
+      const el = document.querySelector(selector);
+      if (el && el.scrollHeight > el.clientHeight) {
+        return el;
+      }
+    }
+
+    // 3차: body나 documentElement가 스크롤 컨테이너인 경우
+    if (document.documentElement.scrollHeight > document.documentElement.clientHeight) {
+      return document.documentElement;
+    }
+
+    return null;
+  }
+
+  /**
+   * 정규식 적용 완료 후 스크롤 위치 복원 스케줄링
+   */
+  _scheduleAnchorRestoration() {
+    // RisuAI 정규식 적용 완료까지 대기 (500ms)
+    setTimeout(() => {
+      this._restoreScrollPosition();
+    }, 500);
+  }
+
+  /**
+   * 스크롤 위치 복원
+   */
+  _restoreScrollPosition() {
+    const { chatIndex, scrollTop, scrollContainer, newText } = this._anchorInfo;
+
+    if (chatIndex === null) {
+      console.log("[EditManager] No anchor info, skipping restoration");
+      return;
+    }
+
+    try {
+      // 1차: 저장된 scrollTop으로 컨테이너 스크롤 복원 (가장 정확)
+      const container = scrollContainer || this._findScrollContainer();
+      if (container && scrollTop !== null) {
+        container.scrollTop = scrollTop;
+        console.log("[EditManager] Scroll restored via scrollTop:", scrollTop);
+
+        // 수정된 영역 하이라이트
+        this._highlightEditedArea(chatIndex, newText);
+        this._clearAnchorInfo();
+        return;
+      }
+
+      // 2차: scrollTop 실패 시 data-chat-index로 요소 찾아 스크롤
+      const element = document.querySelector(`[data-chat-index="${chatIndex}"]`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'instant', block: 'center' });
+        console.log("[EditManager] Scroll restored via data-chat-index fallback");
+
+        // 수정된 영역 하이라이트
+        this._highlightEditedArea(chatIndex, newText);
+        this._clearAnchorInfo();
+        return;
+      }
+
+      console.log("[EditManager] Could not restore scroll position");
+    } catch (error) {
+      console.error("[EditManager] Error restoring scroll position:", error);
+    }
+
+    this._clearAnchorInfo();
+  }
+
+  /**
+   * 수정된 영역 하이라이트 (멀티라인 지원)
+   */
+  _highlightEditedArea(chatIndex, newText) {
+    if (!newText) return;
+
+    try {
+      const messageElement = document.querySelector(`[data-chat-index="${chatIndex}"]`);
+      if (!messageElement) return;
+
+      // 줄바꿈으로 분리하여 첫 줄과 마지막 줄 추출
+      const lines = newText.split('\n').filter(line => line.trim().length > 0);
+      if (lines.length === 0) return;
+
+      const firstLine = lines[0].substring(0, Math.min(30, lines[0].length));
+      const lastLine = lines[lines.length - 1].substring(0, Math.min(30, lines[lines.length - 1].length));
+
+      // 첫 번째 요소 찾기
+      const firstElement = this._findElementContainingText(messageElement, firstLine);
+      if (!firstElement) return;
+
+      // 단일 라인인 경우
+      if (lines.length === 1) {
+        this._applyHighlight(firstElement);
+        return;
+      }
+
+      // 멀티라인: 마지막 요소 찾기
+      const lastElement = this._findElementContainingText(messageElement, lastLine);
+
+      if (!lastElement || firstElement === lastElement) {
+        // 같은 요소거나 마지막을 못 찾으면 첫 요소만 하이라이트
+        this._applyHighlight(firstElement);
+        return;
+      }
+
+      // 첫 요소부터 마지막 요소까지 모든 형제 요소 하이라이트
+      this._highlightRange(firstElement, lastElement);
+
+    } catch (error) {
+      console.error("[EditManager] Error highlighting edited area:", error);
+    }
+  }
+
+  /**
+   * 단일 요소 하이라이트 적용
+   */
+  _applyHighlight(element) {
+    element.classList.add('hddm-highlight-aura');
+    setTimeout(() => {
+      element.classList.remove('hddm-highlight-aura');
+    }, 500);
+  }
+
+  /**
+   * 범위 내 모든 요소 하이라이트 (첫 요소 ~ 마지막 요소)
+   */
+  _highlightRange(startElement, endElement) {
+    const highlightedElements = [];
+
+    // 공통 부모 찾기
+    const commonParent = this._findCommonParent(startElement, endElement);
+    if (!commonParent) {
+      this._applyHighlight(startElement);
+      return;
+    }
+
+    // 시작/끝 요소의 직계 조상 중 commonParent의 자식 찾기
+    const startAncestor = this._findDirectChildOf(commonParent, startElement);
+    const endAncestor = this._findDirectChildOf(commonParent, endElement);
+
+    if (!startAncestor || !endAncestor) {
+      this._applyHighlight(startElement);
+      return;
+    }
+
+    // 시작부터 끝까지 순회하며 하이라이트
+    let current = startAncestor;
+    let found = false;
+
+    while (current) {
+      if (current === startAncestor) found = true;
+
+      if (found && current.nodeType === Node.ELEMENT_NODE) {
+        current.classList.add('hddm-highlight-aura');
+        highlightedElements.push(current);
+      }
+
+      if (current === endAncestor) break;
+      current = current.nextElementSibling;
+    }
+
+    // 500ms 후 모든 하이라이트 제거
+    setTimeout(() => {
+      highlightedElements.forEach(el => {
+        el.classList.remove('hddm-highlight-aura');
+      });
+    }, 500);
+  }
+
+  /**
+   * 두 요소의 공통 부모 찾기
+   */
+  _findCommonParent(el1, el2) {
+    const parents1 = [];
+    let p = el1;
+    while (p) {
+      parents1.push(p);
+      p = p.parentElement;
+    }
+
+    p = el2;
+    while (p) {
+      if (parents1.includes(p)) return p;
+      p = p.parentElement;
+    }
+
+    return null;
+  }
+
+  /**
+   * 특정 부모의 직계 자식 중 해당 요소를 포함하는 것 찾기
+   */
+  _findDirectChildOf(parent, descendant) {
+    let current = descendant;
+    while (current && current.parentElement !== parent) {
+      current = current.parentElement;
+    }
+    return current;
+  }
+
+  /**
+   * 텍스트를 포함하는 가장 가까운 요소 찾기
+   */
+  _findElementContainingText(root, searchText) {
+    // 정규식 특수문자 이스케이프
+    const escapedText = searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // TreeWalker로 텍스트 노드 순회
+    const walker = document.createTreeWalker(
+      root,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+
+    let node;
+    while ((node = walker.nextNode())) {
+      if (node.textContent.includes(searchText)) {
+        // 텍스트 노드의 부모 중 적절한 블록 요소 반환
+        let parent = node.parentElement;
+        while (parent && parent !== root) {
+          const tagName = parent.tagName.toLowerCase();
+          // 블록 레벨 요소이거나 의미 있는 컨테이너면 반환
+          if (['p', 'div', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre'].includes(tagName) ||
+              parent.classList.contains('x-risu-regex-quote-block') ||
+              parent.classList.contains('x-risu-regex-thought-block')) {
+            return parent;
+          }
+          parent = parent.parentElement;
+        }
+        // 적절한 블록 요소가 없으면 텍스트 노드의 직접 부모 반환
+        return node.parentElement;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Anchor 정보 초기화
+   */
+  _clearAnchorInfo() {
+    this._anchorInfo = {
+      chatIndex: null,
+      scrollTop: null,
+      scrollContainer: null,
+      headText: null,
+      tailText: null,
+      newText: null,
+    };
+  }
 
   /**
    * 콜백 함수 호출
@@ -4636,8 +5007,6 @@ class EditManager {
 
       const overlap = !(expandedF.right < r.left || expandedF.left > r.right ||
         expandedF.bottom < r.top || expandedF.top > r.bottom);
-        
-      console.log('overlap', overlap);
 
       if (overlap) {
         // 선택 영역 하단으로 20px 스냅
@@ -5170,10 +5539,10 @@ class App {
     }
 
     async initialize() {
-      this.risuAPI = risu_api/* RisuAPI */.m.getInstance();
+      this.risuAPI = RisuAPI.getInstance();
 
       if (!this.risuAPI) {
-        console.log(`[${constants/* PLUGIN_NAME */.AF}] RisuAPI is not initialized`);
+        console.log(`[${constants_PLUGIN_NAME}] RisuAPI is not initialized`);
         return false;
       }
 
@@ -5187,7 +5556,7 @@ class App {
       // UI 초기화
       this.startObserver();
 
-      console.log(`[${constants/* PLUGIN_NAME */.AF}] plugin loaded`);
+      console.log(`[${constants_PLUGIN_NAME}] plugin loaded`);
       return true;
     }
 
@@ -5222,9 +5591,9 @@ class App {
 
     attachButton() {
       const burgerEl = document.querySelector(BURGER_SELECTOR);
-      if (burgerEl && !burgerEl.classList.contains(`${constants/* PLUGIN_NAME */.AF}-btn-class`)) {
+      if (burgerEl && !burgerEl.classList.contains(`${constants_PLUGIN_NAME}-btn-class`)) {
         this.createToggleButtons(burgerEl);
-        burgerEl.classList.add(`${constants/* PLUGIN_NAME */.AF}-btn-class`);
+        burgerEl.classList.add(`${constants_PLUGIN_NAME}-btn-class`);
       }
     }
 
@@ -5332,7 +5701,7 @@ class App {
       if (this.editManager) {
         this.editManager.destroy();
       }
-      console.log(`${constants/* PLUGIN_NAME */.AF} 언로드`);
+      console.log(`${constants_PLUGIN_NAME} 언로드`);
     }
   }
 
@@ -5345,7 +5714,7 @@ class App {
  * 간단한 알림 메시지를 표시하는 다이얼로그 컴포넌트
  */
 
-const ELEMENT_TAG = `${constants/* PLUGIN_NAME */.AF}-alert-dialog`;
+const ELEMENT_TAG = `${constants_PLUGIN_NAME}-alert-dialog`;
 
 class AlertDialog extends HTMLElement {
   constructor() {
@@ -5481,7 +5850,7 @@ function showAlert(message, confirmText = "확인") {
  * 업데이트 처리 중 표시되는 로딩 다이얼로그 컴포넌트
  */
 
-const loading_dialog_ELEMENT_TAG = `${constants/* PLUGIN_NAME */.AF}-loading-dialog`;
+const loading_dialog_ELEMENT_TAG = `${constants_PLUGIN_NAME}-loading-dialog`;
 
 class LoadingDialog extends HTMLElement {
   constructor() {
@@ -5589,7 +5958,7 @@ function showLoading(message = "업데이트를 처리하고 있습니다...", d
 
 
 
-const update_dialog_ELEMENT_TAG = `${constants/* PLUGIN_NAME */.AF}-update-dialog`;
+const update_dialog_ELEMENT_TAG = `${constants_PLUGIN_NAME}-update-dialog`;
 
 class UpdateDialog extends HTMLElement {
   constructor() {
@@ -5877,14 +6246,14 @@ function parsePluginScript(scriptContent) {
 
 function scriptUpdater(parsed) {
   // 3. RisuAPI 싱글톤 인스턴스에서 getDatabase(), setDatabaseLite 가져오기
-  const risuAPI = risu_api/* RisuAPI */.m.getInstance();
+  const risuAPI = RisuAPI.getInstance();
   if (!risuAPI) {
     throw new Error("RisuAPI is not initialized. Please ensure the plugin is loaded.");
   }
 
   // 4. 기존 플러그인 찾기 및 백업
   const db = risuAPI.getDatabase();
-  const oldPluginIndex = db.plugins.findIndex((p) => p.name === constants/* PLUGIN_NAME */.AF);
+  const oldPluginIndex = db.plugins.findIndex((p) => p.name === constants_PLUGIN_NAME);
   const backup = oldPluginIndex >= 0 ? { ...db.plugins[oldPluginIndex] } : null;
 
   console.log("[UpdateManager] Old plugin found:", oldPluginIndex >= 0, backup?.name);
@@ -5963,7 +6332,7 @@ function mergeRealArgs(oldRealArg, newArguments) {
  */
 async function fetchLatestManifest() {
   try {
-    const url = `https://unpkg.com/${constants/* PLUGIN_NAME */.AF}@latest/dist/${constants/* PLUGIN_NAME */.AF}.js`;
+    const url = `https://unpkg.com/${constants_PLUGIN_NAME}@latest/dist/${constants_PLUGIN_NAME}.js`;
 
     // HEAD 요청으로 redirect된 최종 URL 확인
     const headResponse = await fetch(url, {
@@ -5988,7 +6357,7 @@ async function fetchLatestManifest() {
     const bannerMatch = content.match(bannerRegex);
 
     // 릴리즈 노트 가져오기
-    const notesUrl = `https://unpkg.com/${constants/* PLUGIN_NAME */.AF}@${latestVersion}/dist/release-notes.json`;
+    const notesUrl = `https://unpkg.com/${constants_PLUGIN_NAME}@${latestVersion}/dist/release-notes.json`;
     let releaseData = {};
 
     try {
@@ -6004,9 +6373,9 @@ async function fetchLatestManifest() {
     return {
       version: latestVersion,
       url: resolvedUrl,
-      name: bannerMatch?.[1]?.trim() || constants/* PLUGIN_NAME */.AF,
+      name: bannerMatch?.[1]?.trim() || constants_PLUGIN_NAME,
       displayName:
-        bannerMatch?.[2]?.trim() || `${constants/* PLUGIN_NAME */.AF}_v${latestVersion}`,
+        bannerMatch?.[2]?.trim() || `${constants_PLUGIN_NAME}_v${latestVersion}`,
       description: bannerMatch?.[4]?.trim() || "",
       mandatory: releaseData.mandatory || false,
       notes: releaseData.notes || [],
@@ -6134,7 +6503,7 @@ function confirmUpdate(opts) {
 function checkSkippedVersion(latestVersion, force, silent) {
   if (force) return null;
 
-  const skipKey = `${constants/* PLUGIN_NAME */.AF}_skip_version`;
+  const skipKey = `${constants_PLUGIN_NAME}_skip_version`;
   const skipVersion = localStorage.getItem(skipKey);
   
   if (skipVersion === latestVersion) {
@@ -6221,7 +6590,7 @@ async function handleUserAction(result, manifest, latestVersion) {
   }
 
   if (result.action === "skip") {
-    const skipKey = `${constants/* PLUGIN_NAME */.AF}_skip_version`;
+    const skipKey = `${constants_PLUGIN_NAME}_skip_version`;
     localStorage.setItem(skipKey, result.skipVersion);
     console.log("[UpdateManager] Skipped version", result.skipVersion);
     return {
@@ -6254,7 +6623,7 @@ async function checkForUpdates(options = {}) {
       return { available: false, error: "fetch_failed" };
     }
 
-    const currentVersion = constants/* PLUGIN_VERSION */.jN;
+    const currentVersion = PLUGIN_VERSION;
     const latestVersion = manifest.version;
 
     // Skip 버전 확인
@@ -6271,7 +6640,7 @@ async function checkForUpdates(options = {}) {
 
     // 사용자 확인 UI 표시
     const result = await confirmUpdate({
-      name: constants/* PLUGIN_NAME */.AF,
+      name: constants_PLUGIN_NAME,
       currentVersion,
       manifest,
       i18n,
@@ -6315,11 +6684,11 @@ async function checkForUpdates(options = {}) {
 (async () => {
   try {
     // 1. RisuAPI 싱글톤 초기화 (최초 한 번만)
-    const risuAPI = risu_api/* RisuAPI */.m.getInstance(globalThis.__pluginApis__);
+    const risuAPI = RisuAPI.getInstance(globalThis.__pluginApis__);
     const initialized = await risuAPI.initialize();
 
     if (!initialized) {
-      console.error(`[${constants/* PLUGIN_NAME */.AF}] Failed to initialize RisuAPI`);
+      console.error(`[${constants_PLUGIN_NAME}] Failed to initialize RisuAPI`);
       return;
     }
 
@@ -6339,7 +6708,7 @@ async function checkForUpdates(options = {}) {
     const app = new App();
     await app.initialize();
   
-    console.log(`${constants/* PLUGIN_NAME */.AF} v${constants/* PLUGIN_VERSION */.jN} loaded`); 
+    console.log(`${constants_PLUGIN_NAME} v${PLUGIN_VERSION} loaded`); 
 
     // 6. 언로드 핸들러 등록
     risuAPI.onUnload(() => {
@@ -6347,7 +6716,7 @@ async function checkForUpdates(options = {}) {
     });
 
   } catch (error) { 
-    console.error(`[${constants/* PLUGIN_NAME */.AF}] Initialization failed:`, error);
+    console.error(`[${constants_PLUGIN_NAME}] Initialization failed:`, error);
   }
 })();
 

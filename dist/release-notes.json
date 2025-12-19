@@ -58,5 +58,15 @@
         "text": "delete confirm 및 특수문자 텍스트 매칭 개선"
       }
     ]
+  },
+  "0.8.0": {
+    "released_at": "2025-12-19T15:16:29.332Z",
+    "mandatory": false,
+    "notes": [
+      {
+        "type": "feat",
+        "text": "텍스트 수정 후 스크롤 복원 기능 추가 - 타율 낮음.."
+      }
+    ]
   }
 }

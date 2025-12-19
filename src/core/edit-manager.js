@@ -660,7 +660,7 @@ export class EditManager {
   }
 
   /**
-   * 수정된 영역 하이라이트
+   * 수정된 영역 하이라이트 (멀티라인 지원)
    */
   _highlightEditedArea(chatIndex, newText) {
     if (!newText) return;
@@ -669,22 +669,125 @@ export class EditManager {
       const messageElement = document.querySelector(`[data-chat-index="${chatIndex}"]`);
       if (!messageElement) return;
 
-      // newText의 앞부분으로 텍스트 노드 찾기
-      const searchText = newText.substring(0, Math.min(30, newText.length));
-      const targetElement = this._findElementContainingText(messageElement, searchText);
+      // 줄바꿈으로 분리하여 첫 줄과 마지막 줄 추출
+      const lines = newText.split('\n').filter(line => line.trim().length > 0);
+      if (lines.length === 0) return;
 
-      if (targetElement) {
-        // 하이라이트 클래스 추가
-        targetElement.classList.add('hddm-highlight-aura');
+      const firstLine = lines[0].substring(0, Math.min(30, lines[0].length));
+      const lastLine = lines[lines.length - 1].substring(0, Math.min(30, lines[lines.length - 1].length));
 
-        // 250ms 후 하이라이트 제거
-        setTimeout(() => {
-          targetElement.classList.remove('hddm-highlight-aura');
-        }, 500);
+      // 첫 번째 요소 찾기
+      const firstElement = this._findElementContainingText(messageElement, firstLine);
+      if (!firstElement) return;
+
+      // 단일 라인인 경우
+      if (lines.length === 1) {
+        this._applyHighlight(firstElement);
+        return;
       }
+
+      // 멀티라인: 마지막 요소 찾기
+      const lastElement = this._findElementContainingText(messageElement, lastLine);
+
+      if (!lastElement || firstElement === lastElement) {
+        // 같은 요소거나 마지막을 못 찾으면 첫 요소만 하이라이트
+        this._applyHighlight(firstElement);
+        return;
+      }
+
+      // 첫 요소부터 마지막 요소까지 모든 형제 요소 하이라이트
+      this._highlightRange(firstElement, lastElement);
+
     } catch (error) {
       console.error("[EditManager] Error highlighting edited area:", error);
     }
+  }
+
+  /**
+   * 단일 요소 하이라이트 적용
+   */
+  _applyHighlight(element) {
+    element.classList.add('hddm-highlight-aura');
+    setTimeout(() => {
+      element.classList.remove('hddm-highlight-aura');
+    }, 500);
+  }
+
+  /**
+   * 범위 내 모든 요소 하이라이트 (첫 요소 ~ 마지막 요소)
+   */
+  _highlightRange(startElement, endElement) {
+    const highlightedElements = [];
+
+    // 공통 부모 찾기
+    const commonParent = this._findCommonParent(startElement, endElement);
+    if (!commonParent) {
+      this._applyHighlight(startElement);
+      return;
+    }
+
+    // 시작/끝 요소의 직계 조상 중 commonParent의 자식 찾기
+    const startAncestor = this._findDirectChildOf(commonParent, startElement);
+    const endAncestor = this._findDirectChildOf(commonParent, endElement);
+
+    if (!startAncestor || !endAncestor) {
+      this._applyHighlight(startElement);
+      return;
+    }
+
+    // 시작부터 끝까지 순회하며 하이라이트
+    let current = startAncestor;
+    let found = false;
+
+    while (current) {
+      if (current === startAncestor) found = true;
+
+      if (found && current.nodeType === Node.ELEMENT_NODE) {
+        current.classList.add('hddm-highlight-aura');
+        highlightedElements.push(current);
+      }
+
+      if (current === endAncestor) break;
+      current = current.nextElementSibling;
+    }
+
+    // 500ms 후 모든 하이라이트 제거
+    setTimeout(() => {
+      highlightedElements.forEach(el => {
+        el.classList.remove('hddm-highlight-aura');
+      });
+    }, 500);
+  }
+
+  /**
+   * 두 요소의 공통 부모 찾기
+   */
+  _findCommonParent(el1, el2) {
+    const parents1 = [];
+    let p = el1;
+    while (p) {
+      parents1.push(p);
+      p = p.parentElement;
+    }
+
+    p = el2;
+    while (p) {
+      if (parents1.includes(p)) return p;
+      p = p.parentElement;
+    }
+
+    return null;
+  }
+
+  /**
+   * 특정 부모의 직계 자식 중 해당 요소를 포함하는 것 찾기
+   */
+  _findDirectChildOf(parent, descendant) {
+    let current = descendant;
+    while (current && current.parentElement !== parent) {
+      current = current.parentElement;
+    }
+    return current;
   }
 
   /**
